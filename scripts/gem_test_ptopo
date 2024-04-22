@@ -1,0 +1,44 @@
+#!/bin/ksh
+BITPATTERN=0
+/bin/rm -rf PTOPO_cfgs_* PREP/* RUNMOD/*
+cp -r ${SRC_TESTS}/PTOPO_cfgs_* . 2> /dev/null
+
+for i in $(ls -1d PTOPO_cfgs_* 2> /dev/null) ; do
+  CFG=$i
+  echo TREATING: $CFG
+  status_file=RESULTS/$EXP/status/${CFG}_MODEL
+  if [ -z "${NORUN_GEM}" ] ; then
+    /bin/rm -f RESULTS/$EXP/listings/${CFG}_prep.lis RESULTS/$EXP/listings/${CFG}_mod.lis
+    _status="ABORT"
+    printf "couleur_model=red\n" > ${status_file}.1
+    . r.call.dot runprep.sh -dircfg $CFG 1> RESULTS/$EXP/listings/${CFG}_prep.lis_1 2>&1
+    if [ "${_status}" == "ED" ] ; then
+         cnt=0
+         for j in $CFG/ptopo_*.cfg ; do
+            cnt=$((cnt+1))
+            . $j
+            printf "couleur_model=red\n" > ${status_file}.${cnt}
+            _status="ABORT"
+            echo runmod.sh -dircfg $CFG -ptopo $GEMTEST_ptopo
+            . r.call.dot runmod.sh -dircfg $CFG -ptopo $GEMTEST_ptopo -inorder > RESULTS/$EXP/listings/${CFG}_mod.lis_${cnt} 2>&1            
+            if [ "${_status}" == "ED" ] ; then
+               printf "couleur_model=yellow\n" >> ${status_file}.${cnt}
+            fi
+         done
+    fi
+
+    COULEUR="yellow"
+    for st in ${status_file}.* ; do
+       unset couleur_model
+       . $st
+       if [ "${couleur_model}" == "red" ] ; then
+          COULEUR="red"
+          echo "ABORT with config "$(basename $st)
+       fi
+    done
+    printf "couleur_model=${COULEUR}\n" > ${status_file}
+  fi
+
+  . gem_test_results
+done
+

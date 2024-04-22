@@ -1,0 +1,241 @@
+integer function FNCNAME(gmm_create)(iname, p, field_meta, flags_arg)
+    use, intrinsic :: iso_c_binding
+    use, intrinsic :: ieee_arithmetic, only: ieee_value, ieee_quiet_nan
+    use, intrinsic :: iso_fortran_env
+    use app
+
+    implicit none
+
+    ! name (partially redundant with attributes)
+    character(len = *), intent(in) :: iname
+#if DIM == 1
+    DATATYPE*DATALENGTH, pointer  :: p(:)
+#elif DIM == 2
+    DATATYPE*DATALENGTH, pointer  :: p(:,:)
+#elif DIM == 3
+    DATATYPE*DATALENGTH, pointer  :: p(:,:,:)
+#elif DIM == 4
+    DATATYPE*DATALENGTH, pointer  :: p(:,:,:,:)
+#endif
+    ! attributes (name in attributes is not used)
+    type(gmm_metadata), intent(inout) :: field_meta
+    integer, intent(in), optional :: flags_arg
+
+    ! Disabled since it might non longer be required
+    ! external fool_optimizer
+
+    type(gmm_attributes) :: localattr, attrs
+    type(gmm_layout), dimension(4) :: dims
+    integer(kind = INT64) :: key
+    logical :: consistent
+    integer :: i, ier
+    ! name (partially redundant with attributes)
+    character(len = GMM_MAXNAMELENGTH) :: lcl_name
+
+#if DIM == 1
+    DATATYPE*DATALENGTH, pointer  :: pp(:)
+#elif DIM == 2
+    DATATYPE*DATALENGTH, pointer  :: pp(:,:)
+#elif DIM == 3
+    DATATYPE*DATALENGTH, pointer  :: pp(:,:,:)
+#elif DIM == 4
+    DATATYPE*DATALENGTH, pointer  :: pp(:,:,:,:)
+#endif
+
+    if (present(flags_arg)) then
+        field_meta%a%flags = flags_arg
+    endif
+    dims = field_meta%l
+    attrs = field_meta%a
+
+
+    ! 1- Verify that the pointer and the dims are consistent
+    if (associated(p)) then
+        consistent = .true.
+        ! check that all dimensions are identical
+        do i = 1, DIM
+            consistent = consistent .and. size(p, i) == (dims(i)%high - dims(i)%low + 1)
+        enddo
+        if (.not. consistent ) then
+            if (gmm_verbose_level == GMM_MSG_DEBUG) then
+               call lib_log(APP_LIBGMM,APP_DEBUG,'gmm_create: p has dimensions that are not consistent with dims')
+            endif
+            key = 0
+            FNCNAME(gmm_create) = GMM_INCONSISTENT_DIMS
+            ! HOW SERIOUS AN ERROR IS THIS ?
+            return
+        endif
+    endif
+    ! p is null or is consistent with dims
+
+    ! copy of user specified attributes
+    localattr = attrs
+    lcl_name = trim(iname)
+    ! keep only a subset of user specified flags
+    localattr%flags = iand(localattr%flags, FLAGS_KEPT_ON_CREATE)
+#ifdef DEBUG
+    print *, 'lcl_name="', lcl_name, '" has ', DIM, ' dimensions'
+    do i = 1, DIM
+        print *, i, dims(i)
+    enddo
+#endif
+    ! is there a field with this name that exists ?
+    call find_directory_entry(lcl_name, key)
+#ifdef DEBUG
+    print *, 'after find_directory: cur_page, cur_entry=', cur_page,cur_entry
+#endif
+
+    ! 2- Verify if the field has already been created
+    ! create may have already been called for this array
+    if (cur_page /= 0 .and. cur_entry /= 0) then
+        if (associated(p)) then
+            call lib_log(APP_LIBGMM,APP_ERROR,'gmm_create: called with existing p and array has already been created')
+            key = 0
+            FNCNAME(gmm_create) = GMM_ARRAY_ALREADY_EXISTS
+            ! HOW SERIOUS AN ERROR IS THIS ?
+            return
+        endif
+        pp => FNCNAME(gmm_ptrs)(directory(cur_page)%entry(cur_entry)%pointer_table_index)%p
+        consistent = .true.
+        ! check that all dimensions are identical
+        do i = 1, DIM
+            ! Disabled this compiler bug workaround to find out if it's still an issue and removed an undefined external
+            ! Work around to prevent the corruption of size(pp) by the pgi9xx optimizer (bug)
+            ! call fool_optimizer(size(pp, i))
+            consistent = consistent .and. (size(pp, i) == (dims(i)%high - dims(i)%low + 1))
+            if (.not. consistent ) then
+                print *, 'size(pp,', i, ')=', size(pp, i), ' high=', dims(i)%high, ' low=', dims(i)%low
+            endif
+        enddo
+        if (.not. consistent ) then
+            write(app_msg,*) 'gmm_create: Requested dimensions differ from previous specification (restart/create), variable name ="', lcl_name,'"'
+            call lib_log(APP_LIBGMM,APP_ERROR,app_msg)
+            key = 0
+            nullify(p)
+            FNCNAME(gmm_create) = GMM_INCONSISTENT_DIMS
+            ! HOW SERIOUS AN ERROR IS THIS ?
+            return
+        else
+            if (gmm_verbose_level == GMM_MSG_DEBUG) then
+                write(app_msg,*) 'gmm_create: Variable name =', lcl_name, ' exists and is consistent'
+                call lib_log(APP_LIBGMM,APP_DEBUG,app_msg)
+            endif
+        endif
+
+        if (iand(GMM_FLAG_CRTD, directory(cur_page)%entry(cur_entry)%a%flags) /= 0) then
+            ! OOPS really a double create
+            write(app_msg,*) 'gmm_create, field ', lcl_name, ' has already been created'
+            call lib_log(APP_LIBGMM,APP_ERROR,app_msg)
+            key = 0
+            nullify(p)
+            FNCNAME(gmm_create) = GMM_VARIABLE_ALREADY_CREATED
+            return
+        else
+            ! no, this array must then have been read from a restart file
+            ! keep flags from restart file
+            localattr%flags = ior(localattr%flags, directory(cur_page)%entry(cur_entry)%a%flags)
+            ! get proper key value from directory
+            key = directory(cur_page)%entry(cur_entry)%a%key
+            ! turn on created flag
+            directory(cur_page)%entry(cur_entry)%a%flags = ior(localattr%flags, GMM_FLAG_CRTD)
+            ! point to array
+            p => FNCNAME(gmm_ptrs)(directory(cur_page)%entry(cur_entry)%pointer_table_index)%p
+            directory(cur_page)%entry(cur_entry)%array_addr = c_loc(p)
+            FNCNAME(gmm_create) = 0
+            ! no need to go any further, the array is created
+            return
+        endif
+    else
+        ! array not found in table, we may need to create an entry in directory
+        if (iand(GMM_FLAG_RSTR, localattr%flags) /= 0 .and. restart_mode) then
+            ! we are in restart mode and array should exist
+            write(app_msg,*) 'gmm_create field: ', lcl_name, 'should have been read from restart file but was not'
+            call lib_log(APP_LIBGMM,APP_ERROR,app_msg)
+            ! HOW SERIOUS AN ERROR IS THIS ?
+        endif
+        call add_directory_entry
+    endif
+
+
+    ! 3 - Variable not found in the table - creating it
+
+    ! bump creation ordinal
+    ordinal = ordinal + 1
+#ifdef DEBUG
+    print *, 'creation ordinal=', ordinal, ' cur_page, cur_entry=', cur_page,cur_entry
+#endif
+    key = ishft((cur_page - 1), PAGE_NB_SHFT) + ishft((cur_entry - 1), NTRY_NB_SHFT)
+    key = key + ishft(EXTENSION, EXTN_NB_SHFT) + ishft(ordinal, MAGC_NB_SHFT)
+    ! name, units, initmode, some flags
+    directory(cur_page)%entry(cur_entry)%a = localattr
+    ! CODE POSSIBLY MISSING HERE FOR FLAGS SETTINGS
+    directory(cur_page)%entry(cur_entry)%name = lcl_name
+    directory(cur_page)%entry(cur_entry)%a%key = key
+    ! Turn on created flag
+    directory(cur_page)%entry(cur_entry)%a%flags = ior(localattr%flags, GMM_FLAG_CRTD)
+    ! Establish dimensions and allocate array
+    directory(cur_page)%entry(cur_entry)%l(1:DIM) = dims(1:DIM)
+    ! Establish dimensions and allocate array
+    directory(cur_page)%entry(cur_entry)%data_type = EXTENSION
+
+    directory(cur_page)%entry(cur_entry)%pointer_table_index = FNCNAME(gmm_get_nxt_avail_ptr)()
+    if (associated(p)) then
+        ! the user gave a non null pointer
+        if (gmm_verbose_level == GMM_MSG_DEBUG) then
+            call lib_log(APP_LIBGMM,APP_DEBUG,'gmm_create: using user supplied array')
+        endif
+        ! must check that certain attributes are not requested (e.g. FLAG_RSTR) and that size is consistent
+    else
+#ifdef DEBUG
+        print *, 'allocating array with number of dimensions=', DIM
+#endif
+        allocate(p(dims(1)%low:dims(1)%high &
+#if DIM > 1
+                  ,dims(2)%low:dims(2)%high &
+#endif
+#if DIM > 2
+                  ,dims(3)%low:dims(3)%high &
+#endif
+#if DIM > 3
+                  ,dims(4)%low:dims(4)%high &
+#endif
+                  ), stat = ier)
+        if (ier /= 0) then
+            FNCNAME(gmm_create) = GMM_ERROR
+            return
+        endif
+        directory(cur_page)%entry(cur_entry)%array_addr = c_loc(p)
+    endif
+    ier = FNCNAME(gmm_add_table_entry)(p, key)
+    field_meta%l = directory(cur_page)%entry(cur_entry)%l
+    field_meta%a = directory(cur_page)%entry(cur_entry)%a
+
+    if (iand(field_meta%a%flags, GMM_FLAG_IZER) /= 0) then
+        p = 0
+    endif
+
+    if (iand(field_meta%a%flags, GMM_FLAG_INAN) /= 0) then
+#if ((DATATYPE == real) & (DATALENGTH == 4))
+        if (gmm_verbose_level == GMM_MSG_DEBUG) then
+            write(app_msg,*) 'gmm_create: ',iname, ' Debug DATATYPE=real init to NaN'
+            call lib_log(APP_LIBGMM,APP_DEBUG,app_msg)
+        endif
+        p = ieee_value(1.0, ieee_quiet_nan)
+#else
+#if ((DATATYPE == real) & (DATALENGTH == 8))
+        if (gmm_verbose_level == GMM_MSG_DEBUG) then
+            write(app_msg,*) 'gmm_create: ',iname, ' Debug DATATYPE=real*8 init to NaN'
+            call lib_log(APP_LIBGMM,APP_DEBUG,app_msg)
+        endif
+        p = ieee_value(1d0, ieee_quiet_nan)
+#else
+        write(app_msg,*) 'gmm_create: name=', iname, ' : init to NaN is not available for this data type'
+        call lib_log(APP_LIBGMM,APP_ERROR,app_msg)
+        FNCNAME(gmm_create) = GMM_ERROR
+        return
+#endif
+#endif
+    endif
+
+    FNCNAME(gmm_create) = 0
+end function FNCNAME(gmm_create)

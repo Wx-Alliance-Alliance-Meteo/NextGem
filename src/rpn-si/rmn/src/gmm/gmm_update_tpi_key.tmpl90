@@ -1,0 +1,11 @@
+!> @deprecated This function should no longer be used; it's now just a wrapper for gmm_update_table_entry
+integer function FNCNAME(gmm_update_tpi_key)(indx, key)
+    use iso_fortran_env, only : int64
+
+    implicit none
+
+    integer, intent(in) :: indx
+    integer(kind = int64), intent(in) :: key
+
+    FNCNAME(gmm_update_tpi_key) = FNCNAME(gmm_update_table_entry)(indx, key)
+end function FNCNAME(gmm_update_tpi_key)

@@ -1,0 +1,9 @@
+NAME       : rpncomm
+VERSION    : 
+BUILD      : Release
+STATE      :
+DESCRIPTION: MPI based communication routines for models
+SUMMARY    :
+MAINTAINER : Vincent Magnoux - Vincent.Magnoux@ec.gc.ca
+URL        : https://github.com/ECCC-ASTD-MRD/rpncomm
+

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Prerequisites
 *.d
 
@@ -30,3 +31,28 @@
 *.exe
 *.out
 *.app
+=======
+*.[oa]
+*~
+*.swp
+*.swo
+*.pyc
+__pycache__
+gem_dbase
+gem_dbase.tar.gz
+/build*
+/work*
+src/gemdyn/include/gemdyn_version.inc
+src/gemdyn/src/no_mpi/maingem_monitor_end.c
+src/gemdyn/src/no_mpi/maingem_monitor_output.c
+src/modelutils/include/modelutils_version.inc
+src/rpnphy/include/rpnphy_version.inc
+share/gem-maestro/GEM_module/VERSION
+share/gem-maestro/nostage_module/VERSION
+DYN
+PHY
+share/configurations_orig
+share/gem-maestro_orig
+scripts_orig
+src_orig
+>>>>>>> 52e4b0f (INITIAL VERSION)

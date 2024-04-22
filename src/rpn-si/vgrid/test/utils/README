@@ -1,0 +1,7 @@
+Data set for tests is on Science only (ECCI_DATA_DIR=/home/sici000/ci_data/vgrid)
+
+(problem with file dm_5002_from_model_run - removed from test for now)
+(problem with text comparison in test for print_toctoc with adding !! search
+with datev ip3 and etiket. - eliminate almost all tests with diff text files)
+Maybe dataset can be reproduced using:
+driver_to_prepare_tests_files.ksh

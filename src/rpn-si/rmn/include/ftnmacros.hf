@@ -1,0 +1,60 @@
+#if defined (ALL64)
+#  define BITMOT 64
+#  define CARMOT 08
+#  define ENTMAX 70 368 744 177 663
+#  define OCW O22
+#else
+#  define BITMOT 32
+#  define CARMOT 04
+#  define ENTMAX 2147483647
+#  define OCW O11
+#endif
+
+#define MASK(x) ishft(-1,BITMOT-(x))
+#define RMASK(x) ishft(-1,-(BITMOT-(x)))
+#define RSHIFT(x,y) ishft(x,-(y))
+#define RXSHIFT(x,y) ishft(x,-(y))
+#define RYSHIFT(x,y) ishft(x,-(y))
+#define LXSHIFT(x,y) ishft(x,y)
+#define LYSHIFT(x,y) ishft(x,y)
+#define LSHIFT(x,y) ishft(x,y)
+#define SHCNT(x) (31-IAND(x,31))
+#define XTRACBIT ibits(MOT,BDROIT,LONG)
+
+#define WDNO(x) (1+RSHIFT(x,5))
+
+#if defined (ALL64)
+#  define  WDNO(x) (1+RSHIFT(x,6))
+#  define  SHCNT(x) (63-IAND(x,63))
+#endif
+
+!> Get field from array
+!> \param x Array containing the field to extract
+!> \param y Position of the right hand bit of the field to extract.  Bit 0 is the sign bit of the word of the array.
+!> \param z Number of bit of the field (max 32)
+#define GETBIT(x, y, z)\
+IAND(RSHIFT(x(WDNO(y)),SHCNT(y)),RMASK(z))
+
+
+!> Insert a field in an array
+!> \param w Array that will contain the field after insertion
+!> \param x Word that contains the right justified field to insert
+!> \param y Position of the right hand bit of the field to extract.  Bit 0 is the sign bit of the word of the array.
+!> \param z Number of bit of the field (max 32)
+#define PUTBIT(w, x, y, z)\
+w(WDNO(y))=IOR(w(WDNO(y)),LSHIFT(IAND(x,RMASK(z)),SHCNT(y)))
+
+!> Zero a field in an array
+!> \param x Array
+!> \param y Position of the right hand bit of the field to extract.  Bit 0 is the sign bit of the word of the array.
+!> \param z Number of bit of the field (max 32)
+#define CLRBIT(x,y,z)\
+x(WDNO(y))=IAND(x(WDNO(y)),NOT(LSHIFT(RMASK(z),SHCNT(y))))
+
+!> Insert a field into an array after inital cleanup
+!> \param w Array that will contain the field after insertion
+!> \param x Word that contains the right justified field to insert
+!> \param y Position of the right hand bit of the field to extract.  Bit 0 is the sign bit of the word of the array.
+!> \param z Number of bit of the field (max 32)
+#define PUTBITC(w,x,y,z)\
+CLRBIT(w,y,z)~~PUTBIT(w,x,y,z)

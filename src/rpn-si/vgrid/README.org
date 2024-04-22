@@ -1,0 +1,70 @@
+
+Vertical grids management library and tools
+
+* At CMC
+
+** Build dependencies
+
+- CMake 3.12+
+- librmn
+
+Note: =cmake_rpn= is included as a submodule.  Please clone with the
+=--recursive= flag or run =git submodule update --init --recursive= in the
+git repo after having cloned.
+
+** Environment
+
+Source the right file depending on the architecture you need from the env directory.
+This will load the specified compiler and define the ECCI_DATA_DIR variable for the test datasets
+
+- Example for PPP3 and skylake specific architecture:
+
+#+begin_src
+. $ECCI_ENV/latest/ubuntu-18.04-skylake-64/intel-19.0.3.199.sh
+#+end_src
+
+- Example for XC50 on intel-19.0.5
+
+#+begin_src
+. $ECCI_ENV/latest/sles-15-skylake-64/intel-19.0.5.281.sh
+#+end_src
+
+- Example for CMC network and gnu 7.5:
+
+#+begin_src
+. $ECCI_ENV/latest/ubuntu-18.04-amd-64/gnu-7.5.0.sh
+#+end_src
+
+You will also need a version of librmn and optionally tdpack, either load them from ssm, both are in rpn/libs domain (. r.load.dot rpn/libs/...) or provide the path to cmake
+
+** Build and install
+
+#+begin_src
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=[your  install path] -Drmn_ROOT=[path to librmn] -Dtdpack_ROOT=[path to tdpack]
+make -j 4
+make check
+make package
+#+end_src
+
+* Outside CMC (External users)
+
+** Build dependencies
+
+- CMake 3.12+
+- librmn with shared libraries (https://github.com/ECCC-ASTD-MRD/librmn/tree/dev)
+
+Note: =cmake_rpn= is included as a submodule.  Please clone with the
+=--recursive= flag or run =git submodule update --init --recursive= in the
+git repo after having cloned.
+
+** Build and install
+
+#+begin_src
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=${your_choice} -Drmn_ROOT=${librmn_install_path}
+make -j 4
+make install
+#+end_src

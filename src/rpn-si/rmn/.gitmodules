@@ -1,0 +1,8 @@
+[submodule "cmake_rpn"]
+	path = cmake_rpn
+	url = git@github.com:ECCC-ASTD-MRD/cmake_rpn.git
+	branch = dev
+[submodule "App"]
+	path = App
+	url = git@github.com:ECCC-ASTD-MRD/App.git
+	branch = master

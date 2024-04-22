@@ -1,0 +1,5 @@
+--prefix=src/modelutils git@gitlab.science.gc.ca:MIG/modelutils.git modelutils_1.7-branch
+--prefix=src/rpnphy git@gitlab.science.gc.ca:MIG/rpnphy.git rpnphy_6.2.0-rc3
+--prefix=src/gemdyn git@gitlab.science.gc.ca:mid001/bdfdyn.git 1.0.0-a2
+--prefix=src/mach git@gitlab.science.gc.ca:ARQI-GEMMACH/GEM-MACH.git 3.2
+--prefix=share/gem-maestro git@gitlab.science.gc.ca:MIG/gem-maestro.git master

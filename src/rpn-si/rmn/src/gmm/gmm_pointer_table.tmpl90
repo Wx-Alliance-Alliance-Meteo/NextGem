@@ -1,0 +1,57 @@
+integer function FNCNAME(gmm_add_table_entry)(p, key)
+    use iso_fortran_env, only : int64
+    use app
+    
+    implicit none
+
+#if DIM == 1
+        DATATYPE*DATALENGTH, pointer :: p(:)
+#elif DIM == 2
+        DATATYPE*DATALENGTH, pointer :: p(:,:)
+#elif DIM == 3
+        DATATYPE*DATALENGTH, pointer :: p(:,:,:)
+#elif DIM == 4
+        DATATYPE*DATALENGTH, pointer :: p(:,:,:,:)
+#endif
+    integer(kind = int64), intent(in) :: key
+
+    FNCNAME(gmm_ptrs)(FNCNAME(gmm_p_table_size_))%p => p
+    FNCNAME(gmm_ptrs)(FNCNAME(gmm_p_table_size_))%key = key
+    if (gmm_verbose_level == GMM_MSG_DEBUG) then
+        write(app_msg,*) 'gmm_add_table_entry: of FNCNAME(gmm_ptrs)', FNCNAME(gmm_p_table_size_)
+        call lib_log(APP_LIBGMM,APP_DEBUG,app_msg)
+    endif
+    FNCNAME(gmm_add_table_entry) = 0
+end function FNCNAME(gmm_add_table_entry)
+
+
+integer function FNCNAME(gmm_get_nxt_avail_ptr)()
+    implicit none
+
+    FNCNAME(gmm_p_table_size_) = FNCNAME(gmm_p_table_size_) + 1
+    FNCNAME(gmm_get_nxt_avail_ptr) = FNCNAME(gmm_p_table_size_)
+end function FNCNAME(gmm_get_nxt_avail_ptr)
+
+
+integer function FNCNAME(gmm_update_table_entry)(indx, key)
+    use app
+    implicit none
+
+    integer, intent(in) :: indx
+    integer(kind = int64), intent(in) :: key
+
+    if (indx > FNCNAME(gmm_p_table_size_)) then
+        if (gmm_verbose_level == GMM_MSG_DEBUG) then
+           write(app_msg,*) 'gmm_update_table_entry : wrong index', indx, FNCNAME(gmm_p_table_size_)
+           call lib_log(APP_LIBGMM,APP_DEBUG,app_msg)
+        endif
+        FNCNAME(gmm_update_table_entry) = GMM_POINTER_TABLE_OVERFLOW
+    endif
+
+    FNCNAME(gmm_ptrs)(indx)%key = key
+    if (gmm_verbose_level == GMM_MSG_DEBUG) then
+        write(app_msg,*) 'gmm_update_table_entry : of', indx
+        call lib_log(APP_LIBGMM,APP_DEBUG,app_msg)
+    endif
+    FNCNAME(gmm_update_table_entry) = 0
+end function FNCNAME(gmm_update_table_entry)

@@ -1,0 +1,24 @@
+[submodule "cmake_rpn"]
+	path = cmake_rpn
+	url = git@github.com:ECCC-ASTD-MRD/cmake_rpn.git
+	branch = master
+[submodule "src/rpn-si/vgrid"]
+	path = src/rpn-si/vgrid
+   url = git@github.com:ECCC-ASTD-MRD/vgrid.git
+	branch = master
+[submodule "src/rpn-si/rpncomm"]
+	path = src/rpn-si/rpncomm
+   url = git@github.com:ECCC-ASTD-MRD/rpncomm.git
+	branch = main
+[submodule "src/rpn-si/rmn"]
+	path = src/rpn-si/rmn
+   url = git@github.com:desgagnem/mid_rmn.git
+	branch = master
+[submodule "src/rpn-si/tdpack"]
+	path = src/rpn-si/tdpack
+   url = git@github.com:ECCC-ASTD-MRD/tdpack.git
+	branch = master
+[submodule "src/rpn-si/fst-tools"]
+	path = src/rpn-si/fst-tools
+	url = git@github.com:ECCC-ASTD-MRD/fst-tools.git
+	branch = master

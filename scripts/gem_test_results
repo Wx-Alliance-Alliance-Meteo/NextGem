@@ -1,0 +1,37 @@
+
+if [ -f RESULTS/$EXP/status/${CFG}_MODEL ] ; then
+   . RESULTS/$EXP/status/${CFG}_MODEL
+else
+   couleur_model=red
+fi
+COULEUR=${couleur_model}
+result=RESULTS/$EXP/status/${CFG}_couleur
+/bin/rm -f ${result} ; touch ${result}
+
+if [ "${couleur_model}" == "yellow" ] ; then
+   for i in $(ls -1 RESULTS/$EXP/listings/${CFG}_mod.lis* 2> /dev/null) ; do
+      COULEUR=${couleur_model} ; unset cnt messg
+		f=$(basename ${i})
+      if [ -n "${CTRL}" ] ; then
+  	   if [ -e $CTRL/listings/$f ] ; then
+         cnt=$(diff ${i} $CTRL/listings/${f} --text | grep -iv Memory --text | grep -i mean: --text | wc -l)
+         if [ $cnt -lt 1 ] ; then COULEUR=green ; fi
+      fi
+      fi
+		out=${result}
+		if [ $(echo $f | sed "s/_mod\.lis/ /" | wc -w) -gt 1 ] ; then
+		   out=${out}.$(echo $f | sed "s/_mod\.lis/ /" |cut -d" " -f2|sed 's/_//')
+		fi
+      printf "couleur=$COULEUR\n" > $out
+      if [ -z "${cnt}" ] ; then
+        messg="  ===> undefined_ctrl"
+		  printf "undefined_ctrl=${CFG}\n" >> $out
+      fi
+      printf "   $f ===> $COULEUR ${messg} \n"
+   done
+else
+    printf "couleur=$COULEUR\n" > ${result}
+    printf "   $CFG ===> $couleur_model\n"
+fi
+
+  
