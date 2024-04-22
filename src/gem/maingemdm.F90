@@ -3,7 +3,7 @@ program gem
    use iso_fortran_env
    implicit none
 
-#include <gem_build_info.h>
+!#include <gem_build_info.h>
 #include <gemdyn_version.inc>
 #include <rpnphy_version.inc>
 #include <modelutils_version.inc>
@@ -12,12 +12,12 @@ program gem
    integer :: colors(3), COMMs(3), wnum, wme, cnum, cme, un_out
    character(len=256) :: component_S
 
-   app_ptr=app_init(0,PROJECT_NAME_STRING,VERSION,PROJECT_DESCRIPTION_STRING,BUILD_TIMESTAMP)
-   call app_libregister(APP_LIBVGRID,HAVE_VGRID)
-   call app_libregister(APP_LIBTDPACK,HAVE_TDPACK)
-   call app_libregister(APP_LIBGEMDYN,GEMDYN_VERSION_S)
-   call app_libregister(APP_LIBRPNPHY,RPNPHY_VERSION_S)
-   call app_libregister(APP_LIBMDLUTIL,MODELUTILS_VERSION_S)
+!!$   app_ptr=app_init(0,PROJECT_NAME_STRING,VERSION,PROJECT_DESCRIPTION_STRING,BUILD_TIMESTAMP)
+!!$   call app_libregister(APP_LIBVGRID,HAVE_VGRID)
+!!$   call app_libregister(APP_LIBTDPACK,HAVE_TDPACK)
+!!$   call app_libregister(APP_LIBGEMDYN,GEMDYN_VERSION_S)
+!!$   call app_libregister(APP_LIBRPNPHY,RPNPHY_VERSION_S)
+!!$   call app_libregister(APP_LIBMDLUTIL,MODELUTILS_VERSION_S)
 
 !MPI_THREAD_SINGLE: Only one thread will execute. 
 !MPI_THREAD_FUNNELED: The process may be multi-threaded, but only the main thread will make MPI calls (all MPI calls are funneled to the main thread). 
@@ -30,7 +30,7 @@ program gem
    call gemtime ( 6, ' ', .false. )
    if (un_out>0) call gemtime ( un_out, 'STARTING GEMDM DOMAINS', .false. )
 
-   call app_start()
+!   call app_start()
  
    ! Initialize: Domain, MPI, processor topology and ptopo.cdk
    call init_component(COMMs,3)
@@ -59,6 +59,6 @@ program gem
    if (un_out>0) call gemtime ( un_out, 'ENDING GEMDM DOMAINS', .true. )
    call MPI_FINALIZE(ierror)  
 
-   app_status=app_end(-1)
+!   app_status=app_end(-1)
 end program gem
 

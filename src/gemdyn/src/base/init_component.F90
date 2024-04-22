@@ -167,6 +167,8 @@
 
       if (Ptopo_myproc == 0) then
          lun_out = output_unit
+         ierr= exdb('ECCC NEXTGEM NWP MODEL - Development version',&
+                    '','NON')
          ierr= clib_mkdir (Path_output_S)
 
          call  open_status_file3 (trim(Path_output_S)//'/status_MOD.dot')

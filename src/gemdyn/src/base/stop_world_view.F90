@@ -34,6 +34,7 @@
       use omp_timing
       implicit none
 
+#include <rmnlib_basics.hf>
       include 'mpif.h'
       character(len=256) :: postjob_S
       character(len=16 ) :: dateV_S
@@ -120,6 +121,10 @@
 
       call memusage ( Lun_out )
       call gemtime ( Lun_out, 'ENDING MY GEMDM DOMAIN', .false. )
+      if (Lun_out > 0) then
+         err= exfin ('ECCC NEXTGEM NWP MODEL - Development version',&
+                     '','OK')
+      end if
       
  34   format (i10.10)
 !

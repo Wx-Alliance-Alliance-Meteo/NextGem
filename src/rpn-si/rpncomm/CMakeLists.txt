@@ -6,7 +6,8 @@ message(STATUS "(EC) Generating rpncomm Makefile")
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake_rpn/modules $ENV{EC_CMAKE_MODULE_PATH})
 
 include(ec_init)
-ec_git_version()           # Get version from git state
+#ec_git_version()           # Get version from git state
+set(VERSION "4.6.2-8-g621992f")
 ec_parse_manifest()
 
 project(${NAME} VERSION ${VERSION} DESCRIPTION "${DESCRIPTION}") 
