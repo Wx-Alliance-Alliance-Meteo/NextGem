@@ -30,7 +30,6 @@
       use ptopo
       use step_options
       use tr3d
-
       implicit none
 
       !arguments
@@ -46,6 +45,7 @@
       !   CASE 163: Maximum vertical velocity                              at each  T
       !==============================================================================
 
+      include 'mpif.h'
       integer :: istat,i,j,k,ierr,n
       real, pointer, dimension(:,:,:) :: cl,cl2,tr,tr_r
 
@@ -58,9 +58,6 @@
                            g_err_1_8,g_ref_1_8,g_err_2_8,g_ref_2_8
 
       character(len= 12) :: name_S
-      character(len= 9)  :: communicate_S
-
-!      real, dimension(l_minx:l_maxx,l_miny:l_maxy,G_nk) :: air_mass
 
       logical :: almost_zero
 !
@@ -135,18 +132,15 @@
 
             end do
 
-            communicate_S = "GRID"
-            if (Grd_yinyang_L) communicate_S = "MULTIGRID"
+            call MPI_allreduce(s_err_1_8,g_err_1_8,1,MPI_DOUBLE_PRECISION,MPI_SUM,COMM_multigrid,ierr)
+            call MPI_allreduce(s_ref_1_8,g_ref_1_8,1,MPI_DOUBLE_PRECISION,MPI_SUM,COMM_multigrid,ierr)
+            call MPI_allreduce(s_err_2_8,g_err_2_8,1,MPI_DOUBLE_PRECISION,MPI_SUM,COMM_multigrid,ierr)
+            call MPI_allreduce(s_ref_2_8,g_ref_2_8,1,MPI_DOUBLE_PRECISION,MPI_SUM,COMM_multigrid,ierr)
+            call MPI_allreduce(s_err_m_8,g_err_m_8,1,MPI_DOUBLE_PRECISION,MPI_SUM,COMM_multigrid,ierr)
+            call MPI_allreduce(s_ref_m_8,g_ref_m_8,1,MPI_DOUBLE_PRECISION,MPI_SUM,COMM_multigrid,ierr)
 
-            call RPN_COMM_allreduce(s_err_1_8,g_err_1_8,1,"MPI_double_precision","MPI_SUM",communicate_S,ierr)
-            call RPN_COMM_allreduce(s_ref_1_8,g_ref_1_8,1,"MPI_double_precision","MPI_SUM",communicate_S,ierr)
-            call RPN_COMM_allreduce(s_err_2_8,g_err_2_8,1,"MPI_double_precision","MPI_SUM",communicate_S,ierr)
-            call RPN_COMM_allreduce(s_ref_2_8,g_ref_2_8,1,"MPI_double_precision","MPI_SUM",communicate_S,ierr)
-            call RPN_COMM_allreduce(s_err_m_8,g_err_m_8,1,"MPI_double_precision","MPI_SUM",communicate_S,ierr)
-            call RPN_COMM_allreduce(s_ref_m_8,g_ref_m_8,1,"MPI_double_precision","MPI_SUM",communicate_S,ierr)
-
-            call RPN_COMM_allreduce(s_err_inf_8,g_err_inf_8,1,"MPI_double_precision","MPI_MAX",communicate_S,ierr)
-            call RPN_COMM_allreduce(s_ref_inf_8,g_ref_inf_8,1,"MPI_double_precision","MPI_MAX",communicate_S,ierr)
+            call MPI_allreduce(s_err_inf_8,g_err_inf_8,1,MPI_DOUBLE_PRECISION,"MPI_MAX",COMM_multigrid,ierr)
+            call MPI_allreduce(s_ref_inf_8,g_ref_inf_8,1,MPI_DOUBLE_PRECISION,"MPI_MAX",COMM_multigrid,ierr)
 
             !Evaluate Norms
             !--------------
@@ -217,18 +211,15 @@
             end do
          end do
 
-         communicate_S = "GRID"
-         if (Grd_yinyang_L) communicate_S = "MULTIGRID"
+         call MPI_allreduce(s_err_1_8,g_err_1_8,1,MPI_DOUBLE_PRECISION,MPI_SUM,COMM_multigrid,ierr)
+         call MPI_allreduce(s_ref_1_8,g_ref_1_8,1,MPI_DOUBLE_PRECISION,MPI_SUM,COMM_multigrid,ierr)
+         call MPI_allreduce(s_err_2_8,g_err_2_8,1,MPI_DOUBLE_PRECISION,MPI_SUM,COMM_multigrid,ierr)
+         call MPI_allreduce(s_ref_2_8,g_ref_2_8,1,MPI_DOUBLE_PRECISION,MPI_SUM,COMM_multigrid,ierr)
+         call MPI_allreduce(s_err_m_8,g_err_m_8,1,MPI_DOUBLE_PRECISION,MPI_SUM,COMM_multigrid,ierr)
+         call MPI_allreduce(s_ref_m_8,g_ref_m_8,1,MPI_DOUBLE_PRECISION,MPI_SUM,COMM_multigrid,ierr)
 
-         call RPN_COMM_allreduce(s_err_1_8,g_err_1_8,1,"MPI_double_precision","MPI_SUM",communicate_S,ierr)
-         call RPN_COMM_allreduce(s_ref_1_8,g_ref_1_8,1,"MPI_double_precision","MPI_SUM",communicate_S,ierr)
-         call RPN_COMM_allreduce(s_err_2_8,g_err_2_8,1,"MPI_double_precision","MPI_SUM",communicate_S,ierr)
-         call RPN_COMM_allreduce(s_ref_2_8,g_ref_2_8,1,"MPI_double_precision","MPI_SUM",communicate_S,ierr)
-         call RPN_COMM_allreduce(s_err_m_8,g_err_m_8,1,"MPI_double_precision","MPI_SUM",communicate_S,ierr)
-         call RPN_COMM_allreduce(s_ref_m_8,g_ref_m_8,1,"MPI_double_precision","MPI_SUM",communicate_S,ierr)
-
-         call RPN_COMM_allreduce(s_err_inf_8,g_err_inf_8,1,"MPI_double_precision","MPI_MAX",communicate_S,ierr)
-         call RPN_COMM_allreduce(s_ref_inf_8,g_ref_inf_8,1,"MPI_double_precision","MPI_MAX",communicate_S,ierr)
+         call MPI_allreduce(s_err_inf_8,g_err_inf_8,1,MPI_DOUBLE_PRECISION,MPI_MAX,COMM_multigrid,ierr)
+         call MPI_allreduce(s_ref_inf_8,g_ref_inf_8,1,MPI_DOUBLE_PRECISION,MPI_MAX,COMM_multigrid,ierr)
 
          !Evaluate Norms
          !--------------
@@ -276,10 +267,7 @@
             end do
          end do
 
-         communicate_S = "GRID"
-         if (Grd_yinyang_L) communicate_S = "MULTIGRID"
-
-         call RPN_COMM_allreduce(s_max_8,g_max_8,1,"MPI_double_precision","MPI_MAX",communicate_S,ierr)
+         call MPI_allreduce(s_max_8,g_max_8,1,MPI_DOUBLE_PRECISION,MPI_MAX,COMM_multigrid,ierr)
 
          !Print Norms
          !-----------

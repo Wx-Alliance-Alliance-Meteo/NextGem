@@ -41,7 +41,6 @@
       integer :: k,km,kp,istat
 
       !--------------------------------------------------------------------------------
-
       if (Dcmip_case==0) return
 
       Dcmip_wd_L = .false.
@@ -54,7 +53,7 @@
 
       if (.NOT.Dcmip_wd_L.and..NOT.Dcmip_th_L.and..NOT.Dcmip_tr_L) return
 
-      if (Dcmip_case/=163) call handle_error(-1,'DCMIP_VRD_SET','UREF etc. need to be prescribed')
+      if (Dcmip_case/=163) call gem_error(-1,'DCMIP_VRD_SET','UREF etc. need to be prescribed')
 
       if (Lun_out > 0) write(Lun_out,1000)
 
@@ -106,7 +105,7 @@
          end if
       end do
 
-      call handle_error(istat, 'DCMIP_VERTICAL_DIFFUSION', &
+      call gem_error(istat, 'DCMIP_VERTICAL_DIFFUSION', &
            'Selected diffusion coefficients making the scheme unstable, aborting')
 
       allocate ( dcmip_coef_m(1:G_nk+1),dcmip_coef_t(1:G_nk+1))
