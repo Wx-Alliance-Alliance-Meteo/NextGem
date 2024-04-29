@@ -16,7 +16,7 @@
 !
 !**********************************************************************
 !
-      subroutine SW_rhs ( F_dt_8, i0, j0, k0, in, jn, k0t )
+      subroutine SW_rhs2 ( F_dt_8, i0, j0, k0, in, jn, k0t )
 
       use HORgrid_options
       use gem_options
@@ -68,7 +68,7 @@
               rhsv(i,j,k) = (4.0/3.0)*invT_n_8*rhsv_mid(i,j,k) - (one/3.0)*invT_n_8*rhsv_dep(i,j,k) 
 
               !---rhsc---
-              rhsc(i,j,k) =  (4.0/3.0)*invT_n_8*rhsc_mid(i,j,k) - (one/3.0)*invT_n_8*rhsc_dep(i,j,k) 
+              rhsc(i,j,k) = (4.0/3.0)*invT_n_8*rhsc_mid(i,j,k) - (one/3.0)*invT_n_8*rhsc_dep(i,j,k) 
 
             end do
          end do
@@ -88,4 +88,4 @@
 !     ---------------------------------------------------------------
 !
       return
-      end subroutine SW_rhs
+      end subroutine SW_rhs2

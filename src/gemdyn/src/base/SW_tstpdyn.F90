@@ -208,7 +208,7 @@
                  l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
 
 !2.	Compute bdf terms that will be on rhs for current and previous time levels
-      call SW_rhs(dt_8)
+      call SW_rhs1(dt_8)
 
       do itpc=1, Schm_itpc
 
@@ -237,7 +237,7 @@
     
 !5.	Form rhs using the bdf terms
 
-      call SW_rhs (dt_8, i0, j0, k0, in, jn, k0t )
+      call SW_rhs2 (dt_8, i0, j0, k0, in, jn, k0t )
  
 !6.  Combine some rhs to obtain the linear part
 !     of the right-hand side of the elliptic problem

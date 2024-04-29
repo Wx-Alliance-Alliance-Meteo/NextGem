@@ -41,9 +41,11 @@
       real(kind=REAL64), intent(IN) :: F_dt_8
 
       integer :: i, j, k, km
+      integer :: HLT_np, HLT_start, HLT_end, itpc, local_np
       real :: w5,w6
       real(kind=REAL64) :: tau_m_8, tau_nh_8, invT_m_8, invT_nh_8, Buoy
       real(kind=REAL64), parameter :: one=1.d0, half=0.5d0
+
 !
 !     ---------------------------------------------------------------
 !
@@ -84,10 +86,14 @@
          end do
 !!$omp enddo
 
+
 !!$omp single
-      call rpn_comm_xch_halo(qt0,l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,G_nk+1, &
-                             G_halox,G_haloy,G_periodx,G_periody,l_ni,0)
+!     call rpn_comm_xch_halo(qt0,l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,G_nk+1, &
+!                            G_halox,G_haloy,G_periodx,G_periody,l_ni,0)
 !!$omp end single
+      call HLT_split (1, G_nk+1, HLT_np, HLT_start, HLT_end)
+      call gem_xch_halo ( qt0(l_minx,l_miny,HLT_start),&
+                 l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
 
 !!$omp do collapse(2)
       do k=k0, l_nk
