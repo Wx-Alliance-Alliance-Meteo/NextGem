@@ -21,12 +21,12 @@
       use theo_options
       use dcmip_options
       use mem_nest
-      use mem_tracers
       use metric
       use omp_timing
       use gmm_contiguous
       use gmm_vt1
       use gmm_geof
+      use gmm_pw
       implicit none
 
       logical, save :: done=.false., psadj_L=.false.
@@ -56,14 +56,14 @@
 !!$omp end single
 
       call dynstep ()
-
+      
       call gtmg_stop (10)
 
       if (Ctrl_testcases_L) call canonical_cases ("VRD")
 
       call hzd_main ()
 
-      if (Grd_yinyang_L) call yyg_blend ()
+      if (Grd_yinyang_L) call yyg_blend () !ut1,vt1,zdt1
 
       call pw_update_GW ()
       call pw_update_UV ()
@@ -78,13 +78,13 @@
       call iau_apply (Step_kount)
 !!$omp end single
 
-      if (Grd_yinyang_L) call yyg_xchng_all()
-         
       if ( Ctrl_phyms_L.or.Dcmip_physics_L ) then
          call tt2virt_omp (tt1,.true.,l_minx,l_maxx,l_miny,l_maxy, G_nk)
          call itf_phy_UVupdate()
-         call pw_update_GW ()
-      end if      
+      end if
+      call pw_update_GW ()
+      
+      if (Grd_yinyang_L) call yyg_xchng_all()
 !
 !     ---------------------------------------------------------------
 !

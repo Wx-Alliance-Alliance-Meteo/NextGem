@@ -81,7 +81,7 @@
 
       endif
 
-      call rhs1 (dt_8)
+      call rhs1 (dt_8) ! first guess into t0
 
       if ( .not. Grd_yinyang_L ) then
          call nest_bcs (dt_8,rhsu,rhsv,l_minx,l_maxx,l_miny,l_maxy,l_nk)
@@ -138,13 +138,13 @@
       if (Grd_yinyang_L) then
          call yyg_xchng_vec_uv2uv (ut0, vt0,&
                                    l_minx,l_maxx,l_miny,l_maxy,G_nk)
-         call yyg_xchng_hlt (tt0 , l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
+         call yyg_xchng_hlt (tt0, l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
                          G_nk, .false., 'CUBIC', .false.)
-         call yyg_xchng_hlt (zdt0, l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
+         call yyg_xchng_hlt (zdt0,l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
                          G_nk, .false., 'CUBIC', .false.)
-         call yyg_xchng_hlt (st0 , l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
+         call yyg_xchng_hlt (st0, l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
                          1,    .false., 'CUBIC', .false.)
-         call yyg_xchng_hlt (qt0 , l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
+         call yyg_xchng_hlt (qt0, l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
                          G_nk+1, .false., 'CUBIC', .false.)
          call yyg_xchng_hlt (wt0, l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
                          G_nk, .false., 'CUBIC', .false.)
@@ -159,7 +159,6 @@
       endif
 
       if (err2nrm(iter) < tol) then 
-      !if (err(iter) < tol) then 
          exit
       endif
 

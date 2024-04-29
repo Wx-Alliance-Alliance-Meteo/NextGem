@@ -371,7 +371,8 @@
       flag_m_f = FLAG_LVL_M
       flag_r_n = GMM_FLAG_RSTR+GMM_FLAG_IZER
 
-      dim= Adz_nij*6*l_nk
+     ! dim= Adz_nij*6*l_nk
+      dim= Adz_nij*3*l_nk
       call gmm_build_meta1D ( meta, 1,dim,0,0,dim, &
                               0,GMM_NULL_FLAGS )
       mymeta= SET_GMMUSR_FLAG(meta, flag_m_f)
@@ -379,9 +380,9 @@
       Adz_uu_ext(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk) => Adz_winds_ext(1:)
       Adz_vv_ext(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk) => Adz_winds_ext(Adz_nij*l_nk  +1:)
       Adz_ww_ext(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk) => Adz_winds_ext(Adz_nij*l_nk*2+1:)
-      Adz_uu_dep_ext(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk) => Adz_winds_ext(Adz_nij*l_nk*3+1:)
-      Adz_vv_dep_ext(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk) => Adz_winds_ext(Adz_nij*l_nk*4+1:)
-      Adz_ww_dep_ext(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk) => Adz_winds_ext(Adz_nij*l_nk*5+1:)
+   !   Adz_uu_dep_ext(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk) => Adz_winds_ext(Adz_nij*l_nk*3+1:)
+   !   Adz_vv_dep_ext(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk) => Adz_winds_ext(Adz_nij*l_nk*4+1:)
+   !   Adz_ww_dep_ext(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk) => Adz_winds_ext(Adz_nij*l_nk*5+1:)
 
       call gmm_build_meta4D (meta,  1,3   ,0,0,   3, &
                                     1,l_ni,0,0,l_ni, &

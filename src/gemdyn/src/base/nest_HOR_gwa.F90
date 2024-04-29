@@ -18,7 +18,7 @@
       subroutine nest_HOR_gwa ()
       use lam_options
       use theo_options
-      use gmm_vt1
+      use gmm_vt0
       use mem_nest
       use mem_tracers
       use glb_ld
@@ -37,13 +37,13 @@
       do k=1,G_nk
       do j=1,l_nj
       do i=1,l_niu
-         ut1(i,j,k) = ut1(i,j,k)*(1.-nest_weightu(i,j,k)) + nest_u(i,j,k)*nest_weightu(i,j,k)
+         ut0(i,j,k) = ut0(i,j,k)*(1.-nest_weightu(i,j,k)) + nest_u(i,j,k)*nest_weightu(i,j,k)
       enddo
       enddo
 
       do j=1,l_njv
       do i=1,l_ni
-         vt1(i,j,k) = vt1(i,j,k)*(1.-nest_weightv(i,j,k)) + nest_v(i,j,k)*nest_weightv(i,j,k)
+         vt0(i,j,k) = vt0(i,j,k)*(1.-nest_weightv(i,j,k)) + nest_v(i,j,k)*nest_weightv(i,j,k)
       enddo
       enddo
       enddo
@@ -52,9 +52,9 @@
       do k=1,G_nk
       do j=1,l_nj
       do i=1,l_ni
-         tt1(i,j,k) =  tt1(i,j,k)*(1.-nest_weightm(i,j,k)) + nest_t (i,j,k)*nest_weightm(i,j,k)
-         wt1(i,j,k) =  wt1(i,j,k)*(1.-nest_weightm(i,j,k)) + nest_w (i,j,k)*nest_weightm(i,j,k)
-         zdt1(i,j,k)= zdt1(i,j,k)*(1.-nest_weightm(i,j,k)) + nest_zd(i,j,k)*nest_weightm(i,j,k)
+         tt0(i,j,k) =  tt0(i,j,k)*(1.-nest_weightm(i,j,k)) + nest_t (i,j,k)*nest_weightm(i,j,k)
+         wt0(i,j,k) =  wt0(i,j,k)*(1.-nest_weightm(i,j,k)) + nest_w (i,j,k)*nest_weightm(i,j,k)
+         zdt0(i,j,k)= zdt0(i,j,k)*(1.-nest_weightm(i,j,k)) + nest_zd(i,j,k)*nest_weightm(i,j,k)
       enddo
       enddo
       enddo
@@ -64,7 +64,7 @@
       do k=1,G_nk+1
       do j=1,l_nj
       do i=1,l_ni
-         qt1(i,j,k) = qt1(i,j,k)*(1.-nest_weightm(i,j,k)) + nest_q(i,j,k)*nest_weightm(i,j,k)
+         qt0(i,j,k) = qt0(i,j,k)*(1.-nest_weightm(i,j,k)) + nest_q(i,j,k)*nest_weightm(i,j,k)
       enddo
       enddo
       enddo
@@ -76,8 +76,8 @@
          do k=1,G_nk
          do j=1,l_nj
          do i=1,l_ni
-            tracers_P(n)%pntr(i,j,k) = &
-            tracers_P(n)%pntr(i,j,k)*(1.-nest_weightm(i,j,k)) + &
+            tracers_M(n)%pntr(i,j,k) = &
+            tracers_M(n)%pntr(i,j,k)*(1.-nest_weightm(i,j,k)) + &
                    nest_tr(i,j,deb+k-1)*nest_weightm(i,j,k)
          enddo
          enddo
@@ -90,7 +90,7 @@
 !!$omp do
       do j=1,l_nj
       do i=1,l_ni
-        st1(i,j)= st1(i,j)*(1.-nest_weightm(i,j,G_nk+1)) + nest_s(i,j)*nest_weightm(i,j,G_nk+1)
+        st0(i,j)= st0(i,j)*(1.-nest_weightm(i,j,G_nk+1)) + nest_s(i,j)*nest_weightm(i,j,G_nk+1)
       enddo
       enddo
 !!$omp end do
