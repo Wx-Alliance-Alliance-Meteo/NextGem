@@ -33,7 +33,7 @@ module sol_mem
 
    real(kind=REAL64) :: isol_i, isol_d
    real(kind=REAL64) :: norm_residual, relative_tolerance, nu , r0, rr2, ro2, lcl_sum(2)
-   real(kind=REAL64),dimension(:      ), allocatable :: gg,rot_cos, rot_sin, p1, p2, step1_tt, IPIV_arr
+   real(kind=REAL64),dimension(:      ), allocatable :: gg,rot_cos, rot_sin, p1, p2, IPIV_arr
    real(kind=REAL64),dimension(:,:    ), allocatable :: v_lcl_sum,rr,tt,N_mat, M_mat, T_mat1, hessenberg,thread_s
    real(kind=REAL64),dimension(:,:,:  ), allocatable :: work_space,thread_s2,fdg,w2_8,w3_8
    real(kind=REAL128),dimension(:,:    ), allocatable :: thread_s128
