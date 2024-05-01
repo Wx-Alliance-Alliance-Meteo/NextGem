@@ -13,9 +13,9 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ----------------------
 
-!*s/r set_smago_fislh - computing vertically varying coefficients for smag. diffusion in FISL-H
+!*s/r set_smago - computing vertically varying coefficients for smag. diffusion
 
-      subroutine set_smago_fislh
+      subroutine set_smago
       use hzd_mod
       use HORgrid_options
       use hvdif_options
@@ -107,4 +107,4 @@
 !-------------------------------------------------------------------
 !
       return
-      end subroutine set_smago_fislh
+      end subroutine set_smago

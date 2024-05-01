@@ -33,9 +33,6 @@ module dyn_fisl_options
    namelist /dyn_fisl  / Cstv_h0inv_8
    namelist /dyn_fisl_p/ Cstv_h0inv_8
 
-   !# Inverse of PHI* basic state geopotential (m**2/s**2)
-   real(kind=REAL64) :: Cstv_invFI_8
-
    !# Fraction of adjustment to be given to the ocean
    real(kind=REAL64) :: Cstv_psadj_8 = 1.d0
    namelist /dyn_fisl  / Cstv_psadj_8

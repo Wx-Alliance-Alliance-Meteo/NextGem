@@ -13,10 +13,10 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
 
-!  s/r fislh_hybrid   - Generates A, B and C of the hybrid coordinate
-!                       Also sets Z and other related vertical parameters.
+!  s/r vertical_struc   - Generates A, B and C of the hybrid coordinate
+!                     Also sets Z and other related vertical parameters
 
-      subroutine fislh_hybrid ( F_hybuser, Nk )
+      subroutine vertical_struc ( F_hybuser, Nk )
       use vGrid_Descriptors
       use vgrid_wb
       use gmm_pw
@@ -53,7 +53,7 @@
 !
 !     __________________________________________________________________
 !
-      if (G_nk<3) call gem_error(-1,'fislh_hybrid','NOT ENOUGH LEVELS')
+      if (G_nk<3) call gem_error(-1,'vertical_struc','NOT ENOUGH LEVELS')
 
       allocate(   Ver_hyb%m(G_nk+1),       Ver_hyb%t(G_nk+1), &
            Ver_std_p_prof%m(G_nk+1),Ver_std_p_prof%t(G_nk+1), &
@@ -99,7 +99,7 @@
                          
       if (Lun_debug_L) istat = vgd_print(Ver_vgdobj)
 
-      call gem_error(min(err,istat),'fislh_hybrid','coordinate construction failed')
+      call gem_error(min(err,istat),'vertical_struc','coordinate construction failed')
 
       ! Retrieve information required to fill model arrays
       nullify(wkpt,wkpti,wkpt8)
@@ -130,7 +130,7 @@
       if( vgd_stda76(Ver_vgdobj, Ver_ip1%t, std_p_prof, 'PRESSURE') /= VGD_OK) istat = VGD_ERROR
       Ver_std_p_prof%t=std_p_prof
       deallocate(std_p_prof)
-      call gem_error(istat,'fislh_hybrid','retrieving coordinate info')
+      call gem_error(istat,'vertical_struc','retrieving coordinate info')
 
       Cstv_ptop_8=-1.
 
@@ -145,7 +145,7 @@
 
       !Set Inverse of PHI* basic state geopotential (m**2/s**2)
       !--------------------------------------------------------------------------
-      Cstv_invFI_8 = one/(grav_8*Ver_z_8%m(1))
+   !   Cstv_invFI_8 = one/(grav_8*Ver_z_8%m(1))
 
       !Define the positions of true thermo levels
       Ver_z_8%t(0) = Ver_z_8%m(0)
@@ -254,4 +254,4 @@
 !     __________________________________________________________________
 !
       return
-      end
+      end subroutine vertical_struc

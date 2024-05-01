@@ -13,220 +13,133 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
 
-!** s/r diag_zd_w - Computes model vertical velocities zd
-!                   and w diagnostically.
-      
-      subroutine diag_zd_w ( F_zd, F_w, F_u, F_v, F_t, F_s, F_orols,&
-                             Minx, Maxx, Miny, Maxy, Nk, F_zd_L, F_w_L )
+!** s/r - Computes model vertical velocities zd and w diagnostically.
+!         Height-type vertical coordinate
+
+      subroutine diag_zd_w (F_zd, F_w, F_u, F_v, F_t, F_q, &
+              F_metric,Minx, Maxx, Miny, Maxy, Nk, F_zd_L, F_w_L )
+      use dyn_fisl_options
       use gem_options
-      use init_options
       use geomh
       use glb_ld
-      use gmm_geof
       use lun
+      use mem_tstp
+      use metric
       use tdpack
       use ver
-      use ptopo
-      use, intrinsic :: iso_fortran_env
       implicit none
 
-      integer, intent(in) :: Minx, Maxx, Miny, Maxy, Nk
-      real, dimension(Minx:Maxx,Miny:Maxy,Nk), intent(out) :: F_zd, F_w
-      real, dimension(Minx:Maxx,Miny:Maxy,Nk), intent(inout) :: F_u, F_v
-      real, dimension(Minx:Maxx,Miny:Maxy), intent(in   ) :: F_orols
-      real, dimension(Minx:Maxx,Miny:Maxy), intent(inout) :: F_s
-      real, dimension(Minx:Maxx,Miny:Maxy,Nk), intent(in) :: F_t
+      integer, intent(in) ::  Minx, Maxx, Miny, Maxy, Nk
       logical, intent(in) ::  F_zd_L, F_w_L
-!
-!authors
-!      C.Girard & A.Plante, August 2011, based on routine uv2psd
-!
-!arguments
-!___________________________________________________________________
-!        |                                             |           |
-! NAME   |             DESCRIPTION                     | DIMENSION |
-!--------|---------------------------------------------|-----------|
-! F_zd   | coordinat vertical motion ( 1/s )           | 3D (Nk)   |
-! F_w    | true vertical motion      ( m/s )           | 3D (Nk)   |
-!--------|---------------------------------------------|-----------|
-! F_u    | x component of velocity                     | 3D (Nk)   |
-! F_v    | y component of velocity                     | 3D (Nk)   |
-! F_t    | temperature                                 | 3D (Nk)   |
-! F_s    | s log of surface pressure over constant     | 2D (1)    |
-! F_zd_L | true to compute zdot                        | scal      |
-! F_w_L  | true to compute w                           | scal      |
-!________|_____________________________________________|___________|
-!
-      integer i, j, k, kp, i0, in, j0, jn
-      real(kind=REAL64), parameter :: half=0.5d0
-      real(kind=REAL64) c1,c2
-      real lnpi,pbX,pbY,adv,advl,RoverG
-      real, dimension(l_minx:l_maxx,l_miny:l_maxy)      :: UdpX,VdpY
-      real, dimension(l_minx:l_maxx,l_miny:l_maxy,4)    :: sbar
-      real, dimension(l_minx:l_maxx,l_miny:l_maxy,nk)   :: div,pi_t,&
-                                                    lnpi_t,xd,lapse
-      real, dimension(l_minx:l_maxx,l_miny:l_maxy,0:nk) :: div_i
+      real, dimension(Minx:Maxx,Miny:Maxy,Nk),  intent(out)   :: F_zd, F_w
+      real, dimension(Minx:Maxx,Miny:Maxy,Nk),  intent(inout) :: F_u, F_v, F_t
+      real, dimension(Minx:Maxx,Miny:Maxy,Nk+1),intent(inout) :: F_q
+      type(Vmetric) , intent(in ) :: F_metric
+
+      integer :: i, j, k, kp, km, i0, in, j0, jn, dim
+      real, dimension(:,:), pointer :: rJzX, rJzY, rJzZ
 !     ________________________________________________________________
 !
-      call gem_xch_halo (F_s, l_minx, l_maxx, l_miny, l_maxy,  1,-1)
-      call gem_xch_halo (F_u, l_minx, l_maxx, l_miny, l_maxy, nk,-1)
-      call gem_xch_halo (F_v, l_minx, l_maxx, l_miny, l_maxy, nk,-1)
+      dim=  (l_maxx-l_minx+1)*(l_maxy-l_miny+1)
+      rJzX  (l_minx:l_maxx,l_miny:l_maxy) => WS1(      1:)
+      rJzY  (l_minx:l_maxx,l_miny:l_maxy) => WS1(  dim+1:)
+      rJzZ  (l_minx:l_maxx,l_miny:l_maxy) => WS1(2*dim+1:)
 
-      do j=1-G_haloy,l_nj+G_haloy
-         do i=1-G_halox,l_ni+G_halox-1
-            sbar(i,j,1) = (F_s(i,j) + F_s(i+1,j))*half
-            sbar(i,j,2) = (F_orols(i,j) + F_orols(i+1,j))*half
-         end do
-      end do
-      if (l_east)  then
-         sbar(l_ni+G_halox,:,1)= F_s(l_ni+G_halox,:)
-         sbar(l_ni+G_halox,:,2)= F_orols(l_ni+G_halox,:)
-      endif
-      
-      do j=1-G_haloy,l_nj+G_haloy-1
-         do i=1-G_halox,l_ni+G_halox
-            sbar(i,j,3) = (F_s(i,j) + F_s(i,j+1))*half
-            sbar(i,j,4) = (F_orols(i,j) + F_orols(i,j+1))*half
-         end do
-      end do
-      if (l_north)  then
-         sbar(:,l_nj+G_haloy,3)= F_s(:,l_nj+G_haloy)
-         sbar(:,l_nj+G_haloy,4)= F_orols(:,l_nj+G_haloy)
-      endif
-
-      call gem_xch_halo (sbar, l_minx, l_maxx, l_miny, l_maxy, 4, -1)
-      
-! local grid setup for final results
+!     local grid setup for final results
       i0 = 1
       in = l_ni
       j0 = 1
       jn = l_nj
-      if (l_west)  i0 = 2 - G_halox
-      if (l_east)  in = l_niu + G_halox
-      if (l_south) j0 = 2 - G_haloy
-      if (l_north) jn = l_njv + G_haloy
+      if (l_west)  i0 = 2    - G_halox
+      if (l_east)  in = in-1 + G_halox
+      if (l_south) j0 = 2    - G_haloy
+      if (l_north) jn = jn-1 + G_haloy
 
-      do k = 1, Nk
-
-! Compute U*dpi/dz and V*dpi/dz
-         do j=1-G_haloy,l_nj+G_haloy
-            do i=1-G_halox,l_ni+G_halox
-               lnpi = Ver_z_8%m(k)+Ver_b_8%m(k)*sbar(i,j,1)+Ver_c_8%m(k)*sbar(i,j,2)
-               pbX = exp(lnpi)
-               UdpX(i,j) = F_u(i,j,k)*pbX*(1.d0+Ver_dbdz_8%m(k)*sbar(i,j,1)+Ver_dcdz_8%m(k)*sbar(i,j,2))
-            end do
-         end do
-         do j=1-G_haloy,l_nj+G_haloy
-            do i=1-G_halox,l_ni+G_halox
-               lnpi = Ver_z_8%m(k)+Ver_b_8%m(k)*sbar(i,j,3)+Ver_c_8%m(k)*sbar(i,j,4)
-               pbY = exp(lnpi)
-               VdpY(i,j) = F_v(i,j,k)*geomh_cyv_8(j)*pbY*(1.d0+Ver_dbdz_8%m(k)*sbar(i,j,3)+Ver_dcdz_8%m(k)*sbar(i,j,4))
-            end do
-         end do
-
-! Compute DIV(V*dpi/dz)
-         do j=j0,jn
-            do i=i0,in
-               div(i,j,k) = (UdpX(i,j)-UdpX(i-1,j))*geomh_invDX_8(j) &
-                          + (VdpY(i,j)-VdpY(i,j-1))*geomh_invcy_8(j)*geomh_invDY_8
-            end do
-         end do
-
-! Compute lnpi_t and pi_t
-         do j=j0,jn
-            do i=i0,in
-               lnpi_t(i,j,k) = Ver_z_8%t(k) + Ver_b_8%t(k)*F_s(i,j) &
-                                            + Ver_c_8%t(k)*F_orols(i,j)
-               pi_t(i,j,k) = exp(lnpi_t(i,j,k))
-            end do
-         end do
-
-      end do
-
-!!$      if (Zdot_divHLM_L) then
-!!$! Compute lapse rate
-!!$         call verder (lapse,F_t,lnpi_t,2.0,2.0,&
-!!$                      l_minx,l_maxx,l_miny,l_maxy,Nk,i0,in,j0,jn)
-!!$
-!!$! Scale divergence by the lapse rate
-!!$         do k=1,Nk
-!!$            do j=j0,jn
-!!$               do i=i0,in
-!!$                 div(i,j,k)=div(i,j,k)*(tanh(2.*lapse(i,j,k)/pi_8)+1.)/2.
-!!$               end do
-!!$            end do
-!!$         end do
-!!$      end if
-
-!     Vertical integral of divergence
-      div_i(:,:,0) = 0.
-      do k=1,Nk
-         do j=j0,jn
-            do i=i0,in
-               div_i(i,j,k)=div_i(i,j,k-1)+div(i,j,k)*Ver_dz_8%m(k)
-            end do
-         end do
-      end do
-
-! Compute ZDOT
       if (F_zd_L) then
-         if (Lun_debug_L.and.F_zd_L) write (Lun_out,1000)
-         do k=1,Nk-1
-            do j=j0,jn
-               do i=i0,in
-! Ver_b_8%t(k) comes from the time tendency of ln(pi), therefore
-! Ver_c_8 is not present since this part of ln(pi) Bl*sl is constant.
-                  F_zd(i,j,k) = ( Ver_b_8%t(k) * div_i(i,j,Nk) /&
-                                  exp(Ver_z_8%m(Nk+1)+F_s(i,j)) &
-                                  - div_i(i,j,k)/pi_t(i,j,k) ) /&
-                                  ( 1.+Ver_dbdz_8%t(k)*F_s(i,j) &
-                                  +Ver_dcdz_8%t(k)*F_orols(i,j) )
+
+! Compute Zdot
+!!$omp do collapse(2)
+         do k=1, Nk
+            do j= Miny, Maxy
+               do i= Minx, Maxx
+                  F_zd(i,j,k) = 0.
                end do
             end do
          end do
+!!$omp enddo
+!!$omp do
+         do j= Miny, Maxy
+            do i= Minx, Maxx
+               rJzZ(i,j) = 0.
+            end do
+         end do
+!!$omp enddo
+!!$omp single
+         do k=Nk,2,-1
+            km=max(k-1,1)
+            do j=j0,jn
+               do i=i0-1,in
+                  rJzX(i,j) = 0.5d0*((F_metric%ztht_8(i+1,j,k)-F_metric%ztht_8(i+1,j,km)) &
+                            + (F_metric%ztht_8(i  ,j,k)-F_metric%ztht_8(i  ,j,km)))*Ver_idz_8%m(k)
+               end do
+            end do
+            do j=j0-1,jn
+               do i=i0,in
+                  rJzY(i,j) = 0.5d0*((F_metric%ztht_8(i,j+1,k)-F_metric%ztht_8(i,j+1,km)) &
+                            + (F_metric%ztht_8(i,j  ,k)-F_metric%ztht_8(i,j  ,km)))*Ver_idz_8%m(k)
+               end do
+            end do
+            do j=j0,jn
+               do i=i0,in
+                  F_zd(i,j,k-1) = rJzZ(i,j)*F_zd(i,j,k)*Ver_zeronk(k) + Ver_dz_8%m(k)*( &
+                                (rJzX(i  ,j)*F_u(i  ,j,k)                   &
+                               -rJzX(i-1,j)*F_u(i-1,j,k))*geomh_invDX_8(j) &
+                              +(rJzY(i,j  )*F_v(i,j  ,k)*geomh_cyV_8(j  )  &
+                               -rJzY(i,j-1)*F_v(i,j-1,k)*geomh_cyV_8(j-1))*geomh_invDYM_8(j) )
+                  rJzZ(i,j) = (F_metric%zmom_8(i,j,k)-F_metric%zmom_8(i,j,k-1))*Ver_idz_8%t(k-1)
+                  F_zd(i,j,k-1) = F_zd(i,j,k-1)/rJzZ(i,j)
+               end do
+            end do
+         end do
+!!$omp end single
+
       end if
 
-! Compute W
-      if (F_w_L) then
-         if (Lun_debug_L.and.F_w_L ) write (Lun_out,1001)
+      if(F_w_L) then
 
-!        Compute W=-omega/(g*ro)      ro=p/RT
-         RoverG=rgasd_8/grav_8
+! Compute W (which depends on previous computation of Zdot)
+
+         i0 = 1
+         in = l_ni
+         j0 = 1
+         jn = l_nj
+         if (l_west)  i0 = 3    - G_halox
+         if (l_east)  in = in-1 + G_halox
+         if (l_south) j0 = 3    - G_haloy
+         if (l_north) jn = jn-1 + G_haloy
+!!$omp do
          do k=1,Nk
-            kp = min(k+1,Nk)
+            do j= Miny, Maxy
+               do i= Minx, Maxx
+                  F_w(i,j,k) = 0.
+               end do
+            end do
+            km=max(k-1,1)
+            kp=min(k+1,Nk)
             do j=j0,jn
-               c1 = geomh_cyv_8(j  ) ! pgi optimizer is bugged without those 2 lines
-               c2 = geomh_cyv_8(j-1)
                do i=i0,in
-                  !ADV = V*grad(s) = DIV(s*Vbarz)-s*DIV(Vbarz)
-                  adv = 0.5 * ( geomh_invDX_8(j) *  &
-                      ( (F_u(i  ,j,kp)+F_u(i  ,j,k))*(sbar(i  ,j,1)-(F_s(i,j)+0.d0))   &
-                       -(F_u(i-1,j,kp)+F_u(i-1,j,k))*(sbar(i-1,j,1)-(F_s(i,j)+0.d0)) ) &
-                      + geomh_invcy_8(j) * geomh_invDY_8 *  &
-                      ( (F_v(i,j  ,kp)+F_v(i,j  ,k))*c1*(sbar(i,j,3  )-(F_s(i,j)+0.d0))   &
-                       -(F_v(i,j-1,kp)+F_v(i,j-1,k))*c2*(sbar(i,j-1,3)-(F_s(i,j)+0.d0)) ) )
-                  advl = 0.5 * ( geomh_invDX_8(j) *  &
-                       ( (F_u(i  ,j,kp)+F_u(i  ,j,k))*(sbar(i  ,j,2)-(F_orols(i,j)+0.d0))   &
-                        -(F_u(i-1,j,kp)+F_u(i-1,j,k))*(sbar(i-1,j,2)-(F_orols(i,j)+0.d0)) ) &
-                       + geomh_invcy_8(j) * geomh_invDY_8 *  &
-                       ( (F_v(i,j  ,kp)+F_v(i,j  ,k))*c1*(sbar(i,j,4  )-(F_orols(i,j)+0.d0))   &
-                        -(F_v(i,j-1,kp)+F_v(i,j-1,k))*c2*(sbar(i,j-1,4)-(F_orols(i,j)+0.d0)) ) )
-                  xd (i,j,k) = Ver_b_8%t(k)*adv + Ver_c_8%t(k)*advl - div_i(i,j,k)/pi_t(i,j,k)
-                  F_w(i,j,k) = -RoverG*F_t(i,j,k)*xd(i,j,k)
+                  F_w(i,j,k) = 0.25d0* ( &
+                     (F_u(i,j,kp)*F_metric%mc_Jx_8(i,j,kp)+F_u(i-1,j,kp)*F_metric%mc_Jx_8(i-1,j,kp))   &
+                    +(F_u(i,j,k )*F_metric%mc_Jx_8(i,j,k )+F_u(i-1,j,k )*F_metric%mc_Jx_8(i-1,j,k ))   &
+                    +(F_v(i,j,kp)*F_metric%mc_Jy_8(i,j,kp)+F_v(i,j-1,kp)*F_metric%mc_Jy_8(i,j-1,kp))   &
+                    +(F_v(i,j,k )*F_metric%mc_Jy_8(i,j,k )+F_v(i,j-1,k )*F_metric%mc_Jy_8(i,j-1,k )) ) &
+                    +(Ver_wpstar_8(k)*F_zd(i,j,k)+Ver_wmstar_8(k)*F_zd(i,j,km))  &
+                    *(F_metric%zmom_8(i,j,k+1)-F_metric%zmom_8(i,j,k))*Ver_idz_8%t(k)
                end do
             end do
          end do
-
-         do j=j0,jn
-            do i=i0,in
-               F_w(i,j,Nk) = -RoverG*F_t(i,j,Nk) * ( Ver_wpstar_8(Nk) * &
-                              xd(i,j,Nk)+ Ver_wmstar_8(Nk)*xd(i,j,Nk-1) )
-            end do
-         end do
+!!$omp end do
       end if
-
-1000  format(3X,'COMPUTE DIAGNOSTIC ZDT1: (S/R DIAG_ZD_W)')
-1001  format(3X,'COMPUTE DIAGNOSTIC WT1:  (S/R DIAG_ZD_W)')
 !
 !     ________________________________________________________________
 !

@@ -12,23 +12,43 @@
 ! along with this library; if not, write to the Free Software Foundation, Inc.,
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
-!**s/r bubble_cfg - Configure bubble case (Height or pressure coord)
+!**function bubble_cfg - to configure bubble case for Height Coord.
+!
       integer function bubble_cfg()
-      use bubble_options
-      use HORgrid_options
       use VERgrid_options
+      use bubble_options
+      use glb_ld
+      use, intrinsic :: iso_fortran_env
       implicit none
 
-      integer,external :: bubble_H_cfg, bubble_P_cfg
+      integer k
+      real(kind=REAL64) height_8,htop_8
+!
 !     ---------------------------------------------------------------
 !
       bubble_cfg = -1
-      bubble_cfg = bubble_H_cfg()
 
+      ! establish vertical grid configuration
+
+      G_nk   = bubble_nk
+      htop_8 = G_nk*bubble_dz
+
+      if ( hyb_H(1) < 0 ) then
+         do k=1,G_nk
+            height_8=htop_8*(1.d0-(dble(k)-.5d0)/G_nk)
+            hyb_H(k)=height_8
+         end do
+      else
+         do k=1024,1,-1
+            if(hyb_H(k) < 0) G_nk=k-1
+         end do
+      end if
+      
       if (bubble_ictr < 0) bubble_ictr = int(float(Grd_ni-1)*0.5)+1
       if (bubble_kctr < 0) bubble_kctr = G_nk - bubble_rad - 1
-
+      
       bubble_cfg = 1
 
       return
       end function bubble_cfg
+

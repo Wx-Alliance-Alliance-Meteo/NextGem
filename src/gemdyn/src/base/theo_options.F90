@@ -230,7 +230,7 @@ contains
          pw_uu_plus= 0.0 ; pw_vv_plus= 0.0
          ut1= 0.0 ; vt1= 0.0 ; st1= 0.
 
-         call bubble_fislH_data ( pw_tt_plus, l_minx,l_maxx,l_miny,l_maxy,G_nk )
+         call bubble_data ( pw_tt_plus, l_minx,l_maxx,l_miny,l_maxy,G_nk )
          do k=1,g_nk+1
             do j= 1-G_haloy, l_nj+G_haloy
                do i= 1-G_halox, l_ni+G_halox

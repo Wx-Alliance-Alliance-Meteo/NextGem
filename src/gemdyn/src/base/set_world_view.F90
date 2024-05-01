@@ -222,11 +222,11 @@
       call gem_error (istat, 'SET_WORKD_VIEW', &
             'Problem in sol_decomp -- ABORTING')
 
-      call set_smago_fislh ()
+      call set_smago ()
 
-      call inp_init()
+      call inp_init  ()
       
-      call set_sor()
+      call set_sor   ()
       
  1001 format (' GRID CONFIG: GRTYP=',a,5x,'GLB=(',i5,',',i5,',',i5,')    maxLCL(',i4,',',i4,')    minLCL(',i4,',',i4,')')
  1002 format (/ ' Creating IO pe set for ',a,' with ',i4,' Pes')

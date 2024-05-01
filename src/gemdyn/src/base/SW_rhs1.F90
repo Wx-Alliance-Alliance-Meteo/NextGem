@@ -13,8 +13,8 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
 !
-!*s/r slimex - compute the right-hand sides needed for interpolation
-!of bdf portion
+!*s/r SW_rhs1 - compute the right-hand sides needed for interpolation
+!               of bdf portion
 
       subroutine SW_rhs1 ( F_dt_8 )
       use HORgrid_options
@@ -62,7 +62,7 @@
 ! Compute rhs of terms that will be interpolated               *
 !***************************************************************
 
-!NOTE: with the new derivation of slimex, I don't need to
+!NOTE: with the new derivation of bdf, I don't need to
 !compute a rhs term for T or q, only z
 !however in the mean time, instead of erasing the arrays,
 !I will just set them to 0            
