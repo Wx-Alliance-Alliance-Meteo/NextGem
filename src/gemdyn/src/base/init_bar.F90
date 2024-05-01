@@ -29,7 +29,9 @@
       use inp_mod
       use mem_tracers
       use step_options
+      use tdpack
       use tr3d
+      use ver
       use wil_options
       implicit none
 
@@ -44,6 +46,7 @@
       integer :: HLT_start, HLT_end, local_np
       real, dimension (:,:,:), pointer :: hu
       real, dimension (l_minx:l_maxx,l_miny:l_maxy,G_nk) :: gz_t
+      real(kind=REAL64) :: FI_8
 !
 !-------------------------------------------------------------------
 !
@@ -66,9 +69,9 @@
 
          !Initialize PHI perturbation in q
          !--------------------------------
-
+         FI_8= grav_8*Ver_z_8%m(1)
          do k=1,G_nk+1
-            qt1(i0:in,j0:jn,k) = st1(i0:in,j0:jn) - 1.0d0/Cstv_invFI_8
+            qt1(i0:in,j0:jn,k) = st1(i0:in,j0:jn) - FI_8
          end do
 
       end if

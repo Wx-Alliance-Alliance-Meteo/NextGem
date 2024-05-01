@@ -23,7 +23,6 @@
       use glb_ld
       use gmm_geof
       use gmm_pw
-      use gmm_vt0
       use gmm_vt1
       use inp_mod
       use inp_options
@@ -153,25 +152,6 @@
                pw_vv_moins(i,j,k) = pw_vv_plus(i,j,k) 
                pw_tt_moins(i,j,k) = pw_tt_plus(i,j,k) 
                pw_gz_moins(i,j,k) = pw_gz_plus(i,j,k) 
-            end do
-         end do
-      end do
-!!$omp end do nowait
-!!$omp do collapse(2)
-      do k=1, l_nk
-         do j=1, l_nj
-            do i= 1, l_ni
-               Adz_uu_ext (i,j,k) = pw_uu_moins(i,j,k)
-               Adz_vv_ext (i,j,k) = pw_vv_moins(i,j,k)
-               Adz_ww_ext (i,j,k) =        zdt1(i,j,k)
-            end do
-         end do
-      end do
-!!$omp enddo nowait
-!!$omp do collapse(2)
-      do k=1, G_nk+1
-         do j=1-G_haloy,l_nj+G_halox
-            do i=1-G_halox,l_ni+G_halox
                pw_pm_moins(i,j,k) = pw_pm_plus(i,j,k) 
                pw_pt_moins(i,j,k) = pw_pt_plus(i,j,k) 
             end do
@@ -181,6 +161,8 @@
 !!$omp do
       do j=1-G_haloy,l_nj+G_halox
          do i=1-G_halox,l_ni+G_halox
+            pw_pm_moins(i,j,G_nk+1) = pw_pm_plus(i,j,G_nk+1) 
+            pw_pt_moins(i,j,G_nk+1) = pw_pt_plus(i,j,G_nk+1)
             pw_me_moins(i,j) = pw_me_plus(i,j) 
             pw_p0_moins(i,j) = pw_p0_plus(i,j) 
             udiag(i,j) = pw_uu_plus(i,j,G_nk)

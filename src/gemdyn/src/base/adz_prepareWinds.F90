@@ -44,9 +44,9 @@
                Adz_uvw_d(2,i,j,k)= Dcst_inv_rayt_8 * Adz_vv_ext(i,j,k)
 
                !---departure---
-               Adz_uvw_d_dep(1,i,j,k)= Dcst_inv_rayt_8 * Adz_uu_dep_ext(i,j,k) &
-                                                       * Adz_cy_8(j)
-               Adz_uvw_d_dep(2,i,j,k)= Dcst_inv_rayt_8 * Adz_vv_dep_ext(i,j,k)
+!              Adz_uvw_d_dep(1,i,j,k)= Dcst_inv_rayt_8 * Adz_uu_dep_ext(i,j,k) &
+!                                                      * Adz_cy_8(j)
+!              Adz_uvw_d_dep(2,i,j,k)= Dcst_inv_rayt_8 * Adz_vv_dep_ext(i,j,k)
 
             end do
          end do
@@ -74,8 +74,8 @@
             Adz_uvw_d(3,i,j,l_nk) = Adz_vw6 * Adz_ww_ext(i,j,l_nk-1)
 
             !---departure---
-            Adz_uvw_d_dep(3,i,j,   1) = Adz_vw5 * Adz_ww_dep_ext(i,j,     1)
-            Adz_uvw_d_dep(3,i,j,l_nk) = Adz_vw6 * Adz_ww_dep_ext(i,j,l_nk-1)
+!           Adz_uvw_d_dep(3,i,j,   1) = Adz_vw5 * Adz_ww_dep_ext(i,j,     1)
+!           Adz_uvw_d_dep(3,i,j,l_nk) = Adz_vw6 * Adz_ww_dep_ext(i,j,l_nk-1)
 
          end do
       end do
@@ -111,10 +111,10 @@
                                       Adz_vw4m(k) * Adz_ww_ext(i,j,k+1)
 
                   !---departure---
-                  Adz_uvw_d_dep(3,i,j,k) = wx(k)  * Adz_ww_dep_ext(i,j,km2(k)) + &
-                                      Adz_vw2m(k) * Adz_ww_dep_ext(i,j,k-1) + &
-                                      Adz_vw3m(k) * Adz_ww_dep_ext(i,j,k  ) + &
-                                      Adz_vw4m(k) * Adz_ww_dep_ext(i,j,k+1)
+!                 Adz_uvw_d_dep(3,i,j,k) = wx(k)  * Adz_ww_dep_ext(i,j,km2(k)) + &
+!                                     Adz_vw2m(k) * Adz_ww_dep_ext(i,j,k-1) + &
+!                                     Adz_vw3m(k) * Adz_ww_dep_ext(i,j,k  ) + &
+!                                     Adz_vw4m(k) * Adz_ww_dep_ext(i,j,k+1)
 
 
                end do

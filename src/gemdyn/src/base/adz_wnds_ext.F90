@@ -13,22 +13,37 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
 
-!**s/r theo_bndry
+!**s/r adz_wnds_ext - extended arrays for advection winds
 
-      subroutine theo_bndry ()
-      use mtn_options
-      use theo_options
+      subroutine adz_wnds_ext ()
+      use gmm_vt1
+      use gmm_vt2
+      use gmm_pw
+      use adz_mem
       implicit none
-!
-!----------------------------------------------------------------------
-!
-      if ( mtn_zblen_thk > 0. ) call height_spongeH()
-      
-      call slabsym()
 
-      if( Theo_case_S == 'BUBBLE' ) call mirror()
+      integer i,j,k
+      integer :: HLT_start, HLT_end, local_np
 !
-!----------------------------------------------------------------------
+!     ---------------------------------------------------------------
+!
+!!$omp do collapse(2)
+      do k=1, l_nk
+         do j=1, l_nj
+            do i= 1, l_ni
+               Adz_uu_ext(i,j,k) = pw_uu_moins(i,j,k)
+               Adz_vv_ext(i,j,k) = pw_vv_moins(i,j,k)
+               Adz_ww_ext(i,j,k) =        zdt1(i,j,k)
+            end do
+         end do
+      end do
+!!$omp enddo
+
+      call HLT_split (1, 3*l_nk, local_np, HLT_start, HLT_end)
+      call gem_xch_halo ( Adz_uu_ext(Adz_lminx,Adz_lminy,HLT_start),&
+                Adz_lminx,Adz_lmaxx,Adz_lminy,Adz_lmaxy, local_np,-1) 
+!
+!     ---------------------------------------------------------------
 !
       return
-      end subroutine theo_bndry
+      end subroutine adz_wnds_ext

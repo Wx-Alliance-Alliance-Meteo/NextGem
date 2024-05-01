@@ -145,7 +145,7 @@
 
       Cstv_dt_8 = dble(Step_dt)
 
-      call fislh_hybrid ( hyb_H, G_nk)
+      call vertical_struc ( hyb_H, G_nk)
 
       Schm_nith = G_nk
 

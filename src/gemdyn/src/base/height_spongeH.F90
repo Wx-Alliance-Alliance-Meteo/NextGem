@@ -29,6 +29,7 @@
 !
 !----------------------------------------------------------------------
 !
+      if ( mtn_zblen_thk <= 0. ) return
       zblen_top = Ver_z_8%m(0)
       zblen_bot=zblen_top-mtn_zblen_thk
       deltaZ= zblen_top-zblen_bot

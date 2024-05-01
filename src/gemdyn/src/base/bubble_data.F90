@@ -12,10 +12,10 @@
 ! along with this library; if not, write to the Free Software Foundation, Inc.,
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
-!**s/r bubble_fislH_data - generates initial condition for Robert's bubble
-!                    experiment (Robert 1993 JAS) - FISL height coord.
+!**s/r bubble_data - generates initial condition for Robert's bubble
+!                    experiment (Robert 1993 JAS)
 !
-      subroutine bubble_fislH_data ( F_t, Mminx,Mmaxx,Mminy,Mmaxy,nk )
+      subroutine bubble_data ( F_t, Mminx,Mmaxx,Mminy,Mmaxy,nk )
       use glb_ld
       use bubble_options
       use gem_options
@@ -92,4 +92,4 @@
 !     -----------------------------------------------------------------
 !
       return
-      end subroutine bubble_fislH_data
+      end subroutine bubble_data

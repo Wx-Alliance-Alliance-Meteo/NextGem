@@ -125,27 +125,6 @@
 
       if (Ens_conf) call itf_ens_hzd () 
 
-!*********************************************************
-!  Yin-Yang exchange pilot zones, blend wind overlap zones before physics*
-!*********************************************************
-      if (Grd_yinyang_L) then
-         if (xch_UV) call yyg_xchng_vec_uv2uv (ut1,vt1,l_minx,l_maxx,l_miny,l_maxy,G_nk)
-         if (xch_TT) call yyg_xchng_hlt (tt1, l_minx,l_maxx,l_miny,l_maxy, l_ni, l_nj,G_nk,&
-                                     .false., 'CUBIC', .false.)
-         if (xch_WZD) then
-            call yyg_xchng_hlt (zdt1, l_minx,l_maxx,l_miny,l_maxy, l_ni, l_nj, G_nk,&
-                            .false., 'CUBIC', .false.)
-            call yyg_xchng_hlt (wt1 , l_minx,l_maxx,l_miny,l_maxy, l_ni, l_nj, G_nk,&
-                            .false., 'CUBIC', .false. )
-         end if
-         if (xch_TR) then
-            do n= 1, Tr3d_ntr
-               call yyg_xchng_hlt (tracers_P(n)%pntr, l_minx,l_maxx,l_miny,l_maxy,&
-                               l_ni, l_nj, G_nk, .true., 'CUBIC', .false.)
-            end do
-          end if
-      end if
-
       call hzd_smago_main()
 
       call gtmg_stop (60)

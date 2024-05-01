@@ -13,8 +13,8 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !----------------------------------LICENCE END ---------------------------------
       
-      subroutine fislh_pres (F_q, F_ps, F_vt, F_topo, F_orols, &
-                             Minx,Maxx,Miny,Maxy,F_nk)
+      subroutine diag_q (F_q, F_ps, F_vt, F_topo, F_orols, &
+                         Minx,Maxx,Miny,Maxy,F_nk)
       use glb_ld
       use dyn_fisl_options
       use gem_options
@@ -82,4 +82,4 @@
 !     ________________________________________________________________
 !
       return
-      end subroutine fislh_pres
+      end subroutine diag_q

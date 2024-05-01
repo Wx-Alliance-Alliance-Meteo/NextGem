@@ -39,7 +39,7 @@
 !
 !     ________________________________________________________________
 !
-      if (F_q_L) call fislh_pres ( F_q, F_s, F_t, F_topo, F_orols, &
+      if (F_q_L) call diag_q ( F_q, F_s, F_t, F_topo, F_orols, &
                                    Minx, Maxx, Miny, Maxy, Nk)
       if ( (F_zd_L.or.F_w_L) ) then
          call HLT_split (1, G_nk, local_np, HLT_start, HLT_end)
@@ -51,9 +51,9 @@
                    l_minx,l_maxx,l_miny,l_maxy,local_np,-1)
          call gem_xch_halo ( F_q(l_minx,l_miny,HLT_start),&
                    l_minx,l_maxx,l_miny,l_maxy,local_np,-1)
-         call fislh_diag_zd_w( F_zd, F_w, F_u, F_v, F_t, F_q,&
-                             F_metric,Minx, Maxx, Miny, Maxy,&
-                             Nk,F_zd_L, F_w_L)
+         call diag_zd_w( F_zd, F_w, F_u, F_v, F_t, F_q,&
+                         F_metric,Minx, Maxx, Miny, Maxy,&
+                         Nk,F_zd_L, F_w_L)
       endif
 !     
 !     ________________________________________________________________

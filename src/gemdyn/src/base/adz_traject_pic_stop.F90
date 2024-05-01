@@ -47,7 +47,7 @@
       real(kind=REAL64), parameter :: bdf1=0.75d0, bdf2=0.25d0, bdf3=-3.d0, bdf4=4.d0
       type(C_PTR) :: Cpntr
       !---------------for stopping criteria-----------------
-      real(kind=REAL64), parameter :: max_iter = 10, tol=1e-6 
+      real(kind=REAL64), parameter :: max_iter = 3, tol=1e-6 
       real(kind=REAL64) :: max_x, max_y, max_z, tmp, local_max, x_sum, y_sum, z_sum, local_sum, e2, einf
       real(kind=REAL64), dimension(11) :: err, err2nrm, sucsv_err, sucsv_err2nrm
       real(kind=REAL64), dimension(l_ni) :: xerr, yerr, zerr
@@ -127,123 +127,47 @@
 
 !!$omp do
       !0a.Interpolate velocity V(t) at current time to estimated midpoints x^{n}: V^{n}
-      do k= k00, l_nk
-       call tricublin_zyx3_n ( Adz_uvw_dep(1,1,1,k),Adz_uvw_d(1,1,1,1), &
-                                Adz_pxyzm(1:3,:,:,k),Adz_cpntr_q,Adz_2dnh)
+         do k= k00, l_nk
+            call tricublin_zyx3_n ( Adz_uvw_dep(1,1,1,k),Adz_uvw_d(1,1,1,1), &
+                                    Adz_pxyzm(1:3,:,:,k),Adz_cpntr_q,Adz_2dnh)
+         end do
+!!$omp end do
       end do
-!!$omp end do
-
+      
 !!$omp do
-      !2.Solve x^{n-1} = x^{n+1} - 2*dt*(V^{n})
-         do k= k00, l_nk
-             do j= 1, l_nj
-                do i= 1, l_ni
-                  xm(i) = dble(i+l_i0-1) - double_dt_8*(Adz_uvw_dep(1,i,j,k))*geomh_inv_hx_8
-                  ym(i) = dble(j+l_j0-1) - double_dt_8*(Adz_uvw_dep(2,i,j,k))*geomh_inv_hy_8
-                  pos   = Ver_z_8%m(k)   - double_dt_8*(Adz_uvw_dep(3,i,j,k))
-                  zm(i) = min(max(pos,Ver_zmin_8),Ver_zmax_8)
+!2.Solve x^{n-1} = x^{n+1} - 2*dt*(V^{n})
+      do k= k00, l_nk
+         do j= 1, l_nj
+            do i= 1, l_ni
+               xm(i) = dble(i+l_i0-1) - double_dt_8*(Adz_uvw_dep(1,i,j,k))*geomh_inv_hx_8
+               ym(i) = dble(j+l_j0-1) - double_dt_8*(Adz_uvw_dep(2,i,j,k))*geomh_inv_hy_8
+               pos   = Ver_z_8%m(k)   - double_dt_8*(Adz_uvw_dep(3,i,j,k))
+               zm(i) = min(max(pos,Ver_zmin_8),Ver_zmax_8)
 
-                  kk1 = (zm(i) - ver_z_8%m(0)  ) * adz_ovdzm_8 + 1.d0
-                  kk1 = min(max(1,kk1),ubound(adz_search_m,1))
-                  kk1 = adz_search_m(kk1)
-                  if ( sig * zm(i) > sig* ver_z_8%m(min(kk1+1,l_nk+1)) ) kk1= kk1 + 1
-                  if ( sig * zm(i) < sig* ver_z_8%m(kk1              ) ) kk1= kk1 - 1
-                  kk(i) = kk1
-               end do
-               do i= 1, l_ni
-                  Adz_dpxyz(i,j,k,1) = xm(i)
-                  Adz_pxyzd(1,i,j,k) = min(max(xm(i),Adz_iminposx),&
-                                                     Adz_imaxposx)
-                  Adz_dpxyz(i,j,k,2) = ym(i)
-                  Adz_pxyzd(2,i,j,k) = min(max(ym(i),Adz_iminposy),&
-                                                     Adz_imaxposy)
-                  kk1 = min(l_nk+1,max(0,kk(i)))
-                  nb  = max(min(kk1,G_nk-1),1)
-                  Adz_dpz(i,j,k) =zm(i)
-                  Adz_dpxyz(i,j,k,3) = (zm(i)-ver_z_8%m(nb))&
-                                     *Adz_odelz_m(nb) + dble(nb)
-                  Adz_pxyzd(3,i,j,k) = Adz_dpxyz(i,j,k,3)
-               end do
+               kk1 = (zm(i) - ver_z_8%m(0)  ) * adz_ovdzm_8 + 1.d0
+               kk1 = min(max(1,kk1),ubound(adz_search_m,1))
+               kk1 = adz_search_m(kk1)
+               if ( sig * zm(i) > sig* ver_z_8%m(min(kk1+1,l_nk+1)) ) kk1= kk1 + 1
+               if ( sig * zm(i) < sig* ver_z_8%m(kk1              ) ) kk1= kk1 - 1
+               kk(i) = kk1
             end do
-         enddo
+            do i= 1, l_ni
+               Adz_dpxyz(i,j,k,1) = xm(i)
+               Adz_pxyzd(1,i,j,k) = min(max(xm(i),Adz_iminposx),&
+               Adz_imaxposx)
+               Adz_dpxyz(i,j,k,2) = ym(i)
+               Adz_pxyzd(2,i,j,k) = min(max(ym(i),Adz_iminposy),&
+               Adz_imaxposy)
+               kk1 = min(l_nk+1,max(0,kk(i)))
+               nb  = max(min(kk1,G_nk-1),1)
+               Adz_dpz(i,j,k) =zm(i)
+               Adz_dpxyz(i,j,k,3) = (zm(i)-ver_z_8%m(nb))&
+               *Adz_odelz_m(nb) + dble(nb)
+               Adz_pxyzd(3,i,j,k) = Adz_dpxyz(i,j,k,3)
+            end do
+         end do
+      enddo
 !!$omp enddo
-
-         !compute infinity and 2-nrm error
-         x_sum = 0.d0; y_sum = 0.d0; z_sum = 0.d0; local_sum = 0.d0; local_max = 0.d0
-
-!!$omp do
-         do k= k00, l_nk
-           do j= 1, l_nj
-             do i= 1, l_ni
-                !---for infinity norm---
-                xerr(i) = abs( inv_dt_8*((3.0/2.0)*dble(i+l_i0-1) - 2.0*Adz_wpxyz(i,j,k,1) + (1.0/2.0)*Adz_dpxyz(i,j,k,1)) - Adz_uu_arr(i,j,k)*geomh_inv_hx_8 )
-                yerr(i) = abs( inv_dt_8*((3.0/2.0)*dble(j+l_j0-1) - 2.0*Adz_wpxyz(i,j,k,2) + (1.0/2.0)*Adz_dpxyz(i,j,k,2)) - Adz_vv_arr(i,j,k)*geomh_inv_hy_8 )
-                zerr(i) = abs( inv_dt_8*((3.0/2.0)*Ver_z_8%m(k)   - 2.0*Adz_wpz(i,j,k) + (1.0/2.0)*Adz_dpz(i,j,k)) - Adz_ww_arr(i,j,k) ) 
-
-                !--for 2-norm---
-                x_sum = ( inv_dt_8*((3.0/2.0)*dble(i+l_i0-1) - 2.0*Adz_wpxyz(i,j,k,1) + (1.0/2.0)*Adz_dpxyz(i,j,k,1)) - Adz_uu_arr(i,j,k)*geomh_inv_hx_8 ) **2
-                y_sum = ( inv_dt_8*((3.0/2.0)*dble(j+l_j0-1) - 2.0*Adz_wpxyz(i,j,k,2) + (1.0/2.0)*Adz_dpxyz(i,j,k,2)) - Adz_vv_arr(i,j,k)*geomh_inv_hy_8 ) **2
-                z_sum = ( inv_dt_8*((3.0/2.0)*Ver_z_8%m(k)   - 2.0*Adz_wpz(i,j,k) + (1.0/2.0)*Adz_dpz(i,j,k)) - Adz_ww_arr(i,j,k) )**2  
-             
-                local_sum =  local_sum + x_sum + y_sum + z_sum 
-
-              end do
-
-               !max value of x,y,z array
-               max_x = maxval(xerr)
-               max_y = maxval(yerr)
-               max_z = maxval(zerr)
-
-               !which direction has the max error
-               tmp       = max(max_x, max(max_y, max_z))
-               local_max = max(local_max, tmp)
-           end do
-         enddo
-!!$omp end do
-
-      !this portion is modeled after portions of sol_fgmres for
-      !computing the inner products
-      thread_sum_pic(1, OMP_get_thread_num()) = local_sum
-      thread_max_pic(1, OMP_get_thread_num()) = local_max
-
-!$OMP BARRIER
-
-!!$omp single
-      l_avg_8_pic = sum(thread_sum_pic(1,:))
-      l_max_8_pic = maxval(thread_max_pic(1,:))
-
-      call MPI_allreduce(l_avg_8_pic, glb_dot_pic, 1, MPI_DOUBLE_PRECISION, MPI_SUM, COMM_MULTIGRID, ierr) 
-      call MPI_allreduce(l_max_8_pic, glb_max_pic, 1, MPI_DOUBLE_PRECISION, MPI_max, COMM_MULTIGRID, ierr2) 
-
-      e2   = sqrt(glb_dot_pic/N)
-      einf = glb_max_pic
-!!$omp end single copyprivate(e2, einf) 
-
-         !now save inf-norm error and 2-norm error
-         err(iter)     = einf
-         err2nrm(iter) = e2
-
-         !print *, iter, err(iter), err2nrm(iter)
-
-         !break out of loop if we reached convergence in inf-norm
-         if(err(iter) < tol) then
-         !if(err2nrm(iter) < tol) then
-           exit
-         endif
-
-         !or break if we've stagnated
-         if (iter > 1) then 
-           !1. compute successive errors
-           sucsv_err(iter)     = abs(err(iter) - err(iter-1))
-           sucsv_err2nrm(iter) = abs(err2nrm(iter) - err2nrm(iter-1))
-           !print *, iter, err(iter),err2nrm(iter), sucsv_err(iter), sucsv_err2nrm(iter)
-           if (sucsv_err(iter) < err(iter) ) then 
-           !if (sucsv_err2nrm(iter) < err2nrm(iter) ) then 
-             exit
-           endif
-         endif
-
-      end do !Adz_niter
       
 !!$omp do
       do k= Adz_k0, l_nk

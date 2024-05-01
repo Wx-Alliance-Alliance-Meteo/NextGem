@@ -104,9 +104,7 @@
       if (Lun_out > 0) write(Lun_out,4000) Lctl_step
 
  900  format (/'STARTING THE INTEGRATION WITH THE FOLLOWING DATA: VALID ',a)
- 1002 format(/,'FISL-H: PERFORMING TIMESTEP #',I9,' OUT OF ',I9, &
-             /,'=========================================================')
- 1003 format(/,'PICSL: PERFORMING TIMESTEP #',I9,' OUT OF ',I9, &
+ 1002 format(/,'PICSL: PERFORMING TIMESTEP #',I9,' OUT OF ',I9, &
              /,'=========================================================')
  3000 format(/,'THE TIME STEP ',I8,' IS COMPLETED')
  4000 format(/,'GEM_RUN: END OF THE TIME LOOP AT TIMESTEP',I8, &

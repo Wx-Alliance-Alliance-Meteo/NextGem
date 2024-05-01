@@ -30,6 +30,7 @@
       use step_options
       use tdpack
       use tr3d
+      use ver
       use wil_options
       use, intrinsic :: iso_fortran_env
       implicit none
@@ -63,10 +64,10 @@
       real, dimension(l_minx:l_maxx,l_miny:l_maxy,G_nk+1) :: phi
 !
 !---------------------------------------------------------------------
-!
+!one/(grav_8*Ver_z_8%m(1))
       if (Williamson_case==2) then
 
-         phi(:,:,1:G_nk+1) = qt1(:,:,1:G_nk+1) + 1.0d0/Cstv_invFI_8
+         phi(:,:,1:G_nk+1) = qt1(:,:,1:G_nk+1) + (grav_8*Ver_z_8%m(1))
 
          if (Lctl_step==0) then
 

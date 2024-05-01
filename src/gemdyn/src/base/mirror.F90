@@ -16,6 +16,7 @@
 !**s/r mirror - mirror boundary condition for BUBBLE theoretical case
 !
       subroutine mirror ()
+      use theo_options
       use glb_ld
       use gmm_vt0
       implicit none
@@ -24,6 +25,8 @@
 !
 !----------------------------------------------------------------------
 !
+      if( Theo_case_S /= 'BUBBLE' ) return
+      
       if (l_north) then
 !!$omp do
          do k=1,G_nk

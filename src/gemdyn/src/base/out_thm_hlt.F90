@@ -60,7 +60,7 @@
       integer,save :: lastdt= -1
       integer i,j,k,ii,l_ninj,nko,istat,nk_under,nk_src,knd,nkindx
       integer pngz,pnvt,pntt,pnes,pntd, pnhr,pnpx,pntw,pnwe,pnww,&
-              pnzz,pnth,pnpn,pnp0,psum,pnpt,pnla,pnlo,pnme,pnmx
+              pnzz,pnth,pnpn,pnp0,psum,pnla,pnlo,pnme,pnmx
       integer psl1,psl2,psl3,&
               psl4,psl5,psl6,&
               psl7,psl8,psl9,&
@@ -73,8 +73,7 @@
       real(kind=REAL64), parameter :: ZERO_8   = 0.0
 
       real w1(l_minx:l_maxx,l_miny:l_maxy), w2(l_minx:l_maxx,l_miny:l_maxy),&
-         ptop(l_minx:l_maxx,l_miny:l_maxy), p0(l_minx:l_maxx,l_miny:l_maxy),&
-         deg2rad,zd2etad
+           p0(l_minx:l_maxx,l_miny:l_maxy), deg2rad, zd2etad
 
       real, dimension(:,:,:), pointer    :: gmm_hut1, wlnph_m, wlnph_ta
       real ,dimension(:,:,:), allocatable:: px_pres,hu_pres,td_pres    ,&
@@ -97,7 +96,7 @@
 !
       l_ninj= (l_maxx-l_minx+1)*(l_maxy-l_miny+1)
 
-      pnpn=0 ; pnp0=0 ; pnpt=0 ; pnla=0 ; pnlo=0 ; pnme=0 ; pnmx=0
+      pnpn=0 ; pnp0=0 ; pnla=0 ; pnlo=0 ; pnme=0 ; pnmx=0
       pngz=0 ; pnvt=0 ; pntt=0 ; pnes=0 ; pntd=0 ; pnhr=0 ; pnpx=0
       pntw=0 ; pnwe=0 ; pnww=0 ; pnzz=0 ; pnth=0 ; psl1=0 ; psl2=0
       psl3=0 ; psl4=0 ; psl5=0 ; psl6=0 ; psl7=0 ; psl8=0 ; psl9=0
@@ -109,7 +108,6 @@
       do ii=1,Outd_var_max(set)
          if (Outd_var_S(ii,set) == 'PN') pnpn=ii
          if (Outd_var_S(ii,set) == 'P0') pnp0=ii
-         if (Outd_var_S(ii,set) == 'PT') pnpt=ii
          if (Outd_var_S(ii,set) == 'LA') pnla=ii
          if (Outd_var_S(ii,set) == 'LO') pnlo=ii
          if (Outd_var_S(ii,set) == 'ME') pnme=ii
@@ -140,9 +138,7 @@
          if (Outd_var_S(ii,set) == 'S12') psl12=ii
       end do
 
-      if (pnpt /= 0 .and. Hyb_rcoef(2) /= 1.0) pnpt=0
-
-      psum=pnpn+pnp0+pnpt+pnla+pnlo+pnme+pnmx
+      psum=pnpn+pnp0+pnla+pnlo+pnme+pnmx
       psum=psum +  &
            pngz+pnvt+pntt+pnes+pntd+pnhr+pnpx+ &
            pntw+pnwe+pnww+pnzz+pnth+psl1+psl2+psl3+&
@@ -187,8 +183,6 @@
       end if
       call out_padbuf(vt,l_minx,l_maxx,l_miny,l_maxy,l_nk+1)
 
-!     Store PTOP and p0
-      ptop (:,:) = Cstv_ptop_8
       p0= pw_p0_plus
       call out_padbuf(p0,l_minx,l_maxx,l_miny,l_maxy,1)
 
@@ -215,10 +209,6 @@
               'MX  ',Outd_convmult(pnmx,set),Outd_convadd(pnmx,set),&
               knd,-1,1,ind0, 1, Outd_nbit(pnmx,set),.false. )
          end if
-      if (pnpt /= 0) &
-          call out_fstecr(ptop,l_minx,l_maxx,l_miny,l_maxy,hyb0, &
-              'PT  ',Outd_convmult(pnpt,set),Outd_convadd(pnpt,set),&
-              knd,-1,1,ind0, 1, Outd_nbit(pnpt,set),.false. )
       if (pnla /= 0) &
           call out_fstecr(geomh_latrx,1,l_ni,1,l_nj,hyb0, &
               'LA  ',Outd_convmult(pnla,set),Outd_convadd(pnla,set),&
@@ -266,8 +256,8 @@
             gzm(1:l_ni,1:l_nj,1:G_nk+1) = grav_8 * GVM%zmom_8(1:l_ni,1:l_nj,1:G_nk+1)
             gzt(1:l_ni,1:l_nj,1:G_nk+1) = grav_8 * GVM%ztht_8(1:l_ni,1:l_nj,1:G_nk+1)
          else
-            gzm(1:l_ni,1:l_nj,1:G_nk+1) = grav_8 * qt1(1:l_ni,1:l_nj,1:G_nk+1) + 1.0d0 / Cstv_invFI_8
-            gzt(1:l_ni,1:l_nj,1:G_nk+1) = grav_8 * qt1(1:l_ni,1:l_nj,1:G_nk+1) + 1.0d0 / Cstv_invFI_8
+            gzm(1:l_ni,1:l_nj,1:G_nk+1) = grav_8 *(qt1(1:l_ni,1:l_nj,1:G_nk+1) + Ver_z_8%m(1))
+            gzt(1:l_ni,1:l_nj,1:G_nk+1) = grav_8 *(qt1(1:l_ni,1:l_nj,1:G_nk+1) + Ver_z_8%m(1))
          endif
 
          call out_liebman (ttx, htx, vt, gzt, fis0, wlao, &
@@ -593,45 +583,6 @@
             call out_fstecr(myomega,l_minx,l_maxx,l_miny,l_maxy,hybt_w, &
                  'WW  ',Outd_convmult(pnww,set),Outd_convadd(pnww,set),&
                  knd,-1,G_nk,indo,nko,Outd_nbit(pnww,set),.false. )
-         end if
-
-         if (pnwe /= 0) then
-            call gem_error(-1,'out_thm_hlt','REVIEW WE CODE for DYNAMICS_FISL_H')
-         !
-         ! Compute WE (Normalized velocity in eta) mainly used by EER Lagrangian Dispertion Model
-         !
-         ! ZETA = ZETAs + ln(hyb)
-         !
-         ! Taking the total time derivative
-         !  .      .
-         ! ZETA = hyb/hyb
-         !  .     .
-         ! hyb = ZETA*hyb
-         !
-         ! Normalizing by domain height
-         !       .
-         ! WE = ZETA*hyb/( hyb(s) - hyb(t) )
-         !
-         ! Note: put WE=0 at first thermo level to close the domain
-         !       Do not write we for thermo level nk+3/4 since zdt is at surface
-         !       I user wants data at nk_3/4 us 0.5*ffwe(nk-1) (liniar interpolation)
-
-
-            istat = gmm_get(gmmk_zdt1_s,zdt1)
-            allocate(ffwe(l_minx:l_maxx,l_miny:l_maxy,G_nk))
-            ffwe(:,:,G_nk)= 0.
-            do k=1,G_nk-1
-               zd2etad=Ver_hyb%t(k)/(1.-Cstv_ptop_8/Cstv_pref_8)
-               do j= 1, l_nj
-               do i= 1, l_ni
-                  ffwe(i,j,k)=zdt1(i,j,k)*zd2etad
-               end do
-               end do
-            end do
-            call out_fstecr(  ffwe,l_minx,l_maxx,l_miny,l_maxy,hybt_w,&
-                 'WE  ',Outd_convmult(pnwe,set),Outd_convadd(pnwe,set),&
-                 knd,-1,G_nk,indo,min(nko,G_nk),Outd_nbit(pnwe,set),.false.)
-            deallocate (ffwe)
          end if
 
          if (pnzz /= 0) then

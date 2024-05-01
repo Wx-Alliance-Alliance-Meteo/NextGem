@@ -73,6 +73,7 @@
       istat = gmm_get(gmmk_pw_pm_moins_8_s ,pw_pm_moins_8)
       istat = gmm_get(gmmk_pw_p0_moins_8_s ,pw_p0_moins_8)
 !!$omp end single
+      call adz_wnds_ext ()
 !
 !     ---------------------------------------------------------------
 !

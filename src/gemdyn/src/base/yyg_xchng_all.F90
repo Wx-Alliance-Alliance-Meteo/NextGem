@@ -37,6 +37,9 @@
 
       call yyg_xchng_hlt  (pw_tt_plus, l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
                          G_nk, .false., 'CUBIC', .false.)
+      call yyg_xchng_vec_uv2uv (ut1,vt1,l_minx,l_maxx,l_miny,l_maxy,G_nk)
+      call yyg_xchng_hlt (tt1, l_minx,l_maxx,l_miny,l_maxy, l_ni, l_nj,G_nk,&
+                                     .false., 'CUBIC', .false.)
       call yyg_xchng_hlt  (wt1, l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
                          G_nk, .false., 'CUBIC', .false.)
       call yyg_xchng_hlt  (zdt1, l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
