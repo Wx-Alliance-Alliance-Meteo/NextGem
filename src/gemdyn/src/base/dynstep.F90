@@ -39,11 +39,23 @@
       if (Dynamics_sw_L) then
                    
          if (Step_kount.eq.1) then
+
             call SW_tstpdyn(0.75d0*Cstv_dt_8) !Shallow-Water (1st substep = EULER)
+
             call t02t1 ()
+            call pw_update_UV ()
+            call pw_switch ()
+
+            call t02t2 () ! tracers have been modified by physics at t=0
+
             call SW_tstpdyn(0.5d0 *Cstv_dt_8) !Shallow-Water (2nd substep = BDF2 )
+
          else
+
+            call t02t2 ()
+            if (Step_kount.eq.2) dynt2= var_init
             call SW_tstpdyn(Cstv_dt_8) !Shallow-Water (all other timesteps= BDF2 )
+
          endif
 
       else
