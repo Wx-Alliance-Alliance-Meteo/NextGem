@@ -147,7 +147,7 @@
 
          tt = 0. ; rr = 0.
          !---additional matrices for PMEX---
-         N_mat = 0. ; M_mat = 0. ; T_mat1 = 0. ; step1_tt = 0.
+         N_mat = 0. ; M_mat = 0. ; T_mat1 = 0.
          IPIV_arr = 0. 
          !note M_inv = tt, T_mat1 = intermediat T, the first step of the matmult
 
