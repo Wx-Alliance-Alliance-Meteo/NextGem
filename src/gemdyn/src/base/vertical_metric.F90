@@ -122,6 +122,7 @@
       do j=1-G_haloy+1,l_nj+G_haloy-1
 !DIR$ SIMD
          do i=1-G_halox+1,l_ni+G_halox-1
+            F_metric%mc_iJz_8(i,j,0)=one/(F_metric%zmom_8(i,j,1)-ver_z_8%m(0))
             F_metric%mc_css_H_8(i,j) = one/(gama_8*(isol_i*F_metric%mc_iJz_8(i,j,G_nk)+isol_d*Ver_idz_8%t(G_nk)-half*mu_8))
          end do
       end do

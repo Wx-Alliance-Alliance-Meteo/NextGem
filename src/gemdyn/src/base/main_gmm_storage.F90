@@ -205,7 +205,7 @@
 
       allocate ( GVM%mc_Jx_8 (l_minx:l_maxx,l_miny:l_maxy,G_nk), &
                  GVM%mc_Jy_8 (l_minx:l_maxx,l_miny:l_maxy,G_nk), &
-                 GVM%mc_iJz_8(l_minx:l_maxx,l_miny:l_maxy,G_nk), &
+                 GVM%mc_iJz_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk), &
                GVM%mc_logJz_8(l_minx:l_maxx,l_miny:l_maxy,G_nk), &
                  GVM%mc_Ix_8 (l_minx:l_maxx,l_miny:l_maxy,G_nk), &
                  GVM%mc_Iy_8 (l_minx:l_maxx,l_miny:l_maxy,G_nk), &

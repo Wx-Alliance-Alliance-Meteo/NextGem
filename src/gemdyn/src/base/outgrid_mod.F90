@@ -17,11 +17,6 @@ module outgrid
    implicit none
    public
    save
-!
-!revision
-! v2_30 - V. Lee                 - moved definition of OutGrid_MAXGRID1 to dimout.cdk
-! v2_30                          - Added Grid_phi_ig2
-! v3_30 - R. McTaggart-Cowan     - Added user defined tag extension
 !______________________________________________________________________
 !                                                                      |
 !  VARIABLES FOR DEFINITION OF THE OUTPUT GRIDS (set_grid)             |

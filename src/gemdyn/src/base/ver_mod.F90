@@ -97,12 +97,9 @@ module ver
 
       integer :: Ver_code
 
-      real(kind=REAL64), dimension(:), allocatable :: Ver_bzz_8
-      real(kind=REAL64), dimension(:), allocatable :: Ver_czz_8
+      real(kind=REAL64), dimension(:), allocatable :: Ver_bzz_8, Ver_czz_8
+      real(kind=REAL64), dimension(:), allocatable :: Ver_dqdz_8
       real(kind=REAL64), dimension(:), allocatable :: Ver_wpstar_8,Ver_wmstar_8
-      real(kind=REAL64), dimension(:), allocatable :: Ver_wpA_8,Ver_wmA_8
-      real(kind=REAL64), dimension(:), allocatable :: Ver_wpM_8,Ver_wmM_8
-      real(kind=REAL64), dimension(:), allocatable :: Ver_wpC_8,Ver_wmC_8
 
       real, dimension(:), allocatable :: Ver_onezero, Ver_zeronk
 

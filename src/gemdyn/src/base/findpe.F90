@@ -78,9 +78,6 @@
       real(kind=REAL64), intent(IN ) :: F_x_8,F_y_8
       real(kind=REAL64), intent(OUT) :: F_xa_8,F_ya_8
 
-!author V.Lee - November 2020
-!objective Get point on other grid (couleur)
-
       integer, external :: find_col,find_row
       real(kind=REAL64) :: x_d, y_d, s(2,2), x_a, y_a
       integer ecol, erow
