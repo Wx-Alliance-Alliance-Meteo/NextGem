@@ -53,7 +53,7 @@
       
       real(kind=REAL64), intent(IN) :: F_dt_8
 
-      logical :: print_conv
+      logical :: print_conv, first_time_L=.true.
       integer i0, in, j0, jn, k0, k0t, ni, nj, iln, icln
       integer i,j,k
       real(kind=REAL64) :: dt_8, invT_m_8
@@ -61,9 +61,6 @@
 !     
 !     ---------------------------------------------------------------
 !
-      dt_8 = F_dt_8
-      call set_dync ( .true., dt_8 )
-      call SW_matvec_init ()
 
       i0= 1   +pil_w
       in= l_ni-pil_e
@@ -75,160 +72,28 @@
       ni = ldnh_maxx-ldnh_minx+1
       nj = ldnh_maxy-ldnh_miny+1
       
+      dt_8 = F_dt_8
+      first_time_L= (Step_kount.le.1).and.first_time_L
+
       call gtmg_start (20, 'TSTPDYN', 10)
 
-      if (Step_slopi_ini.eq.1) then
+      call HLT_split (1, 6*l_nk+2, HLT_np, HLT_start, HLT_end)
 
-!        dt_8 = 0.75d0*Cstv_dt_8
+      call set_dync ( .true., dt_8 )
+      call SW_matvec_init ()
 
-      !model is initialized with T2=T1
-!!$omp do collapse(2)
-       do k= 1, l_nk
-        do j= 1, l_nj
-         do i= 1, l_ni
-          ut2(i,j,k)  = ut1(i,j,k)
-          vt2(i,j,k)  = vt1(i,j,k)
-          qt2(i,j,k)  = qt1(i,j,k)
-        end do
-        end do
-       end do
-!!$omp end do
-
-      !store current timestep for Step_kount=2 with BDF2
-!!$omp do collapse(2)
-       do k= 1, l_nk
-        do j= 1, l_nj
-         do i= 1, l_ni
-          uti(i,j,k)  = ut1(i,j,k)
-          vti(i,j,k)  = vt1(i,j,k)
-          qti(i,j,k)  = qt1(i,j,k)
-        end do
-        end do
-       end do
-!!$omp end do
-
-      else if (Step_slopi_ini.eq.2) then
-
-!        dt_8 = 0.5d0*Cstv_dt_8
-
-      else 
-
-!        dt_8 = Cstv_dt_8
-
-      endif
-
-      if (Step_kount.eq.2) then
-
-!!$omp do collapse(2)
-       do k= 1, l_nk
-        do j= 1, l_nj
-         do i= 1, l_ni
-          ut2(i,j,k)  = uti(i,j,k)
-          vt2(i,j,k)  = vti(i,j,k)
-          qt2(i,j,k)  = qti(i,j,k)
-         end do
-        end do
-       end do
-!!$omp end do
-
-      else if (Step_slopi_ini.ne.1) then
-
-      !move this to the end of dynstep
-!     print *, "-----call t02t2-----"
-      call t02t2 ()
-
-      endif
-
-!     !---unstagger the pw winds----
-
-      if (Grd_yinyang_L) then
-         call yyg_xchng_vec_uv2uv (ut0, vt0,&
-                                   l_minx,l_maxx,l_miny,l_maxy,G_nk)
-         call yyg_xchng_hlt (qt0 , l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
-                         G_nk+1, .false., 'CUBIC', .false.)
-         call yyg_xchng_vec_uv2uv (ut1, vt1,&
-                                   l_minx,l_maxx,l_miny,l_maxy,G_nk)
-         call yyg_xchng_hlt (qt1 , l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
-                         G_nk+1, .false., 'CUBIC', .false.)
-         call yyg_xchng_vec_uv2uv (ut2, vt2,&
-                                   l_minx,l_maxx,l_miny,l_maxy,G_nk)
-         call yyg_xchng_hlt (qt2 , l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
-                         G_nk+1, .false., 'CUBIC', .false.)
-      end if
-
-      if(Step_slopi_ini.eq.2) then
-
-!!$omp do collapse(2)
-        do k=1, l_nk
-          do j=1, l_nj
-            do i= 1, l_ni
-             Adz_uu_ext(i,j,k) = ut1(i,j,k)
-             Adz_vv_ext(i,j,k) = vt1(i,j,k)
-             Adz_ww_ext(i,j,k) = zdt1(i,j,k)
-             Adz_uu_dep_ext(i,j,k) = ut2(i,j,k)
-             Adz_vv_dep_ext(i,j,k) = vt2(i,j,k)
-             Adz_ww_dep_ext(i,j,k) = zdt2(i,j,k)
-            end do
-          end do
-        end do
-!!$omp enddo
-
-        call HLT_split (1, 6*l_nk, local_np, HLT_start, HLT_end)
-        call gem_xch_halo ( Adz_uu_ext(Adz_lminx,Adz_lminy,HLT_start),&
-                            Adz_lminx,Adz_lmaxx,Adz_lminy,Adz_lmaxy, local_np,-1)
-      endif
-
-      if( Williamson_case == 1 ) then
-
-         call SW_adz_will (dt_8) 
-
-      else
-
-!now that t2 variables are set, initialize bcs for t2
-!     if (Step_kount == 2) then
-!       print *,"--for timestep 2, init nest_prev data---"
-!       call nest_init_t2()
-
-!     end if
-
-      call HLT_split (1, l_nk, HLT_np, HLT_start, HLT_end)
-      call gem_xch_halo ( ut1(l_minx,l_miny,HLT_start),&
-                 l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
-      call gem_xch_halo ( vt1(l_minx,l_miny,HLT_start),&
-                 l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
-      call gem_xch_halo ( ut2(l_minx,l_miny,HLT_start),&
-                 l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
-      call gem_xch_halo ( vt2(l_minx,l_miny,HLT_start),&
-                 l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
-      call HLT_split (1, G_nk+1, HLT_np, HLT_start, HLT_end)
-      call gem_xch_halo ( qt1(l_minx,l_miny,HLT_start),&
-                 l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
-      call HLT_split (1, G_nk+1, HLT_np, HLT_start, HLT_end)
-      call gem_xch_halo ( qt2(l_minx,l_miny,HLT_start),&
-                 l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
 
 !2.	Compute bdf terms that will be on rhs for current and previous time levels
       call SW_rhs1(dt_8)
 
       do itpc=1, Schm_itpc
 
-!3.	Communication for computed terms because nli and rhs were computed on extended grid
-
-!     call HLT_split (1, 5*l_nk, HLT_np, HLT_start, HLT_end)
-!     call gem_xch_halo ( nlu_t1(l_minx,l_miny,HLT_start),&
-!                Adz_lminx,Adz_lmaxx,Adz_lminy,Adz_lmaxy, HLT_np,-1)
-
-!     call HLT_split (1, 5*l_nk, HLT_np, HLT_start, HLT_end)
-!     call gem_xch_halo ( nlu_t2(l_minx,l_miny,HLT_start),&
-!                Adz_lminx,Adz_lmaxx,Adz_lminy,Adz_lmaxy, HLT_np,-1)
-
-!     call HLT_split (1, 6*l_nk, HLT_np, HLT_start, HLT_end)
-!     call gem_xch_halo ( orhsu_ext(l_minx,l_miny,HLT_start),&
-!                Adz_lminx,Adz_lmaxx,Adz_lminy,Adz_lmaxy, HLT_np,-1)
+      call gem_xch_halo ( wt0(l_minx,l_miny,HLT_start),&
+                 l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
 
 !4.	Perform Semi-Lagrangian advection using standard 3-level displacement
       call gtmg_start (25, 'ADVECTION', 20)
-      call SW_adz_main (dt_8,itpc)
+      call SW_adz_main (dt_8,itpc,first_time_L)
       call gtmg_stop (25)
 
       call gtmg_start (27, 'PRE', 20)
@@ -246,37 +111,6 @@
       call gtmg_stop (27)
 
 !7. Compute nonlinear terms at t0 time level
-      if(itpc.eq.1) then
-!!$omp do collapse(2)
-       do k= 1, l_nk
-        do j= 1, l_nj
-         do i= 1, l_ni
-          ut0(i,j,k)  = ut1(i,j,k)
-          vt0(i,j,k)  = vt1(i,j,k)
-          qt0(i,j,k)  = qt1(i,j,k)
-         end do
-        end do
-       end do
-!!$omp end do
-
-!!$omp do collapse(2)
-        do j= 1, l_nj
-         do i= 1, l_ni
-          !qt0(i,j,l_nk+1)  = 2.d0*rhsc_mid(i,j,l_nk)-rhsc_dep(i,j,l_nk)
-           qt0(i,j,l_nk+1)  = qt1(i,j,l_nk)
-         end do
-        end do
-!!$omp end do
-
-      if (Grd_yinyang_L) then
-         call yyg_xchng_vec_uv2uv (ut0, vt0,&
-                                   l_minx,l_maxx,l_miny,l_maxy,G_nk)
-         call yyg_xchng_hlt (qt0 , l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
-                         G_nk+1, .false., 'CUBIC', .false.)
-      end if
-
-      endif
-
       call SW_nli( dt_8 )
 
 !8.	Combine the nonlinear term of the rhs and then
@@ -325,10 +159,9 @@
 
       enddo !Picard iter
 
-      endif !Williamson==1
-
       Step_slopi_ini = Step_slopi_ini + 1                
 
+      first_time_L= .false.
       call gtmg_stop (20)
 !
 !     ---------------------------------------------------------------

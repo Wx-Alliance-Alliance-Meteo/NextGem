@@ -18,7 +18,7 @@
 !
 !
 !------------------------------------------------------------------------------
-      subroutine SW_adz_main (F_dt_8,itpc)
+      subroutine SW_adz_main (F_dt_8, itpc, F_euler_L)
       use ISO_C_BINDING
       use dyn_fisl_options
       use cstv
@@ -32,8 +32,9 @@
       use step_options
       implicit none
 
-      real(kind=REAL64), intent(IN) :: F_dt_8
+      logical, intent(IN) :: F_euler_L
       integer, intent(IN) :: itpc
+      real(kind=REAL64), intent(IN) :: F_dt_8
 
       integer :: n,i,j,k
       integer :: HLT_np, HLT_start, HLT_end
@@ -42,7 +43,7 @@
 !
 !     ---------------------------------------------------------------
 !
-      if(Step_slopi_ini.eq.1) then
+      if(F_euler_L) then
          call euler_adz_traject_pic (F_dt_8,itpc) !<--bdf trajectory
       else
          call adz_traject_pic (F_dt_8,itpc) !<--bdf trajectory

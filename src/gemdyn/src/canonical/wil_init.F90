@@ -216,7 +216,8 @@
       do k=1,G_nk+1
          do j=j0,jn
             do i=i0,in
-               F_q(i,j,k) = F_gz(i,j,1) - (grav_8*Ver_z_8%m(1))
+               !F_q(i,j,k) = F_gz(i,j,1) - (grav_8*Ver_z_8%m(1))
+               F_q(i,j,k) = F_gz(i,j,1) - Ver_z_8%m(1)
             end do
          end do
       end do

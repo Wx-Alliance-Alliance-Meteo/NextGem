@@ -52,6 +52,17 @@
 !
 !     ---------------------------------------------------------------
 !
+!!$omp do
+      do n= 1, ubound(dynt0,1)
+         dynt0(n) = dynt1(n)
+      end do
+!!$omp end do nowait
+!!$omp do
+      do n= 1, ubound(trt0,1)
+         trt0(n) = trt1(n)
+      end do
+!!$omp end do nowait
+
       HLT_j0 = 1
       HLT_jn = l_nj
       HLT_nk = l_nk

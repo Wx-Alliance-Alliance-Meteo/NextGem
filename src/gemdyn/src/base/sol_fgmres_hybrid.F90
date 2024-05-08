@@ -15,7 +15,7 @@
 
 !** fgmres - Flexible generalized minimum residual method (with restarts).
 
-      subroutine sol_fgmres ( F_print_L )
+      subroutine sol_fgmres_hybrid ( F_print_L )
       use ISO_C_BINDING
       use dynkernel_options
       use glb_ld
@@ -57,7 +57,7 @@
       type(C_PTR) :: Cpntr
       real(kind=REAL64) :: t, conv, local_dot(2), glb_dot(2), l_avg_8(2), r_avg_8(2)
       real(kind=REAL64), dimension(sol_im+1,2) :: v_local_prod, v_prod, v_avg_8
-      real(kind=REAL64) :: wro2, wnu , wr0, residual, Rel_tolerance
+      real(kind=REAL64) :: wro2, wnu , wr0, residual, Rel_tolerance, prev_nrm_est
       real(kind=REAL128) :: rrp, wrr2
 !
 !     ---------------------------------------------------------------
@@ -130,12 +130,12 @@
          if (residual < Rel_tolerance) return
 
          wnu = 1.0d0 / residual
-
 !!$omp do collapse(2)
          do k=Sol_k0,l_nk
             do j=Sol_j0,Sol_jn
                do i=Sol_i0,Sol_in
-                  vv(i,j,k,1) = vv(i,j,k,1) * wnu
+                  vv(i,j,k,1) = vv(i,j,k,1) * wnu 
+                  !vv(i,j,k,1) = vv(i,j,k,1) !if not normalized then eventually NaN 
                end do
             end do
          end do
@@ -147,9 +147,8 @@
 
          tt = 0. ; rr = 0.
          !---additional matrices for PMEX---
-         N_mat = 0. ; M_mat = 0. ; T_mat1 = 0.
+         N_mat = 0. ; M_mat = 0. ; T_mat1 = 0. 
          IPIV_arr = 0. 
-         !note M_inv = tt, T_mat1 = intermediat T, the first step of the matmult
 
          call gtmg_stop (76)
 
@@ -164,11 +163,11 @@
                 Sol_imin,Sol_imax,Sol_jmin,Sol_jmax, HLT_np,Sol_ovlpx)
 
 
-
             call sol_precond (wint_8(Sol_ii0:Sol_iin,Sol_jj0:Sol_jjn,:,initer), &
                  vv(Sol_ii0:Sol_iin,Sol_jj0:Sol_jjn,:,initer), sol_niloc,sol_njloc,l_nk)
             !wint_8(Sol_ii0:Sol_iin,Sol_jj0:Sol_jjn,:,initer) = &
             !    vv(Sol_ii0:Sol_iin,Sol_jj0:Sol_jjn,:,initer)
+
             if(.not.Dynamics_sw_L) then
                   call matvec (wint_8(sol_ii0,sol_jj0,1,initer),Sol_ii0,Sol_iin,Sol_jj0,Sol_jjn,&
                       vv(sol_imin,sol_jmin,1,initer+1),Sol_imin,Sol_imax,Sol_jmin,Sol_jmax,l_nk)
@@ -183,6 +182,19 @@
             v_lcl_sum     = 0.d0
             v_prod        = 0.d0
 
+            !in order to obtain the true norm from the V_j^T * V_{j:j+1} comp
+            !rescale the previous two vectors by the norm estimate 
+            if (initer > 1) then
+               do k=Sol_k0,l_nk
+                  do j=Sol_j0,Sol_jn
+                     do i=Sol_i0,Sol_in
+                        vv(i, j, k, initer)   = vv(i, j, k, initer  ) * prev_nrm_est
+                        vv(i, j, k, initer+1) = vv(i, j, k, initer+1) * prev_nrm_est
+                     end do
+                  end do
+               end do
+             endif
+               
             do it=1,initer+1
 
 !!$omp master
@@ -208,20 +220,28 @@
             enddo
             call MPI_allreduce(v_avg_8(1:initer+1,:), v_prod(1:initer+1,:), (initer+1)*2,&
                                MPI_double_precision, MPI_sum, COMM_MULTIGRID, ierr)
-
+ 
             do it=1,initer-1
                tt(it,initer)     =  v_prod(it,1)
                N_mat(it,initer)  = -v_prod(it,1)
                M_mat(initer, it) =  v_prod(it,1)
             enddo
 
-            do it=1,initer
-               rr(it,initer+1) = v_prod(it,2)
-            enddo
+            !do it=1,initer
+            !   rr(it,initer+1) = v_prod(it,2)
+            !enddo
 
             rr(initer,initer) = v_prod(initer,1)
             rr(initer,initer) = sqrt( rr(initer,initer) )
-            rr(initer,initer+1) = rr(initer,initer+1) / rr(initer,initer)
+
+            !scale for Arnoldi
+            do it=1,initer
+               rr(it,initer+1) = v_prod(it,2) / rr(initer, initer) 
+            enddo
+            rr(initer, initer+1) = rr(initer, initer+1) / rr(initer, initer)
+           
+            !last element of v_{j+1}^T v_{j+1} is scaled twice
+            v_prod(initer+1,2) = v_prod(initer+1,2) / (rr(initer, initer) **2)
 
             wro2 = v_prod(initer+1,2)
 !!$omp end single copyprivate(wro2)
@@ -230,7 +250,8 @@
             do k=Sol_k0,l_nk
                do j=Sol_j0,Sol_jn
                   do i=Sol_i0,Sol_in
-                     vv(i, j, k, initer)  = vv(i, j, k, initer) / rr(initer,initer)
+                     vv(i, j, k, initer)    = vv(i, j, k, initer)   / rr(initer,initer)
+                     vv(i, j, k, initer+1)  = vv(i, j, k, initer+1) / rr(initer,initer)
                   enddo
                enddo
             enddo
@@ -245,7 +266,6 @@
                enddo
             end if
 
-            !print *,"set diag of t to 1, index ", initer, initer
             M_mat(initer, initer) = 1.d0 !set diag of M  
             tt(initer,initer)     = 1.d0
 
@@ -263,7 +283,6 @@
             enddo
       
             ! part 3:  multiply by rr
-            ! step1_tt = [I + N*M_inv]*rr
             rr(1:initer,initer+1) = matmul(T_mat1(1:initer, 1:initer), rr(1:initer, initer+1))
 
             !3. Step 2: Lower trangular solve
@@ -271,8 +290,6 @@
             !note: rr should be overwritten as the solution to the lower triangular solve 
             call dgesv(initer, 1, M_mat(1:initer,1:initer), initer, IPIV_arr, rr(1:initer,initer+1), initer, success_lts)
 
-            !---original---
-            !rr(1:initer,initer+1) = matmul( transpose(tt(1:initer, 1:initer)), rr(1:initer,initer+1) )
 !!$omp end single
 
             ! Compute wrr2=rr(:,initer+1)*rr(:,initer+1) needed in the computation of vv(:,:,:,initer+1) estimated norm
@@ -308,7 +325,6 @@
 !!$omp end single
             ! Or in case (wro2-wrr2)<= 0 compute exact norm
             else
-               
                local_dot(1) = 0.d0; lcl_sum=0.d0
 !!$omp master
 !!$omp do collapse(2)
@@ -335,6 +351,7 @@
                if ((OMP_get_thread_num()==0).and. (ptopo_myproc==0)) print*,'========= FGMRES Happy breakdown !! ===='
                exit
             endif
+            prev_nrm_est = rr(initer+1, initer+1)
             wnu = 1.d0 / rr(initer+1,initer+1)
 !!$omp do collapse(2)
             do k=Sol_k0,l_nk
@@ -456,4 +473,4 @@
 !     ---------------------------------------------------------------
 !
       return
-      end subroutine sol_fgmres
+      end subroutine sol_fgmres_hybrid
