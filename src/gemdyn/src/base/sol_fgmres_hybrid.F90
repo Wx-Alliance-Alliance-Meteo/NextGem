@@ -57,8 +57,7 @@
       type(C_PTR) :: Cpntr
       real(kind=REAL64) :: t, conv, local_dot(2), glb_dot(2), l_avg_8(2), r_avg_8(2)
       real(kind=REAL64), dimension(sol_im+1,2) :: v_local_prod, v_prod, v_avg_8
-      real(kind=REAL64) :: wro2, wnu , wr0, residual, Rel_tolerance, prev_nrm_est
-      real(kind=REAL128) :: rrp, wrr2
+      real(kind=REAL64) :: rrp, wrr2, wro2, wnu , wr0, residual, Rel_tolerance, prev_nrm_est
 !
 !     ---------------------------------------------------------------
 !
@@ -146,7 +145,7 @@
          gg(2:) = 0.d0
 
          tt = 0. ; rr = 0.
-         !---additional matrices for PMEX---
+         !---additional matrices for IGS---
          N_mat = 0. ; M_mat = 0. ; T_mat1 = 0. 
          IPIV_arr = 0. 
 
@@ -227,10 +226,6 @@
                M_mat(initer, it) =  v_prod(it,1)
             enddo
 
-            !do it=1,initer
-            !   rr(it,initer+1) = v_prod(it,2)
-            !enddo
-
             rr(initer,initer) = v_prod(initer,1)
             rr(initer,initer) = sqrt( rr(initer,initer) )
 
@@ -296,7 +291,7 @@
             rrp=0.d0 ; wrr2=0.d0
 !!$omp do
             do i=1,initer
-               rrp = rrp + real(rr(i,initer+1), kind=REAL128)**2
+               rrp = rrp + real(rr(i,initer+1), kind=REAL64)**2
             enddo
 !!$omp enddo
             thread_s(4,OMP_get_thread_num()) = rrp
