@@ -20,8 +20,10 @@
       use dynkernel_options
       use HORgrid_options
       use lam_options
+      use gmm_vt0
       use glb_ld
       use metric
+      use mem_tstp
       use omp_timing
       use sol_mem
       use, intrinsic :: iso_fortran_env
@@ -35,6 +37,8 @@
                  HLT_np, HLT_start, HLT_end
       integer :: i, j, k, k0, k0t, km, kp, n
       integer :: i0,in,j0,jn
+      real(kind=REAL64) :: x,x1,x2,y1,y2
+
 !
 !     ---------------------------------------------------------------
 !
@@ -54,13 +58,30 @@
       end do
 !!$omp enddo
 
+!--surface extrapolation
 !!$omp do
-         do j= j0, jn
-            do i= i0, in
-            fdg2(i,j,l_nk+1)=GVM%mc_alfas_H_8(i,j) * F_vector(i,j,l_nk) &
-                            -GVM%mc_betas_H_8(i,j) * F_vector(i,j,l_nk-1)
-         end do
-      end do
+      do j = 1, l_nj
+         do i = 1, l_ni
+            x1=GVM%zmom_8(i,j,l_nk-1)
+            x2=GVM%zmom_8(i,j,l_nk)
+            y1=fdg2(i,j,l_nk-1)
+            y2=fdg2(i,j,l_nk)
+            !y1=qt0(i,j,l_nk-1)
+            !y2=qt0(i,j,l_nk)
+             x=GVM%zmom_8(i,j,l_nk+1)
+           fdg2(i,j,l_nk+1) = y2 + (x-x2)/(x2-x1)*(y2-y1)
+         enddo
+      enddo
+!!$omp end do
+     !qti=fdg2
+
+!!$omp do
+        !do j= j0, jn
+        !   do i= i0, in
+        !   fdg2(i,j,l_nk+1)=GVM%mc_alfas_H_8(i,j) * F_vector(i,j,l_nk) &
+        !                   -GVM%mc_betas_H_8(i,j) * F_vector(i,j,l_nk-1)
+        !end do
+     !end do
 !!$omp enddo
 
       if (Schm_opentop_L) then

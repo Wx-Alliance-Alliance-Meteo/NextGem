@@ -48,6 +48,7 @@
       real(kind=REAL64) :: tau_m_8, tau_nh_8, invT_m_8, invT_nh_8,&
                            Buoy, wp_8(G_nk  ), wm_8(G_nk  )
       real(kind=REAL64), parameter :: one=1.d0, half=0.5d0
+      real(kind=REAL64) :: x,x1,x2,y1,y2
 !
 !     ---------------------------------------------------------------
 !
@@ -82,20 +83,37 @@
 
 !--extrapolation at the surface    
 !!$omp do
-      do j= j0, jn
-         do i= i0, in
-            w5=(GVM%zmom_8(i,j,l_nk+1)-GVM%zmom_8(i,j,l_nk))/(GVM%zmom_8(i,j,l_nk)-GVM%zmom_8(i,j,l_nk-1))
+!     do j= j0, jn
+!        do i= i0, in
+!           w5=(GVM%zmom_8(i,j,l_nk+1)-GVM%zmom_8(i,j,l_nk))/(GVM%zmom_8(i,j,l_nk)-GVM%zmom_8(i,j,l_nk-1))
             ! pour le moment cette extrapolation ne fonctionne pas
 !         q_ext(i,j,l_nk+1)= Sol_lhs(i,j,l_nk)*(1+w5) - w5*Sol_lhs(i,j,l_nk-1)
-            q_ext(i,j,l_nk+1) = GVM%mc_alfas_H_8(i,j) * q_ext(i,j,l_nk)   &
-                         - GVM%mc_betas_H_8(i,j) * q_ext(i,j,l_nk-1) &
-                         + GVM%mc_css_H_8(i,j)   * (rhst(i,j,l_nk)-Ver_wmstar_8(G_nk)*rhst(i,j,l_nk-1) &
-                            + invT_m_8*(rhsf(i,j,l_nk)-Ver_wmstar_8(G_nk)*rhsf(i,j,l_nk-1))) &
-                         - GVM%mc_css_H_8(i,j)   * (nl_t(i,j,l_nk ) - Ver_wmstar_8(G_nk)*nl_t(i,j,l_nk-1))
+!           q_ext(i,j,l_nk+1) = GVM%mc_alfas_H_8(i,j) * q_ext(i,j,l_nk)   &
+!                        - GVM%mc_betas_H_8(i,j) * q_ext(i,j,l_nk-1) &
+!                        + GVM%mc_css_H_8(i,j)   * (rhst(i,j,l_nk)-Ver_wmstar_8(G_nk)*rhst(i,j,l_nk-1) &
+!                           + invT_m_8*(rhsf(i,j,l_nk)-Ver_wmstar_8(G_nk)*rhsf(i,j,l_nk-1))) &
+!                        - GVM%mc_css_H_8(i,j)   * (nl_t(i,j,l_nk ) - Ver_wmstar_8(G_nk)*nl_t(i,j,l_nk-1))
 
+!        enddo
+!     enddo
+!!$omp end do
+
+            !--surface extrapolation
+!!$omp do
+      do j= j0, jn
+         do i= i0, in
+            x1=GVM%zmom_8(i,j,l_nk-1)
+            x2=GVM%zmom_8(i,j,l_nk)
+            !y1=fdg2(i,j,l_nk-1)
+            !y2=fdg2(i,j,l_nk)
+            y1=q_ext(i,j,l_nk-1)
+            y2=q_ext(i,j,l_nk)
+             x=GVM%zmom_8(i,j,l_nk+1)
+           q_ext(i,j,l_nk+1) = y2 + (x-x2)/(x2-x1)*(y2-y1)
          enddo
       enddo
 !!$omp end do
+
       if ( Schm_opentop_L ) then
 !!$omp do
          do k=0, k0-2
@@ -132,6 +150,7 @@
          end do
       end do
 !!$omp enddo
+      qti=qt0
 
       call HLT_split (1, G_nk+1, local_np, HLT_start, HLT_end)
       call gem_xch_halo ( qt0(l_minx,l_miny,HLT_start),l_minx,l_maxx,&
