@@ -60,7 +60,7 @@
       integer,save :: lastdt= -1
       integer i,j,k,ii,l_ninj,nko,istat,nk_under,nk_src,knd,nkindx
       integer pngz,pnvt,pntt,pnes,pntd, pnhr,pnpx,pntw,pnwe,pnww,&
-              pnzz,pnth,pnpn,pnp0,psum,pnla,pnlo,pnme,pnmx
+              pnzz,pnth,pnpn,pnp0,psum,pnla,pnlo,pnme,pnmx,pnqt
       integer psl1,psl2,psl3,&
               psl4,psl5,psl6,&
               psl7,psl8,psl9,&
@@ -100,7 +100,7 @@
       pngz=0 ; pnvt=0 ; pntt=0 ; pnes=0 ; pntd=0 ; pnhr=0 ; pnpx=0
       pntw=0 ; pnwe=0 ; pnww=0 ; pnzz=0 ; pnth=0 ; psl1=0 ; psl2=0
       psl3=0 ; psl4=0 ; psl5=0 ; psl6=0 ; psl7=0 ; psl8=0 ; psl9=0
-      psl10=0; psl11=0; psl12=0
+      psl10=0; psl11=0; psl12=0; pnqt=0
 
       hyb0(1)=0.0
       ind0(1)=1
@@ -113,6 +113,7 @@
          if (Outd_var_S(ii,set) == 'ME') pnme=ii
          if (Outd_var_S(ii,set) == 'MX') pnmx=ii
          if (Outd_var_S(ii,set) == 'GZ') pngz=ii
+         if (Outd_var_S(ii,set) == 'QT') pnqt=ii
          if (Outd_var_S(ii,set) == 'VT') pnvt=ii
          if (Outd_var_S(ii,set) == 'TT') pntt=ii
          if (Outd_var_S(ii,set) == 'ES') pnes=ii
@@ -417,6 +418,13 @@
             call out_fstecr(gzt,l_minx,l_maxx,l_miny,l_maxy,hybt, &
                'GZ  ',Outd_convmult(pngz,set),Outd_convadd(pngz,set),&
                knd,-1,G_nk+1,indo,nkindx,Outd_nbit(pngz,set),.false. )
+         end if
+
+         if (pnqt /= 0)then
+            Out_stag_S= 'MM '
+            call out_fstecr(qti,l_minx,l_maxx,l_miny,l_maxy,hybm, &
+               'QT  ',Outd_convmult(pnqt,set),Outd_convadd(pnqt,set),&
+               knd,-1,G_nk+1,indo,nko,Outd_nbit(pnqt,set),.false. )
          end if
 
          if (pnvt /= 0)then
