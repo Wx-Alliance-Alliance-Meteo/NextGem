@@ -105,12 +105,13 @@
             x1=GVM%zmom_8(i,j,l_nk-1)
             x2=GVM%zmom_8(i,j,l_nk)
              x=GVM%zmom_8(i,j,l_nk+1)
-            !y1=q_ext(i,j,l_nk-1)
-            !y2=q_ext(i,j,l_nk)
-            y1=q_ext(i,j,l_nk-1)/(rgasd_8*Cstv_Tstr_8) + GVM%lg_pstar_8(i,j,l_nk-1)
-            y2=q_ext(i,j,l_nk)/(rgasd_8*Cstv_Tstr_8) + GVM%lg_pstar_8(i,j,l_nk)
+            y1=q_ext(i,j,l_nk-1)
+            y2=q_ext(i,j,l_nk)
+            !y1=q_ext(i,j,l_nk-1)/(rgasd_8*Cstv_Tstr_8) + GVM%lg_pstar_8(i,j,l_nk-1)
+            !y2=q_ext(i,j,l_nk)/(rgasd_8*Cstv_Tstr_8) + GVM%lg_pstar_8(i,j,l_nk)
             y= y2 + (x-x2)/(x2-x1)*(y2-y1)
-            q_ext(i,j,l_nk+1) = rgasd_8*Cstv_Tstr_8*(y-GVM%lg_pstar_8(i,j,l_nk+1))
+            !q_ext(i,j,l_nk+1) = rgasd_8*Cstv_Tstr_8*(y-GVM%lg_pstar_8(i,j,l_nk+1))
+            q_ext(i,j,l_nk+1) = y
          enddo
       enddo
 !!$omp end do
