@@ -110,8 +110,6 @@
                
                F_metric%mc_Ix_8(i,j,k)=log( (zthtu_8(i,j,k)-zthtu_8(i,j,k-1))/(zthtu_8(i-1,j,k)-zthtu_8(i-1,j,k-1)) )*geomh_invDX_8(j)
                F_metric%mc_Iy_8(i,j,k)=log( (zthtv_8(i,j,k)-zthtv_8(i,j,k-1))/(zthtv_8(i,j-1,k)-zthtv_8(i,j-1,k-1)) )*geomh_invDY_8
-!               F_metric%mc_Ix_8(i,j,k)=log( (F_metric%ztht_8(i+1,j,k)-F_metric%ztht_8(i+1,j,k-1))/(F_metric%ztht_8(i-1,j,k)-F_metric%ztht_8(i-1,j,k-1)) )*0.5d0*geomh_invDX_8(j)
-!               F_metric%mc_Iy_8(i,j,k)=log( (F_metric%ztht_8(i,j+1,k)-F_metric%ztht_8(i,j+1,k-1))/(F_metric%ztht_8(i,j-1,k)-F_metric%ztht_8(i,j-1,k-1)) )*0.5d0*geomh_invDY_8
                F_metric%mc_Iz_8(i,j,k)=log( (F_metric%zmom_8(i,j,k+1)-F_metric%zmom_8(i,j,k))/(Ver_z_8%m(k+1)-Ver_z_8%m(k)) &
                                   /(F_metric%zmom_8(i,j,k)-F_metric%zmom_8(i,j,k-1))*(Ver_z_8%m(k)-Ver_z_8%m(k-1)) )*Ver_idz_8%m(k)
                F_metric%mc_logJz_8(i,j,k)= 0.0
@@ -126,6 +124,7 @@
             F_metric%mc_css_H_8(i,j) = one/(gama_8*(isol_i*F_metric%mc_iJz_8(i,j,G_nk)+isol_d*Ver_idz_8%t(G_nk)-half*mu_8))
          end do
       end do
+
       do j=1-G_haloy,l_nj+G_haloy
 !DIR$ SIMD
          do i=1-G_halox,l_ni+G_halox
@@ -281,8 +280,6 @@
 
                F_metric%mc_Ix_8(i,j,k)=log( (zthtu_8(i,j,k)-zthtu_8(i,j,k-1))/(zthtu_8(i-1,j,k)-zthtu_8(i-1,j,k-1)) )*geomh_invDX_8(j)
                F_metric%mc_Iy_8(i,j,k)=log( (zthtv_8(i,j,k)-zthtv_8(i,j,k-1))/(zthtv_8(i,j-1,k)-zthtv_8(i,j-1,k-1)) )*geomh_invDY_8
-!               F_metric%mc_Ix_8(i,j,k)=log( (F_metric%ztht_8(i+1,j,k)-F_metric%ztht_8(i+1,j,k-1))/(F_metric%ztht_8(i-1,j,k)-F_metric%ztht_8(i-1,j,k-1)) )*0.5d0*geomh_invDX_8(j)
-!               F_metric%mc_Iy_8(i,j,k)=log( (F_metric%ztht_8(i,j+1,k)-F_metric%ztht_8(i,j+1,k-1))/(F_metric%ztht_8(i,j-1,k)-F_metric%ztht_8(i,j-1,k-1)) )*0.5d0*geomh_invDY_8
                F_metric%mc_Iz_8(i,j,k)=log( (F_metric%zmom_8(i,j,k+1)-F_metric%zmom_8(i,j,k))/(Ver_z_8%m(k+1)-Ver_z_8%m(k)) &
                                   /(F_metric%zmom_8(i,j,k)-F_metric%zmom_8(i,j,k-1))*(Ver_z_8%m(k)-Ver_z_8%m(k-1)) )*Ver_idz_8%m(k)
                F_metric%mc_logJz_8(i,j,k)= 0.0
@@ -295,6 +292,7 @@
       do j=1-G_haloy+1,l_nj+G_haloy-1
 !DIR$ SIMD
          do i=1-G_halox+1,l_ni+G_halox-1
+            F_metric%mc_iJz_8(i,j,0)=one/(F_metric%zmom_8(i,j,1)-ver_z_8%m(0))
             F_metric%mc_css_H_8(i,j) = one/(gama_8*(isol_i*F_metric%mc_iJz_8(i,j,G_nk)+isol_d*Ver_idz_8%t(G_nk)-half*mu_8))
          end do
       end do
