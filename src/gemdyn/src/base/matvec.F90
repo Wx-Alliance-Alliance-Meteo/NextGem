@@ -23,6 +23,8 @@
       use gmm_vt0
       use glb_ld
       use metric
+      use cstv
+      use tdpack
       use mem_tstp
       use omp_timing
       use sol_mem
@@ -37,7 +39,7 @@
                  HLT_np, HLT_start, HLT_end
       integer :: i, j, k, k0, k0t, km, kp, n
       integer :: i0,in,j0,jn
-      real(kind=REAL64) :: x,x1,x2,y1,y2
+      real(kind=REAL64) :: x,x1,x2,y,y1,y2
 
 !
 !     ---------------------------------------------------------------
@@ -64,12 +66,15 @@
          do i = 1, l_ni
             x1=GVM%zmom_8(i,j,l_nk-1)
             x2=GVM%zmom_8(i,j,l_nk)
-            y1=fdg2(i,j,l_nk-1)
-            y2=fdg2(i,j,l_nk)
+             x=GVM%zmom_8(i,j,l_nk+1)
+            !y1=fdg2(i,j,l_nk-1)
+            !y2=fdg2(i,j,l_nk)
             !y1=qt0(i,j,l_nk-1)
             !y2=qt0(i,j,l_nk)
-             x=GVM%zmom_8(i,j,l_nk+1)
-           fdg2(i,j,l_nk+1) = y2 + (x-x2)/(x2-x1)*(y2-y1)
+            y1=fdg2(i,j,l_nk-1)/(rgasd_8*Cstv_Tstr_8) + GVM%lg_pstar_8(i,j,l_nk-1)
+            y2=fdg2(i,j,l_nk)/(rgasd_8*Cstv_Tstr_8) + GVM%lg_pstar_8(i,j,l_nk)
+            y= y2 + (x-x2)/(x2-x1)*(y2-y1)
+           fdg2(i,j,l_nk+1) = rgasd_8*Cstv_Tstr_8*(y-GVM%lg_pstar_8(i,j,l_nk+1))
          enddo
       enddo
 !!$omp end do
