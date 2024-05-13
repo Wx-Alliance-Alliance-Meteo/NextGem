@@ -14,7 +14,6 @@
 !---------------------------------- LICENCE END ---------------------------------
 !**s/r nli_H  - compute non-linear terms:  Nu, Nv, Nt, Nc, Nw,
 !             - compute full right-hand side of Helmholtz eqn: Rp=Rc-Nc
-!             - Height-type vertical coordinate
 !
 !**********************************************************************
 !

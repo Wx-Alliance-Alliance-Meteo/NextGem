@@ -13,8 +13,7 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
 
-!** s/r - Computes model vertical velocities zd and w diagnostically.
-!         Height-type vertical coordinate
+!** s/r - Computes diagnostic model vertical velocities zd and w
 
       subroutine diag_zd_w (F_zd, F_w, F_u, F_v, F_t, F_q, &
               F_metric,Minx, Maxx, Miny, Maxy, Nk, F_zd_L, F_w_L )

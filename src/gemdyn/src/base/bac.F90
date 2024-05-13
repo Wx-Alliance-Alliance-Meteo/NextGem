@@ -16,7 +16,6 @@
 !**s/r  bac_H- backsubstitution: obtain new values of the variables:u,v,w,t,q,zd
 !                from new q , the right-hand sides (Ru,Rv,Rw,Rt,Rf)
 !                             and non-linear terms (Nu,Nv,Nw,Nt)
-!             - Height-type vertical coordinate
 
       subroutine bac ( F_dt_8, i0, j0, k0, in, jn ,k0t )
       use gem_options

@@ -46,7 +46,6 @@
          call set_sol ()
 !!$omp end single
          call vertical_metric_omp (GVM, fis0, orols, l_minx,l_maxx,l_miny,l_maxy)
-         call matvec_init ()
       endif
       done =.true.
       

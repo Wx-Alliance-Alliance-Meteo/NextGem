@@ -15,7 +15,6 @@
 !
 !**s/r pre_H -  Combine some rhs obtaining Rt' and Rc", the linear
 !               contributions to the rhs of Helmholtz equation
-!            -  Height-type vertical coordinate
 !
 !	Now we have a new BVP because the metric terms in the continuity equation
 !   are no longer simplified to ln(Jz). See notes for more detail on

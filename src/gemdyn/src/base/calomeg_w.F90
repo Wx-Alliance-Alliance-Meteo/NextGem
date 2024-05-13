@@ -14,8 +14,7 @@
 !---------------------------------- LICENCE END ---------------------------------
 
 !**s/p calomeg_w - compute vertical velocity in pressure coordinates
-!                    from advection
-!
+
       subroutine calomeg_w (F_ww,F_st1,F_sl,F_wt1,F_tt1,F_lnp,Minx,Maxx,Miny,Maxy,Nk)
       use tdpack
       use glb_ld
@@ -46,13 +45,10 @@
 ! F_wt1               real vertical wind
 ! F_tt1               virtual temperature
 !
-
-
       integer :: i,j,k
       real :: w1
 !     __________________________________________________________________
 !
-
       do k=1,l_nk
          do j=1,l_nj
             do i=1,l_ni

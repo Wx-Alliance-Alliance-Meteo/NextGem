@@ -103,9 +103,6 @@
       end if
       
       call vertical_metric_omp (GVM, fis0, orols, l_minx,l_maxx,l_miny,l_maxy)
-
-      call matvec_init ()
-      
 !!$omp do
       do j= 1-G_haloy+1, l_nj+G_haloy-1
          me_full (1-G_halox+1:l_ni+G_halox-1,j) =  fis0(1-G_halox+1:l_ni+G_halox-1,j) / grav_8

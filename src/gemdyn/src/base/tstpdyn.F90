@@ -47,7 +47,8 @@
       real(kind=REAL64), parameter :: zero=0.d0, one=1.d0
       real(kind=REAL64) :: dt_8, invT_m_8
       !-----picard stopping criteria-----
-      real(kind=REAL64), parameter :: max_iter = 10, tol=1e-6 !tol in single precision
+      integer, parameter :: max_iter = 10
+      real(kind=REAL64), parameter :: tol=1e-6 !tol in single precision
       real(kind=REAL64), dimension(11) :: err !error defined by bdf method with infinity-norm
       real(kind=REAL64), dimension(11) :: sucsv_err !error of successive iterates for inf-nrm
       real(kind=REAL64), dimension(11) :: err2nrm !error defined by bdf method with 2-norm
@@ -73,12 +74,9 @@
       call HLT_split (1, 6*l_nk+2, HLT_np, HLT_start, HLT_end)
 
       if(Step_kount.le.2) then
-
-       call set_dync ( .true., dt_8 )
-       call vertical_metric_omp (GVM, fis0, orols,&
+         call set_dync ( .true., dt_8 )
+         call vertical_metric_omp (GVM, fis0, orols,&
                        l_minx,l_maxx,l_miny,l_maxy)
-       call matvec_init ()
-
       endif
 
       call rhs1 (dt_8) ! first guess into t0
