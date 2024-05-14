@@ -199,7 +199,7 @@
       Ver_onezero(1)=0.
 
       Ver_zeronk=1.
-      Ver_zeronk(G_nk)=0.
+      Ver_zeronk(G_nk)=1.
 
 !     ----------------------------------------------------------
 !     Save Ver_vgdobj and ip1m/t for output

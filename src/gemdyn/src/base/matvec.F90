@@ -22,8 +22,12 @@
       use dyn_fisl_options
       use HORgrid_options
       use lam_options
+      use gmm_vt0
       use glb_ld
       use metric
+      use cstv
+      use tdpack
+      use mem_tstp
       use omp_timing
       use sol_mem
       use ver
@@ -39,7 +43,8 @@
       integer :: i, j, k, k0, k0t, km, kp, n
       integer :: i0,in,j0,jn
       real(kind=REAL64)  :: r1, aa1, aa2, aa3, bb1, bb2, bb3, cc1,&
-                 S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15
+               S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15,&
+               x,x1,x2,y,y1,y2
       real(kind=REAL64), parameter :: half=0.5d0
       integer(kind=8) :: a,b
 !
@@ -61,13 +66,32 @@
       end do
 !!$omp enddo
 
+!--surface extrapolation
 !!$omp do
-         do j= j0, jn
-            do i= i0, in
-            fdg2(i,j,l_nk+1)=GVM%mc_alfas_H_8(i,j) * F_vector(i,j,l_nk) &
-                            -GVM%mc_betas_H_8(i,j) * F_vector(i,j,l_nk-1)
-         end do
-      end do
+      do j = 1, l_nj
+         do i = 1, l_ni
+            x1=GVM%zmom_8(i,j,l_nk-1)
+            x2=GVM%zmom_8(i,j,l_nk)
+             x=GVM%zmom_8(i,j,l_nk+1)
+            y1=fdg2(i,j,l_nk-1)
+            y2=fdg2(i,j,l_nk)
+            !y1=fdg2(i,j,l_nk-1)/(rgasd_8*Cstv_Tstr_8) + GVM%lg_pstar_8(i,j,l_nk-1)
+            !y2=fdg2(i,j,l_nk)/(rgasd_8*Cstv_Tstr_8) + GVM%lg_pstar_8(i,j,l_nk)
+            y= y2 + (x-x2)/(x2-x1)*(y2-y1)
+           !fdg2(i,j,l_nk+1) = rgasd_8*Cstv_Tstr_8*(y-GVM%lg_pstar_8(i,j,l_nk+1))
+           fdg2(i,j,l_nk+1) = y
+         enddo
+      enddo
+!!$omp end do
+     !qti=fdg2
+
+!!$omp do
+        !do j= j0, jn
+        !   do i= i0, in
+        !   fdg2(i,j,l_nk+1)=GVM%mc_alfas_H_8(i,j) * F_vector(i,j,l_nk) &
+        !                   -GVM%mc_betas_H_8(i,j) * F_vector(i,j,l_nk-1)
+        !end do
+     !end do
 !!$omp enddo
 
       if (Schm_opentop_L) then

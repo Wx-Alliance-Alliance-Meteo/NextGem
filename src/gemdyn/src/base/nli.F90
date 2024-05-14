@@ -50,6 +50,8 @@
       real(kind=REAL64) :: c0,div,w1,w2,w3,w4,barz,barzp,t_interp,u_interp,v_interp
       real(kind=REAL64) :: tau_8, tau_m_8, tau_nh_8, invT_8, invT_m_8, invT_nh_8
       real(kind=REAL64), parameter :: one=1.d0, half=0.5d0
+      real(kind=REAL64) :: x,x1,x2,y,y1,y2
+
 !     __________________________________________________________________
 !
       tau_8    = (2.0*F_dt_8) / 3.0
@@ -75,6 +77,25 @@
          end do
       end do
 !!$omp enddo
+
+!--surface extrapolation
+!!$omp do
+      do j = 1, l_nj
+         do i = 1, l_ni
+            x1=GVM%zmom_8(i,j,l_nk-1)
+            x2=GVM%zmom_8(i,j,l_nk)
+             x=GVM%zmom_8(i,j,l_nk+1)
+            y1=qt0(i,j,l_nk-1)
+            y2=qt0(i,j,l_nk)
+            !y1=qt0(i,j,l_nk-1)/(rgasd_8*Cstv_Tstr_8) + GVM%lg_pstar_8(i,j,l_nk-1)
+            !y2=qt0(i,j,l_nk)/(rgasd_8*Cstv_Tstr_8) + GVM%lg_pstar_8(i,j,l_nk)
+            y= y2 + (x-x2)/(x2-x1)*(y2-y1)
+            !qt0(i,j,l_nk+1) = rgasd_8*Cstv_Tstr_8*(y-GVM%lg_pstar_8(i,j,l_nk+1))
+            qt0(i,j,l_nk+1) = y
+         enddo
+      enddo
+!!$omp end do
+
 
 !***********************************************************
 ! The nonlinear deviation of horizontal momentum equations *
@@ -212,7 +233,7 @@
 
       endif
 
-      call vert_boundary ( i0,j0,in,jn )
+      !call vert_boundary ( i0,j0,in,jn )
 !
 !     ---------------------------------------------------------------
 !
