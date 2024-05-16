@@ -22,6 +22,9 @@
       use lam_options
       use glb_ld
       use metric
+      use geomh
+      use ver
+      use cstv
       use omp_timing
       use sol_mem
       use, intrinsic :: iso_fortran_env
@@ -73,50 +76,22 @@
       call gtmg_stop (72)
       call gtmg_start (73, 'MATVEC2', 25 )
 
-!!$      HLT_j0 = j0
-!!$      HLT_jn = jn
-!!$      HLT_nk = l_nk
-!!$      HLT_nj = HLT_jn - HLT_j0 + 1
-!!$      call HLT_split (1, HLT_nj*HLT_nk, HLT_np, HLT_start, HLT_end)
-!!$      do n= HLT_start, HLT_end
-!!$         k= (n-1)/HLT_nj
-!!$         j= n - k*HLT_nj + HLT_j0 - 1
-!!$         k= k+1
-!!$            km=max(k-1,1)
-!!$            kp=k+1
-!!$
-!!$            do i= i0, in
-!!$               F_prod(i,j,k)= &
-!!$                  matv2_8 (i,j,k)*fdg2(i-1,j,  k  ) &
-!!$               +  matv1_8 (i,j,k)*fdg2(i,  j,  k  ) &
-!!$               +  matv3_8 (i,j,k)*fdg2(i+1,j,  k  ) &
-!!$               +  matv6_8 (i,j,k)*fdg2(i-1,j,  km ) &
-!!$               +  matv4_8 (i,j,k)*fdg2(i,  j,  km ) &
-!!$               +  matv8_8 (i,j,k)*fdg2(i+1,j,  km ) &
-!!$               +  matv7_8 (i,j,k)*fdg2(i-1,j,  kp ) &
-!!$               +  matv5_8 (i,j,k)*fdg2(i,  j,  kp ) &
-!!$               +  matv9_8 (i,j,k)*fdg2(i+1,j,  kp ) &
-!!$               + matv10_8 (i,j,k)*fdg2(i,  j-1,k  ) &
-!!$               + matv11_8 (i,j,k)*fdg2(i,  j+1,k  ) &
-!!$               + matv12_8 (i,j,k)*fdg2(i,  j-1,km ) &
-!!$               + matv13_8 (i,j,k)*fdg2(i,  j-1,kp ) &
-!!$               + matv14_8 (i,j,k)*fdg2(i,  j+1,km ) &
-!!$               + matv15_8 (i,j,k)*fdg2(i,  j+1,kp )
-!!$            end do            
-!!$      end do
-
 !!$omp do collapse(2)
       do k=k0,l_nk
          do j= j0, jn
             km=max(k-1,1)
             kp=k+1
             do i= i0, in
-               F_prod(i,j,k)= &
-                  Sol_stencilh_8 (i,j,k, 1)*fdg2(i,  j,  k  ) &
-               +  Sol_stencilh_8 (i,j,k, 2)*fdg2(i-1,j,  k  ) &
-               +  Sol_stencilh_8 (i,j,k, 3)*fdg2(i+1,j,  k  ) &
-               +  Sol_stencilh_8 (i,j,k,10)*fdg2(i,  j-1,k  ) &
-               +  Sol_stencilh_8 (i,j,k,11)*fdg2(i,  j+1,k  ) 
+               F_prod(i,j,k) = Cstv_hco0_8*( &
+                      -2.0d0*geomh_invDX_8(j)*geomh_invDXM_8(j)*fdg2(i,j,k)                 &
+                      +geomh_invDX_8(j)*geomh_invDXM_8(j)*fdg2(i+1,j,k)                     &
+                      +geomh_invDX_8(j)*geomh_invDXM_8(j)*fdg2(i-1,j,k)                     &
+                      -geomh_invDYMv_8(j)*geomh_cyM_8(j)*geomh_invDYM_8(j)*fdg2(i,j,k)      &
+                      -geomh_invDYMv_8(j-1)*geomh_cyM_8(j-1)*geomh_invDYM_8(j)*fdg2(i,j,k)  &
+                      +geomh_invDYMv_8(j)*geomh_cyM_8(j)*geomh_invDYM_8(j)*fdg2(i,j+1,k)    &
+                      +geomh_invDYMv_8(j-1)*geomh_cyM_8(j-1)*geomh_invDYM_8(j)*fdg2(i,j-1,k)&
+                      - gg_sw_8*fdg2(i,j,k) &
+                      )
             end do
          end do
       end do
