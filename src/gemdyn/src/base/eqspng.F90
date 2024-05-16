@@ -13,26 +13,15 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
 
-!**s/r eqspng - apply vertical diffusion at and near
-!               the model top on u and v
+!**s/r eqspng - apply vertical diffusion at and near model
 
-      subroutine eqspng (F_u,F_v,Minx,Maxx,Miny,Maxy,Nk)
+      subroutine eqspng ()
       use hvdif_options
       use glb_ld
+      use gmm_vt1
       use lun
       implicit none
 
-      integer, intent(IN) :: Minx,Maxx,Miny,Maxy, Nk
-      real, dimension(Minx:Maxx,Miny:Maxy,Nk), intent(INOUT) :: F_u,F_v
-
-   !______________________________________________________________________
-   !        |                                             |           |   |
-   ! NAME   |             DESCRIPTION                     | DIMENSION |I/O|
-   !--------|---------------------------------------------|-----------|---|
-   ! F_u    | x component of velocity                     | 3D (Nk)   |i/o|
-   ! F_v    | y component of velocity                     | 3D (Nk)   |i/o|
-   !________|_____________________________________________|___________|___|
-   !
    !    There are nlev levels that will be diffused.
    !    There are nlev-1 coefficent passed in namelist by user.
    !
@@ -64,9 +53,8 @@
    !    ---- this u equal u(nlev) (see kp in loop) /
    !
    !_____________________________________________________________________
-   !
 
-      real, dimension(l_ni,eq_nlev) :: u,v
+      real, dimension(l_ni,eq_nlev) :: u,v,w,zd
       integer :: i,j,k,km,kp
 !
 !-------------------------------------------------------------------
@@ -77,14 +65,20 @@
          kp=min(eq_nlev,k+1)
          km=max(1,k-1)
          do i=1,l_ni
-            u(i,k)=F_u(i,j,k)+eponmod(i,j)*(cp(k)*(F_u(i,j,kp)-F_u(i,j,k )) &
-                                        -cm(k)*(F_u(i,j,k )-F_u(i,j,km)))
-            v(i,k)=F_v(i,j,k)+eponmod(i,j)*(cp(k)*(F_v(i,j,kp)-F_v(i,j,k )) &
-                                        -cm(k)*(F_v(i,j,k )-F_v(i,j,km)))
+            u(i,k)=ut1(i,j,k)+eponmod(i,j)*(cp(k)*(ut1(i,j,kp)-ut1(i,j,k )) &
+                                           -cm(k)*(ut1(i,j,k )-ut1(i,j,km)))
+            v(i,k)=vt1(i,j,k)+eponmod(i,j)*(cp(k)*(vt1(i,j,kp)-vt1(i,j,k )) &
+                                           -cm(k)*(vt1(i,j,k )-vt1(i,j,km)))
+            w(i,k)=wt1(i,j,k)+eponmod(i,j)*(cp(k)*(wt1(i,j,kp)-wt1(i,j,k )) &
+                                           -cm(k)*(wt1(i,j,k )-wt1(i,j,km)))
+            zd(i,k)=zdt1(i,j,k)+eponmod(i,j)*(cp(k)*(zdt1(i,j,kp)-zdt1(i,j,k )) &
+                                           -cm(k)*(zdt1(i,j,k )-zdt1(i,j,km)))
          end do
       end do
-      F_u(1:l_ni,j,1:eq_nlev)=u(1:l_ni,1:eq_nlev)
-      F_v(1:l_ni,j,1:eq_nlev)=v(1:l_ni,1:eq_nlev)
+      ut1(1:l_ni,j,1:eq_nlev)=u(1:l_ni,1:eq_nlev)
+      vt1(1:l_ni,j,1:eq_nlev)=v(1:l_ni,1:eq_nlev)
+      wt1(1:l_ni,j,1:eq_nlev)=w(1:l_ni,1:eq_nlev)
+      zdt1(1:l_ni,j,1:eq_nlev)=zd(1:l_ni,1:eq_nlev)
    end do
 !!$omp end do
 !

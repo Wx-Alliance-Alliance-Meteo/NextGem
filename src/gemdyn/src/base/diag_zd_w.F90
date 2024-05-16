@@ -90,7 +90,7 @@
             end do
             do j=j0,jn
                do i=i0,in
-                  F_zd(i,j,k-1) = rJzZ(i,j)*F_zd(i,j,k)*Ver_zeronk(k) + Ver_dz_8%m(k)*( &
+                  F_zd(i,j,k-1) = rJzZ(i,j)*F_zd(i,j,k) + Ver_dz_8%m(k)*( &
                                 (rJzX(i  ,j)*F_u(i  ,j,k)                   &
                                -rJzX(i-1,j)*F_u(i-1,j,k))*geomh_invDX_8(j) &
                               +(rJzY(i,j  )*F_v(i,j  ,k)*geomh_cyV_8(j  )  &

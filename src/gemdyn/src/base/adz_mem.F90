@@ -46,8 +46,7 @@ module adz_mem
       real, dimension(:  ), allocatable :: nexports
       real(kind=REAL64) :: Adz_iminposx,Adz_imaxposx,Adz_iminposy,Adz_imaxposy
       real(kind=REAL64) :: Adz_yyminposx,Adz_yymaxposx,Adz_yyminposy,Adz_yymaxposy
-      real(kind=REAL64) :: adz_ovdzm_8, adz_ovdzt_8, adz_vw5, adz_vw6
-      real(kind=REAL64), dimension(:), allocatable :: adz_vw1m, adz_vw2m, adz_vw3m, adz_vw4m
+      real(kind=REAL64) :: adz_ovdzm_8, adz_ovdzt_8, adz_vw5
       real(kind=REAL64), dimension(:), allocatable :: adz_vw1t, adz_vw2t, adz_vw3t, adz_vw4t
 
       real(kind=REAL64), dimension(:), pointer :: Adz_cy_8, &

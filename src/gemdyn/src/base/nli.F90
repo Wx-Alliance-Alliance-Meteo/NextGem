@@ -46,6 +46,7 @@
 
       integer :: i, j, k, km 
       integer :: HLT_np, HLT_start, HLT_end
+      real :: onezero(G_nk)
       real, dimension(:,:,:), pointer :: tots, logT, logQ, tots2, logT2, logQ2
       real(kind=REAL64) :: c0,div,w1,w2,w3,w4,barz,barzp,t_interp,u_interp,v_interp
       real(kind=REAL64) :: tau_8, tau_m_8, tau_nh_8, invT_8, invT_m_8, invT_nh_8
@@ -164,13 +165,15 @@
 
 !     Compute Nc
 !     ~~~~~~~~~~~
+      onezero   =1.
+      onezero(1)=0.
 !!$omp do collapse(2)
       do k=k0,l_nk
          do j = j0, jn
             km=max(k-1,1)
             do i = i0, in
                w1= (Ver_idz_8%m(k) + (GVM%mc_Iz_8(i,j,k) - epsi_8)*Ver_wp_8%m(k))
-               w2= (Ver_idz_8%m(k) - (GVM%mc_Iz_8(i,j,k) - epsi_8)*Ver_wm_8%m(k))*Ver_onezero(k)
+               w2= (Ver_idz_8%m(k) - (GVM%mc_Iz_8(i,j,k) - epsi_8)*Ver_wm_8%m(k))*onezero(k)
 
                div = (nl_u(i,j,k)-nl_u(i-1,j,k)) * geomh_invDXM_8(j) &
                    + (nl_v(i,j,k)*geomh_cyM_8(j)-nl_v(i,j-1,k)* &
@@ -178,7 +181,7 @@
                     + (half * ( GVM%mc_Ix_8(i,j,k)*(nl_u(i,j,k)+nl_u(i-1,j,k)) &
                                      + GVM%mc_Iy_8(i,j,k)*(nl_v(i,j,k)+nl_v(i,j-1,k)) ))
 
-               nl_c(i,j,k) = div - nl_c(i,j,k)*invT_m_8 !+ (w1 * nl_t(i,j,k) - w2 * nl_t(i,j,km))
+               nl_c(i,j,k) = div - nl_c(i,j,k)*invT_m_8
 
                nl_c(i,j,k) = nl_c(i,j,k) + (w1 * nl_t(i,j,k) - w2 * nl_t(i,j,km))
 

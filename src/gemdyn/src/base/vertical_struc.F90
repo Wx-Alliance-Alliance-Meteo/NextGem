@@ -62,13 +62,12 @@
                   Ver_b_8%m(G_nk+1),       Ver_b_8%t(G_nk+1), &
                   Ver_c_8%m(G_nk+1),       Ver_c_8%t(G_nk+1), &
                 Ver_z_8%m(0:G_nk+1),     Ver_z_8%t(0:G_nk+1), &
-               Ver_dqdz_8(0:G_nk  ),     Ver_z_8%x(0:G_nk  ), &
+               Ver_dqdz_8(0:G_nk  )                         , &
                  Ver_dz_8%m(G_nk  ),      Ver_dz_8%t(G_nk  ), &
                 Ver_idz_8%m(G_nk  ),     Ver_idz_8%t(G_nk  ), &
                Ver_dbdz_8%m(G_nk  ),    Ver_dbdz_8%t(G_nk  ), &
                Ver_dcdz_8%m(G_nk  ),    Ver_dcdz_8%t(G_nk  ), &
                  Ver_wp_8%m(G_nk  ),      Ver_wm_8%m(G_nk  ), &
-                Ver_onezero(G_nk+1),      Ver_zeronk(G_nk  ), &
                Ver_wpstar_8(G_nk  ),    Ver_wmstar_8(G_nk  )  )
 
       Cstv_pref_8 = 100000.d0
@@ -149,12 +148,6 @@
       end do
       Ver_dqdz_8(1:G_nk) = Ver_z_8%t(1:G_nk)
 
-      Ver_z_8%x(0) = Ver_z_8%m(0)
-      do k = 1, G_nk-1
-         Ver_z_8%x(k) = Ver_z_8%t(k)
-      end do
-      Ver_z_8%x(G_nk)=zero
-
       Ver_zmin_8 = Ver_z_8%m(G_nk+1)
       Ver_zmax_8 = Ver_z_8%m(0)
 
@@ -181,25 +174,29 @@
          Ver_wm_8%m(k) = (Ver_z_8%t(k)-Ver_z_8%m(k))/(Ver_z_8%t(k)-Ver_z_8%t(k-1))
          Ver_wp_8%m(k) = one-Ver_wm_8%m(k)
       end do
+
+
+
+
+! WARNING WARNING WARNING WARNING WARNING WARNING WARNING 
+! MD: These next lines must be carefully checked
 !
 !     SPECIAL WEIGHTS due to last thermo level
 !
       Ver_wmstar_8 = zero
       Ver_wpstar_8 = one
 
-      Ver_wmstar_8(G_nk)=(Ver_z_8%x(G_nk)-Ver_z_8%t(G_nk)) &
-                        /(Ver_z_8%x(G_nk)-Ver_z_8%x(G_nk-1))
+  !    Ver_wmstar_8(G_nk)=(Ver_z_8%x(G_nk)-Ver_z_8%t(G_nk)) &
+  !                      /(Ver_z_8%x(G_nk)-Ver_z_8%x(G_nk-1))
+      Ver_wmstar_8(G_nk)=Ver_z_8%t(G_nk)/Ver_z_8%t(G_nk-1)
       Ver_wpstar_8(G_nk)=one-Ver_wmstar_8(G_nk)
+! WARNING WARNING WARNING WARNING WARNING WARNING WARNING 
 
-!     -------------------------------------------------------
-!     Initialize Ver_onezero
-!     -------------------------------------------------------
 
-      Ver_onezero=1.
-      Ver_onezero(1)=0.
 
-      Ver_zeronk=1.
-      Ver_zeronk(G_nk)=0.
+
+
+
 
 !     ----------------------------------------------------------
 !     Save Ver_vgdobj and ip1m/t for output

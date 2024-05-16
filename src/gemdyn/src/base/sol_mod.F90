@@ -28,8 +28,6 @@ module sol_mem
    real(kind=REAL64), pointer, dimension (:,:,:) :: Sol_rhs, Sol_lhs
 
    real(kind=REAL64), dimension(:,:,:,:), allocatable :: Sol_stencilh_8
-   real(kind=REAL64), dimension(:,:,:,:), pointer :: Sol_stencilp_8
-   real(kind=REAL64), dimension(:,:,:,:), allocatable :: Sol_stencilh_bdf_8
 
    real(kind=REAL64) :: isol_i, isol_d
    real(kind=REAL64) :: norm_residual, relative_tolerance, nu , r0, rr2, ro2, lcl_sum(2)

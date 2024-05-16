@@ -28,6 +28,8 @@
       if (Schm_nblendyy                 >  0) then
       if (mod(Step_kount,Schm_nblendyy) == 0) then
 
+         call yyg_blend_sca ( wt1, YYG_BLEN_q2q, &
+                              l_minx,l_maxx,l_miny,l_maxy,G_nk )
          call yyg_blend_sca ( zdt1, YYG_BLEN_q2q, &
                               l_minx,l_maxx,l_miny,l_maxy,G_nk )
          call yyg_blend_uv ( ut1, vt1, l_minx,l_maxx,l_miny,l_maxy,G_nk )

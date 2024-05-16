@@ -193,7 +193,7 @@
 
    !           Compute zdot
    !           ~~~~~~~~~~~~
-               zdt0(i,j,k) = (rhsf(i,j,k) + wt0(i,j,k))*Ver_zeronk(k)
+               zdt0(i,j,k) = (rhsf(i,j,k) + wt0(i,j,k))
 
 
    !           Compute T

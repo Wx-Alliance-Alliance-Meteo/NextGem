@@ -53,8 +53,7 @@
       call set_vt()
 
       if (Grd_yinyang_L) then
-         call yyg_init()
-         call yyg_initstencils()
+         call yyg_init ()
       else
          call nest_set_mem
       end if

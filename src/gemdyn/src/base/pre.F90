@@ -127,12 +127,12 @@
 !DIR$ SIMD
             do i= i0, in
                w1= (Ver_idz_8%m(k) + (GVM%mc_Iz_8(i,j,k)- epsi_8)*Ver_wp_8%m(k))
-               w2= (Ver_idz_8%m(k) - (GVM%mc_Iz_8(i,j,k)- epsi_8)*Ver_wm_8%m(k))*Ver_onezero(k)
+               w2= (Ver_idz_8%m(k) - (GVM%mc_Iz_8(i,j,k)- epsi_8)*Ver_wm_8%m(k))
 
                rhsc(i,j,k) = rhsc(i,j,k) + invT_m_8* &
-                            ((rhsf(i,j,k)-Ver_onezero(k)*rhsf(i,j,k-1))*Ver_idz_8%m(k) +&
+                            ((rhsf(i,j,k)-rhsf(i,j,k-1))*Ver_idz_8%m(k) +&
                              GVM%mc_Iz_8(i,j,k)* &
-                             (Ver_wp_8%m(k)*rhsf(i,j,k)+Ver_wm_8%m(k)*rhsf(i,j,k-1)*Ver_onezero(k))) &
+                             (Ver_wp_8%m(k)*rhsf(i,j,k)+Ver_wm_8%m(k)*rhsf(i,j,k-1))) &
                            +(w1 * rhst(i,j,k) - w2 * rhst(i,j,k-1))
             end do
          end do
@@ -144,12 +144,9 @@
 !DIR$ SIMD
             do i= i0, in
                w1= (Ver_idz_8%m(1) + (GVM%mc_Iz_8(i,j,1) - epsi_8)*Ver_wp_8%m(1))
-               w2= (Ver_idz_8%m(1) - (GVM%mc_Iz_8(i,j,1) - epsi_8)*Ver_wm_8%m(1))*Ver_onezero(1)
                rhsc(i,j,1) = rhsc(i,j,1) + invT_m_8* &
-                            ((rhsf(i,j,1)-Ver_onezero(1)*rhsf(i,j,1))*Ver_idz_8%m(1) +&
-                             GVM%mc_Iz_8(i,j,1)* &
-                             (Ver_wp_8%m(1)*rhsf(i,j,1)+Ver_wm_8%m(1)*rhsf(i,j,1)*Ver_onezero(1))) &
-                           +(w1 * rhst(i,j,1) - w2 * rhst(i,j,1))
+                            ((rhsf(i,j,1))*Ver_idz_8%m(1) + GVM%mc_Iz_8(i,j,1)* &
+                             (Ver_wp_8%m(1)*rhsf(i,j,1))) +(w1 * rhst(i,j,1))
             end do
          end do
 !!$omp enddo

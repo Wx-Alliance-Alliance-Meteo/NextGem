@@ -119,7 +119,7 @@
 
       if ( switch_on_eqspng ) then
          call gtmg_start (67, 'EQUA_SPNG', 60)
-         call eqspng (ut1,vt1,l_minx,l_maxx,l_miny,l_maxy,G_nk)
+         call eqspng ()
          call gtmg_stop (67)
       end if
 

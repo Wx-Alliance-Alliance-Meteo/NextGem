@@ -60,10 +60,7 @@ module ver
 ! Ver_wpstar_8        | special weights for averaging                  |
 ! Ver_wmstar_8        | special weights for averaging                  |
 !----------------------------------------------------------------------|
-! Ver_onezero         | Vector with one everywhere but zero at k=1     |
-!-----------------------------------------------------------------------
-!
-!
+
       type :: V8_tmx
          real(kind=REAL64), dimension(:), pointer, contiguous :: t,m,x
       end type V8_tmx
@@ -100,7 +97,5 @@ module ver
       real(kind=REAL64), dimension(:), allocatable :: Ver_bzz_8, Ver_czz_8
       real(kind=REAL64), dimension(:), allocatable :: Ver_dqdz_8
       real(kind=REAL64), dimension(:), allocatable :: Ver_wpstar_8,Ver_wmstar_8
-
-      real, dimension(:), allocatable :: Ver_onezero, Ver_zeronk
 
 end module ver

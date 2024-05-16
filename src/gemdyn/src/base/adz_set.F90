@@ -249,25 +249,11 @@
 
       end if
 
-      allocate (adz_vw1m(l_nk),adz_vw2m(l_nk),adz_vw3m(l_nk),adz_vw4m(l_nk))
       allocate (adz_vw1t(l_nk),adz_vw2t(l_nk),adz_vw3t(l_nk),adz_vw4t(l_nk))
-      
       allocate( Adz_zabcd_8%t(l_nk),Adz_zbacd_8%t(l_nk),Adz_zcabd_8%t(l_nk),Adz_zdabc_8%t(l_nk))
-
       allocate( Adz_zxabcde_8%t(l_nk),Adz_zaxbcde_8%t(l_nk),Adz_zbxacde_8%t(l_nk),&
                 Adz_zcxabde_8%t(l_nk),Adz_zdxabce_8%t(l_nk),Adz_zexabcd_8%t(l_nk))
 
-      do k= 2, l_nk-1
-         rx = Ver_z_8%m(k)
-         ra = Ver_z_8%x(k-2)
-         rb = Ver_z_8%x(k-1)
-         rc = Ver_z_8%x(k)
-         rd = Ver_z_8%x(k+1)
-         adz_vw1m(k) = lag3(rx, ra, rb, rc, rd)
-         adz_vw2m(k) = lag3(rx, rb, ra, rc, rd)
-         adz_vw3m(k) = lag3(rx, rc, ra, rb, rd)
-         adz_vw4m(k) = lag3(rx, rd, ra, rb, rc)
-      end do
       do k=2, l_nk-2
          rx = Ver_z_8%t(k)
          ra = Ver_z_8%m(k-1)
@@ -279,9 +265,7 @@
          adz_vw3t(k) = lag3(rx, rc, ra, rb, rd)
          adz_vw4t(k) = lag3(rx, rd, ra, rb, rc)
       end do
-      adz_vw5 = (Ver_z_8%x(0)-Ver_z_8%m(1)) / (Ver_z_8%x(0)-Ver_z_8%x(1))
-      adz_vw6 = (Ver_z_8%m(l_nk  )-Ver_z_8%x(l_nk)) / &
-                (Ver_z_8%x(l_nk-1)-Ver_z_8%x(l_nk))
+      adz_vw5 = (Ver_z_8%t(0)-Ver_z_8%m(1)) / (Ver_z_8%t(0)-Ver_z_8%t(1))
 
       do k= 2,l_nk-2
          ra = Ver_z_8%t(k-1)

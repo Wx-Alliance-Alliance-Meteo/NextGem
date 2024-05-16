@@ -133,8 +133,7 @@
                               sol_niloc,sol_njloc,Schm_nith,wk)
 
          allocate (Sol_stencilh_8    (1+sol_pil_w:l_ni-sol_pil_e,1+sol_pil_s:l_nj-sol_pil_n,l_nk,15))
-         allocate (Sol_stencilh_bdf_8(1+sol_pil_w:l_ni-sol_pil_e,1+sol_pil_s:l_nj-sol_pil_n,l_nk,15))
-         Sol_stencilh_8= 0. ; Sol_stencilh_bdf_8= 0.
+         Sol_stencilh_8= 0.
          allocate (gg(1:sol_im+1),rot_cos(1:sol_im+1), rot_sin(1:sol_im+1), IPIV_arr(1:sol_im+1))
          allocate (v_lcl_sum(1:sol_im+1,1:2),rr(1:sol_im+1,1:sol_im+1),&
                    tt(1:sol_im+1,1:sol_im+1), hessenberg(1:sol_im+1, 1:sol_im),&
