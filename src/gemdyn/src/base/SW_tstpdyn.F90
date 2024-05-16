@@ -80,8 +80,6 @@
       call HLT_split (1, 6*l_nk+2, HLT_np, HLT_start, HLT_end)
 
       call set_dync ( .true., dt_8 )
-      call SW_matvec_init ()
-
 
 !2.	Compute bdf terms that will be on rhs for current and previous time levels
       call SW_rhs1(dt_8)
