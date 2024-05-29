@@ -90,21 +90,32 @@
       gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)=gmmk_me_full_s   ; GMM_tbl%ara(gmm_cnt)='QQ' ; GMM_tbl%cn(gmm_cnt)='SF' ; GMM_tbl%fst(gmm_cnt)='FUME'
       gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)=gmmk_me_large_s  ; GMM_tbl%ara(gmm_cnt)='QQ' ; GMM_tbl%cn(gmm_cnt)='SF' ; GMM_tbl%fst(gmm_cnt)='FUML'
 
-      allocate (rhs_zero(l_minx:l_maxx,l_miny:l_maxy,l_nk))
       allocate (rhsb(l_minx:l_maxx,l_miny:l_maxy))
       rhsb = 0.
 
       dimH= (l_maxx-l_minx+1)*(l_maxy-l_miny+1)
       dim = dimH*G_nk
-      allocate (rhs(6*dim))
-      rhsu (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs(      1:)
-      rhsv (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs(  dim+1:)
-      rhst (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs(2*dim+1:)
-      rhsc (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs(3*dim+1:)
-      rhsw (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs(4*dim+1:)
-      rhsf (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs(5*dim+1:)
-
-      rhsu=0.;rhsv=0.;rhst=0.;rhsc=0.;rhsw=0.;rhsf=0.;rhs_zero=0.
+      allocate (rhs(11*dim)) ; rhs=0.
+      allocate (LT(5*dim)) ; LT=0.
+      allocate (NL(4*dim)) ; NL=0.
+      
+      rhsu (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs(       1:)
+      rhsv (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs(   dim+1:)
+      rhst (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs(2 *dim+1:)
+      rhsc (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs(3 *dim+1:)
+      rhsw (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs(4 *dim+1:)
+      rhsf (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs(5 *dim+1:)
+      
+      Ruu  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>LT(      1:)
+      Rvv  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>LT(  dim+1:)
+      Rww  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>LT(2*dim+1:)
+      Rtt  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>LT(3*dim+1:)
+      Rzz  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>LT(4*dim+1:)
+      
+      Nuu (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>NL(      1:)
+      Nvv (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>NL(  dim+1:)
+      Nww (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>NL(2*dim+1:)
+      Ntt (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>NL(3*dim+1:)
 
       !---for interpolated rhs values at midpoint
       allocate (rhs_mid(6*dim))
@@ -114,19 +125,9 @@
       rhsc_mid   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs_mid(3*dim+1:)
       rhsw_mid   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs_mid(4*dim+1:)
       rhsf_mid   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs_mid(5*dim+1:)
-
       rhsu_mid=0.;rhsv_mid=0.;rhst_mid=0.
       rhsc_mid=0.;rhsw_mid=0.;rhsf_mid=0.
-      
-      allocate (var_init(6*dim+2*dimH))
-      wti  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>var_init(      1:)
-      zdti (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>var_init(  dim+1:)
-      uti  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>var_init(2*dim+1:)
-      vti  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>var_init(3*dim+1:)
-      tti  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>var_init(4*dim+1:)
-      qti  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk+1)=>var_init(5*dim+1:)
-      sti  (l_minx:l_maxx,l_miny:l_maxy)=>var_init(6*dim+dimH+1:)
-
+          
       !---for interpolated rhs values at departure
       allocate (rhs_dep(6*dim))
       rhsu_dep   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs_dep(      1:)
@@ -135,30 +136,10 @@
       rhsc_dep   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs_dep(3*dim+1:)
       rhsw_dep   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs_dep(4*dim+1:)
       rhsf_dep   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs_dep(5*dim+1:)
-
       rhsu_dep=0.;rhsv_dep=0.;rhst_dep=0.
       rhsc_dep=0.;rhsw_dep=0.;rhsf_dep=0.
-
-      !---for interpolated nonlinear values at midpoint
-      allocate (nl_mid(5*dim))
-      nlu_mid (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>nl_mid(      1:)
-      nlv_mid (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>nl_mid(  dim+1:)
-      nlt_mid (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>nl_mid(2*dim+1:)
-      nlw_mid (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>nl_mid(3*dim+1:)
-      nlq_mid (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>nl_mid(4*dim+1:)
-
-      nlu_mid=0.;nlv_mid=0.;nlt_mid=0.;nlw_mid=0.;nlq_mid=0.
-
-      !---for interpolated nonlinear values at departure
-      allocate (nl_dep(5*dim))
-      nlu_dep (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>nl_dep(      1:)
-      nlv_dep (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>nl_dep(  dim+1:)
-      nlt_dep (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>nl_dep(2*dim+1:)
-      nlw_dep (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>nl_dep(3*dim+1:)
-      nlq_dep (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>nl_dep(4*dim+1:)
-
-      nlu_dep=0.;nlv_dep=0.;nlt_dep=0.;nlw_dep=0.;nlq_dep=0.
       
+      ! for SW code only
       allocate (orhsu(l_minx:l_maxx,l_miny:l_maxy,l_nk),&
                 orhsv(l_minx:l_maxx,l_miny:l_maxy,l_nk),&
                 orhst(l_minx:l_maxx,l_miny:l_maxy,l_nk),&
@@ -174,9 +155,7 @@
                 nl_c(l_minx:l_maxx,l_miny:l_maxy,l_nk),&
                 nl_w(l_minx:l_maxx,l_miny:l_maxy,l_nk),&
                 nl_f(l_minx:l_maxx,l_miny:l_maxy,l_nk),&
-                nl_b(l_minx:l_maxx,l_miny:l_maxy)     ,&
-                true_nlt(l_minx:l_maxx,l_miny:l_maxy,l_nk),&
-                true_rhst(l_minx:l_maxx,l_miny:l_maxy,l_nk) )
+                nl_b(l_minx:l_maxx,l_miny:l_maxy))
       nl_b = 0.
 
       !---for shallow-water budget

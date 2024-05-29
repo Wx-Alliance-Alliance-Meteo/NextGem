@@ -7,7 +7,7 @@
   Grd_xlon2  =  -85.00 ,     Grd_xlat2 = 50.00
   Grd_maxcfl = 2
 /
-&lam
+&lam2
 Lam_gbpil_t=5
 /
 

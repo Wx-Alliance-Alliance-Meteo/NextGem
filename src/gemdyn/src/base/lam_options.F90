@@ -20,8 +20,8 @@ module lam_options
 
    !# Number of levels for top piloting
    integer :: Lam_gbpil_T = -1
-   namelist /lam  / Lam_gbpil_T
-   namelist /lam_p/ Lam_gbpil_T
+!   namelist /lam  / Lam_gbpil_T
+!   namelist /lam_p/ Lam_gbpil_T
 
    !# Number of points for horizontal blending
    integer :: Lam_blend_H = 10
@@ -30,8 +30,8 @@ module lam_options
 
    !# Number of levels for top blending
    integer :: Lam_blend_T = 0
-   namelist /lam  / Lam_blend_T
-   namelist /lam_p/ Lam_blend_T
+!   namelist /lam  / Lam_blend_T
+!   namelist /lam_p/ Lam_blend_T
 
    !# True-> for blending to zero the physics tendency in blending area
    logical :: Lam_0ptend_L = .true.

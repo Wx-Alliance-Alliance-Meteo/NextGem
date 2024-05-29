@@ -28,7 +28,7 @@
       integer, parameter :: lowest = 2
       integer, dimension(F_npex) :: lnis, nis
       integer, dimension(F_npey) :: lnjs
-      integer :: npartiel
+      integer :: npartiel,i0,j0
 !
 !     ---------------------------------------------------------------
 !
@@ -43,18 +43,16 @@
                              ' G_ni distributed on F_npex PEs', G_ni,F_npex
       end if
 
-      if (.not. decomp (G_ni, ldnh_minx, ldnh_maxx, lnis, npartiel, 0, ldnh_i0, &
-               .true., .true., F_npex, lowest, F_checkparti_L, 0 )) sol_decomp = -1
-      ldnh_ni= lnis(1)
+      if (.not. decomp (G_ni, ldnh_minx, ldnh_maxx, lnis, npartiel, 0, i0, &
+          .true., .true., F_npex, lowest, F_checkparti_L, 0 )) sol_decomp = -1
 
       if (Lun_out > 0) then
          write(Lun_out,1002) ' Memory layout for SOLVER (no halo):', &
                              ' G_nj distributed on F_npey PEs', G_nj,F_npey
       end if
 
-      if (.not. decomp (G_nj, ldnh_miny, ldnh_maxy, lnjs, npartiel, 0, ldnh_j0,&
-               .false.,.true., F_npey, lowest, F_checkparti_L, 0 )) sol_decomp = -1
-      ldnh_nj= lnjs(1)
+      if (.not. decomp (G_nj, ldnh_miny, ldnh_maxy, lnjs, npartiel, 0, j0,&
+          .false.,.true., F_npey, lowest, F_checkparti_L, 0 )) sol_decomp = -1
 
  1002 format (a/a45,i6,' /',i5)
 !

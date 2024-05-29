@@ -105,13 +105,13 @@
       if (Ctrl_theoc_L) Lam_blend_Hy = 0
       Lam_tdeb = huge(Lam_tdeb) ;  Lam_tfin = -1.d0
 
-      if (.not.Grd_yinyang_L) then
-         Lam_gbpil_T = max(0,Lam_gbpil_T)
-         Lam_blend_T = max(0,Lam_blend_T)
-      else
+!      if (.not.Grd_yinyang_L) then
+!         Lam_gbpil_T = max(0,Lam_gbpil_T)
+!         Lam_blend_T = max(0,Lam_blend_T)
+!      else
          Lam_gbpil_T = 0
          Lam_blend_T = 0
-      end if
+!      end if
 
       deg_2_rad = pi_8/180.
 
@@ -182,17 +182,17 @@
          return
       end if
 
-!     Check for open top (piloting and blending)
-      Schm_opentop_L  = .false.
-      if (Lam_gbpil_T > 0) then
-         Schm_opentop_L = .true.
-         if(lun_out>0.and.Vspng_nk/=0)write (Lun_out, 9570)
-         Vspng_nk       = 0
-      end if
-      if (Lam_gbpil_T <= 0 .and. Lam_blend_T > 0) then
-         if (lun_out>0)write (Lun_out, 9580)
-         return
-      end if
+!!$!     Check for open top (piloting and blending)
+!!$      Schm_opentop_L  = .false.
+!!$      if (Lam_gbpil_T > 0) then
+!!$         Schm_opentop_L = .true.
+!!$         if(lun_out>0.and.Vspng_nk/=0)write (Lun_out, 9570)
+!!$         Vspng_nk       = 0
+!!$      end if
+!!$      if (Lam_gbpil_T <= 0 .and. Lam_blend_T > 0) then
+!!$         if (lun_out>0)write (Lun_out, 9580)
+!!$         return
+!!$      end if
 
       Ctrl_testcases_L = Ctrl_canonical_dcmip_L .or. &
                          Ctrl_canonical_williamson_L
@@ -249,7 +249,7 @@
  8000 format (/,'========= ABORT IN S/R GEMDM_CONFIG ============='/)
  9154 format (/,' Out3_nbitg IS NEGATIVE, VALUE will be set to 16'/)
  9570 format (/,'WARNING: Vspng_nk set to zero since top piloting is used'/)
- 9580 format (/,'ABORT: Non zero Lam_blend_T cannot be used without top piloting'/)
+! 9580 format (/,'ABORT: Non zero Lam_blend_T cannot be used without top piloting'/)
  9700 format (/,'ABORT: Schm_psadj not valid'/)
 !
 !-------------------------------------------------------------------

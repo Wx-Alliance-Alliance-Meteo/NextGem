@@ -25,7 +25,7 @@
 
   lctl_rxstat_s   = 'GLB_8',
 
- &lam
+ &lam2
   Lam_gbpil_T=3
   Lam_blend_T=3
 /

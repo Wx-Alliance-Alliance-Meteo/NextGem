@@ -52,13 +52,14 @@ module mem_tstp
    save
 
       real, allocatable,  dimension (:,:  ) :: rhsb
-      real, allocatable, target, dimension (:) :: rhs, var_init
+      real, allocatable, target, dimension (:) :: rhs, LT, NL, var_init
  
       real, allocatable, target, dimension (:) :: rhs_mid
       real, allocatable, target, dimension (:) :: rhs_dep
-      real, allocatable, target, dimension (:) :: nl_mid
-      real, allocatable, target, dimension (:) :: nl_dep
       real, allocatable, target, dimension (:) :: sw_frc
+      
+      real, dimension (:,:,:), pointer :: Ruu,Rvv,Rww,Rtt,Rzz
+      real, dimension (:,:,:), pointer :: Nuu,Nvv,Nww,Ntt
 
       real, dimension (:,:,:), pointer :: rhsu,rhsv,rhst,rhsc,  &
                                           rhsw,rhsf,            &
@@ -67,23 +68,13 @@ module mem_tstp
                                           rhsw_mid, rhsc_mid,   &
                                           rhsu_dep, rhsv_dep,   &
                                           rhst_dep, rhsf_dep,   &
-                                          rhsw_dep, rhsc_dep,   &
-                                          nlu_mid, nlv_mid,     &
-                                          nlt_mid, nlw_mid,     &
-                                          nlu_dep, nlv_dep,     &
-                                          nlt_dep, nlw_dep,     &
-                                          nlq_mid, nlq_dep,     &
-                                          uti, vti, wti,        &
-                                          tti, zdti, qti
-      real, dimension (:,:), pointer :: sti
+                                          rhsw_dep, rhsc_dep
 
       real, dimension (:,:,:), pointer :: sw_f1, sw_f2, sw_f3, &
                                           sw_f4, sw_f5, sw_f6, &
                                           sw_f7, sw_f8, sw_f9, &
                                           sw_f10, sw_f11, sw_f12
                                           
-      real, allocatable,  dimension (:,:,:),target :: rhs_zero
-
       real, allocatable,  dimension (:,:,:),target :: orhsu,orhsv,orhst,orhsc,&
                                                       orhsw,orhsf
 
@@ -100,11 +91,8 @@ module mem_tstp
                                   rhsu_bdf_t2, rhsv_bdf_t2, &
                                   rhsw_bdf_t1, rhsw_bdf_t2
 
-      !--added true_nlt to test new back substitution method---
-      !currently nl_t and rhst hold L_t' and Nl_t ' but I need 
-      !the actual rhs/nli terms of T
       real, allocatable,  dimension (:,:  ) :: nl_b
-      real, allocatable,  dimension (:,:,:) :: nl_u,nl_v,nl_t,nl_c,nl_w,nl_f, true_nlt, true_rhst
+      real, allocatable,  dimension (:,:,:) :: nl_u,nl_v,nl_t,nl_c,nl_w,nl_f
       real, allocatable,  dimension (:), target :: WS1
       real(kind=REAL64), allocatable, dimension (:), target :: WS1_8
 

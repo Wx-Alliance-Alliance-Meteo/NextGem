@@ -36,6 +36,7 @@
       use dyn_fisl_options
       use dynkernel_options
       use step_options
+      use stat_mpi
       use, intrinsic :: iso_fortran_env
       implicit none
 
@@ -177,6 +178,10 @@
          end do
       end do
 !!$omp enddo
+      do k=2, l_nk
+     ! call statf_dm (rhsc, 'RHS', k, 'ELL', l_minx,l_maxx,l_miny,l_maxy,1,l_nk,i0,j0,k,in,jn,k,8)
+      end do
+     ! call statf_dm (rhsc, 'RHS', 0, 'ELL', l_minx,l_maxx,l_miny,l_maxy,1,l_nk,i0,j0,2,in,jn,l_nk,8)
 
 1000  format(3X,'UPDATE  THE RIGHT-HAND-SIDES: (S/R PRE_H)')
 !

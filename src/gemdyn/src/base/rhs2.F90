@@ -69,7 +69,7 @@
               rhsw(i,j,k) = (4.0/3.0)*invT_8*rhsw_mid(i,j,k) - (one/3.0)*invT_8*rhsw_dep(i,j,k) 
               rhst(i,j,k) = (4.0/3.0)*invT_8*rhst_mid(i,j,k) - (one/3.0)*invT_8*rhst_dep(i,j,k)
               rhsf(i,j,k) = (4.0/3.0)*invT_8*rhsf_mid(i,j,k) - (one/3.0)*invT_8*rhsf_dep(i,j,k) 
-              true_rhst(i,j,k) = rhst(i,j,k)
+             ! true_rhst(i,j,k) = rhst(i,j,k)
             end do
          end do
       end do

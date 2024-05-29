@@ -18,25 +18,6 @@ module ldnh
    public
    save
 
-!
-!**comdeck Ldnh.cdk
-!
-!______________________________________________________________________
-!                                                                      |
-!  LOCAL DIMENSIONS AND DATA TOPOLOGY WITHOUT HALO (set_transpose)     |
-!______________________________________________________________________|
-!                    |                                                 |
-! NAME               | DESCRIPTION                                     |
-!--------------------|-------------------------------------------------|
-! Ldnh_ni            | same as l_ni but without halo                   |
-! Ldnh_nj            | same as l_nj but without halo                   |
-! Ldnh_minx          | same as l_minx but without halo                 |
-! Ldnh_maxx          | same as l_maxx but without halo                 |
-! Ldnh_miny          | same as l_miny but without halo                 |
-! Ldnh_maxy          | same as l_maxy but without halo                 |
-!----------------------------------------------------------------------
-!
-   integer :: Ldnh_ni, Ldnh_nj,  Ldnh_i0, Ldnh_j0
-   integer :: Ldnh_minx, Ldnh_maxx, Ldnh_miny, Ldnh_maxy
+      integer :: Ldnh_minx, Ldnh_maxx, Ldnh_miny, Ldnh_maxy
 
 end module ldnh

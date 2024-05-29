@@ -50,7 +50,7 @@
                                 0,0,0,0,0,0,GMM_NULL_FLAGS)
          istat= gmm_create('SOL_LHS',Sol_lhs,meta, GMM_FLAG_RSTR+GMM_FLAG_IZER)
          gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)='SOL_LHS' ; GMM_tbl%ara(gmm_cnt)='QQ' ; GMM_tbl%cn(gmm_cnt)='MM' ; GMM_tbl%fst(gmm_cnt)='SOLS'
-         allocate (Sol_rhs(ni,nj,l_nk))
+         allocate (RHS_sol(ni,nj,l_nk),Sol_rhs(ni,nj,l_nk))
          Sol_rhs= 0.
          
          if (Lun_out > 0) write (Lun_out,1002) trim(Sol_krylov3D_S), trim(Sol_precond3D_S)

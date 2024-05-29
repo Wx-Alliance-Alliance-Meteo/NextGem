@@ -20,6 +20,7 @@
       subroutine nli ( F_dt_8, i0, j0, k0, in, jn, k0t )
       use HORgrid_options
       use gem_options
+      use ldnh
       use dyn_fisl_options
       use dynkernel_options
       use coriolis
@@ -37,14 +38,14 @@
       use adz_mem
       use sol_mem
       use step_options
+      use stat_mpi
       use, intrinsic :: iso_fortran_env
-      use stat_mpi, only:statf_dm
       implicit none
 
       integer, intent(in) :: i0, j0, k0, in, jn, k0t
       real(kind=REAL64), intent(IN) :: F_dt_8
 
-      integer :: i, j, k, km 
+      integer :: i, j, k, km, i00, inn, j00, jnn,ni,nj
       integer :: HLT_np, HLT_start, HLT_end
       real :: onezero(G_nk)
       real, dimension(:,:,:), pointer :: tots, logT, logQ, tots2, logT2, logQ2
@@ -53,6 +54,8 @@
       real(kind=REAL64), parameter :: one=1.d0, half=0.5d0
 !     __________________________________________________________________
 !
+      ni = ldnh_maxx-ldnh_minx+1
+      nj = ldnh_maxy-ldnh_miny+1
       tau_8    = (2.0*F_dt_8) / 3.0
       tau_m_8  = tau_8
       tau_nh_8 = tau_8
@@ -76,19 +79,25 @@
          end do
       end do
 !!$omp enddo
-
 !***********************************************************
 ! The nonlinear deviation of horizontal momentum equations *
 !***********************************************************
-
+      nl_u=0. ; nl_v=0. ; nl_c=0.
+      i00= i0-1 ; inn= in
+      j00= j0-1 ; jnn= jn
+      if (.not.Grd_yinyang_L) then
+         i00= i0-1+min(pil_w,1)
+         inn= in  -min(pil_e,1)
+         j00= j0-1+min(pil_s,1)
+         jnn= jn  -min(pil_n,1)
+      endif
 !     Compute Nu, Nv and Nc
 !     ~~~~~~~~~~~~~~~~~~~~~
 !!$omp do collapse(2)
       do k=k0, l_nk
-         do j= j0-1, jn
-            km=max(k-1,1)
-            do i= i0-1, in
-
+         km=max(k-1,1)
+         do j= j0, jn
+            do i= i00, inn
 !----NL_u
                barz  = Ver_wp_8%m(k)*tt0(i  ,j,k)+Ver_wm_8%m(k)*tt0(i  ,j,km)
                barzp = Ver_wp_8%m(k)*tt0(i+1,j,k)+Ver_wm_8%m(k)*tt0(i+1,j,km)
@@ -105,8 +114,11 @@
                                                  +(qt0(i  ,j,k+1)-qt0(i  ,j,k ))*GVM%mc_iJz_8(i  ,j,k ) ) &
                             +Ver_wm_8%m(k)*half*( (qt0(i+1,j,k  )-qt0(i+1,j,km))*GVM%mc_iJz_8(i+1,j,km)   &
                                                  +(qt0(i  ,j,k  )-qt0(i  ,j,km))*GVM%mc_iJz_8(i  ,j,km) ) )
-
+            end do
+         end do
 !----NL_v
+         do j= j00, jnn
+            do i= i0, in
                barz  = Ver_wp_8%m(k)*tt0(i,j  ,k)+Ver_wm_8%m(k)*tt0(i,j  ,km)
                barzp = Ver_wp_8%m(k)*tt0(i,j+1,k)+Ver_wm_8%m(k)*tt0(i,j+1,km)
                t_interp = (barz+barzp)*half/Cstv_Tstr_8
@@ -123,27 +135,13 @@
                                                  +(qt0(i,j  ,k+1)-qt0(i,j  ,k ))*GVM%mc_iJz_8(i,j  ,k ) ) &
                             +Ver_wm_8%m(k)*half*( (qt0(i,j+1,k  )-qt0(i,j+1,km))*GVM%mc_iJz_8(i,j+1,km)   &
                                                  +(qt0(i,j  ,k  )-qt0(i,j  ,km))*GVM%mc_iJz_8(i,j  ,km) ) )
-!----NL_q
-
-               nl_c(i,j,k) = 0.d0
             end do
          end do
       end do
 !!$omp enddo
 
-! Set lateral boundaries for LAM configurations
-      if (.not.Grd_yinyang_L) then
-!!$omp do
-         do k=1, l_nk
-            if (l_west ) nl_u(     pil_w,1:l_nj,k) = 0.
-            if (l_east ) nl_u(l_ni-pil_e,1:l_nj,k) = 0.
-            if (l_south) nl_u(1:l_ni,     pil_s,k) = 0.
-            if (l_south) nl_v(1:l_ni,     pil_s,k) = 0.
-            if (l_north) nl_v(1:l_ni,l_nj-pil_n,k) = 0.
-            if (l_west ) nl_v(     pil_w,1:l_nj,k) = 0.
-         end do
-!!$omp enddo nowait
-      end if
+!      call statf_dm (nl_u, 'NLU', 0, 'ELL', l_minx,l_maxx,l_miny,l_maxy,1,l_nk,1,1,1,G_ni,G_nj,l_nk,8)
+!      call statf_dm (nl_v, 'NLV', 0, 'ELL', l_minx,l_maxx,l_miny,l_maxy,1,l_nk,1,1,1,G_ni,G_nj,l_nk,8)
 
 !!$omp do collapse(2)
       do k=k0t,l_nk
@@ -157,7 +155,7 @@
    !           ~~~~~~~~~~
                w1 = invT_8*( logT(i,j,k) - (one-one/tots(i,j,k)) )
                nl_t(i,j,k) = gama_bdf_8 * ( w3 * w1 + nl_w(i,j,k) )
-               true_nlt(i,j,k) = w1
+            !   true_nlt(i,j,k) = w1
             end do
          end do
       end do
@@ -172,6 +170,7 @@
          do j = j0, jn
             km=max(k-1,1)
             do i = i0, in
+               
                w1= (Ver_idz_8%m(k) + (GVM%mc_Iz_8(i,j,k) - epsi_8)*Ver_wp_8%m(k))
                w2= (Ver_idz_8%m(k) - (GVM%mc_Iz_8(i,j,k) - epsi_8)*Ver_wm_8%m(k))*onezero(k)
 
@@ -190,6 +189,12 @@
             end do
          end do
       end do
+      do k=2,l_nk-1
+     !    call statf_dm (Sol_rhs, 'RHS', k, 'ELL', 1,ni,1,nj,1,l_nk,i0,j0,k,in,jn,k,8)
+      end do
+     ! call statf_dm (Sol_rhs, 'RHS', 0, 'ELL', 1,ni,1,nj,1,l_nk,i0,j0,2,in,jn,l_nk-1,8)
+      
+
 !!$omp enddo
 
 !     Apply top and bottom boundary conditions
@@ -216,7 +221,10 @@
       endif
 
       call vert_boundary ( i0,j0,in,jn )
-!
+     ! call statf_dm (Sol_rhs, 'RHS', 0, 'ELL', 1,ni,1,nj,1,l_nk,i0,j0,2,in,jn,l_nk-1,8)
+      Sol_rhs(:,:,2:l_nk-1) = RHS_sol(:,:,2:l_nk-1)
+    !  call statf_dm (Sol_rhs, 'RHS', 0, 'ELL', 1,ni,1,nj,1,l_nk,i0,j0,2,in,jn,l_nk-1,8)
+!     
 !     ---------------------------------------------------------------
 !
       return
