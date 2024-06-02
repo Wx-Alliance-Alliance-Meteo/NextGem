@@ -138,7 +138,7 @@
                      + half * (GVM%mc_Iy_8(i,j,l_nk)*(wkb(i,j,1)+wkb(i,j-1,1)))
             cdd_v8 = w1*Ver_idz_8%m(l_nk) +(GVM%mc_Iz_8(i,j,l_nk)-epsi_8)*(Ver_wp_8%m(l_nk)*w1)
 
-            Sol_rhs(i,j,l_nk)=Sol_rhs(i,j,l_nk)-Cstv_hco0_8*(add_v8+bdd_v8+cdd_v8)
+            Sol_rhs(i,j,l_nk)=Sol_rhs(i,j,l_nk)-(add_v8+bdd_v8+cdd_v8)
 
          end do
       end do
@@ -154,7 +154,7 @@
                      geomh_cyM_8(j-1))*geomh_invDYM_8(j) &
                      + half * (GVM%mc_Iy_8(i,j,k0)*(wkb(i,j,2)+wkb(i,j-1,2)))
             cdd_v8=(-w1)*Ver_idz_8%m(k0) +(GVM%mc_Iz_8(i,j,k0)-epsi_8)*(Ver_wm_8%m(k0)*w1) 
-            Sol_rhs(i,j,k0)=Sol_rhs(i,j,k0)-Cstv_hco0_8*(add_v8+bdd_v8+cdd_v8)
+            Sol_rhs(i,j,k0)=Sol_rhs(i,j,k0)-(add_v8+bdd_v8+cdd_v8)
          end do
       end do
 !!$omp enddo

@@ -37,7 +37,7 @@
       integer :: i, j, k, HLT_np, HLT_start, HLT_end
       integer :: i0,in,j0,jn,km,i00,inn,j00,jnn
       real, dimension(:,:,:), pointer :: tots, logT, logQ
-      real(kind=REAL64) :: tau_8,invT_8,Ldiv,Ndiv,a,ray,b,c,barz,barzp
+      real(kind=REAL64) :: tau_8,invT_8,Ldiv,Ndiv,a,b,c,barz,barzp
       real(kind=REAL64) :: w1,w2,w2km,w3,w4,w5,w5km,w6,w6km
       real(kind=REAL64) :: Nwww,Nwkm,Nttt,Ntkm,t_interp,u_interp,v_interp
       real(kind=REAL64), parameter :: zero=0.d0, one=1.d0, half=0.5d0
@@ -62,7 +62,6 @@
       a      = 4.d0*invT_8/3.d0
       b      =      invT_8/3.d0
       c      = grav_8 * tau_8
-      ray    = Dcst_rayt_8**2
 
       tots (1:l_ni,1:l_nj,1:l_nk) => WS1(               1:)
       logT (1:l_ni,1:l_nj,1:l_nk) => WS1(l_ni*l_nj*l_nk+1:)
@@ -101,31 +100,31 @@
          do i= i00, inn
             barz = Ver_wp_8%m(k)*tt0(i  ,j,k)+Ver_wm_8%m(k)*tt0(i  ,j,km)
             barzp= Ver_wp_8%m(k)*tt0(i+1,j,k)+Ver_wm_8%m(k)*tt0(i+1,j,km)
-            t_interp = (barz+barzp)*half/Cstv_Tstr_8
+            t_interp = (barz+barzp)*half/Cstv_Tstr_8-one
             v_interp = 0.25d0*(vt0(i  ,j,k)+vt0(i  ,j-1,k)+&
                                vt0(i+1,j,k)+vt0(i+1,j-1,k))
-            Nuu(i,j,k)= (t_interp-one) * ( qt0(i+1,j,k) - qt0(i,j,k) ) * geomh_invDX_8(j) &
-                           - ( Cori_fcoru_8(i,j) + geomh_tyoa_8(j) * ut0(i,j,k) ) * v_interp &
-                           - (t_interp-one) * GVM%mc_Jx_8(i,j,k) * ( &
-                             Ver_wp_8%m(k)*half*( (qt0(i+1,j,k+1)-qt0(i+1,j,k ))*GVM%mc_iJz_8(i+1,j,k )   &
-                                                 +(qt0(i  ,j,k+1)-qt0(i  ,j,k ))*GVM%mc_iJz_8(i  ,j,k ) ) &
-                            +Ver_wm_8%m(k)*half*( (qt0(i+1,j,k  )-qt0(i+1,j,km))*GVM%mc_iJz_8(i+1,j,km)   &
-                                                 +(qt0(i  ,j,k  )-qt0(i  ,j,km))*GVM%mc_iJz_8(i  ,j,km) ) )
+            Nuu(i,j,k)= t_interp*( qt0(i+1,j,k) - qt0(i,j,k) ) * geomh_invDX_8(j) &
+                        - ( Cori_fcoru_8(i,j) + geomh_tyoa_8(j) * ut0(i,j,k) ) * v_interp &
+                        - t_interp*GVM%mc_Jx_8(i,j,k) * ( &
+                          Ver_wp_8%m(k)*half*( (qt0(i+1,j,k+1)-qt0(i+1,j,k ))*GVM%mc_iJz_8(i+1,j,k )   &
+                                              +(qt0(i  ,j,k+1)-qt0(i  ,j,k ))*GVM%mc_iJz_8(i  ,j,k ) ) &
+                         +Ver_wm_8%m(k)*half*( (qt0(i+1,j,k  )-qt0(i+1,j,km))*GVM%mc_iJz_8(i+1,j,km)   &
+                                              +(qt0(i  ,j,k  )-qt0(i  ,j,km))*GVM%mc_iJz_8(i  ,j,km) ) )
          end do
          end do         
          do j= j00, jnn
          do i= i0, in
-            barz  = Ver_wp_8%m(k)*tt0(i,j  ,k)+Ver_wm_8%m(k)*tt0(i,j  ,km)
-            barzp = Ver_wp_8%m(k)*tt0(i,j+1,k)+Ver_wm_8%m(k)*tt0(i,j+1,km)
-            t_interp = (barz+barzp)*half/Cstv_Tstr_8
+            barz = Ver_wp_8%m(k)*tt0(i,j  ,k)+Ver_wm_8%m(k)*tt0(i,j  ,km)
+            barzp= Ver_wp_8%m(k)*tt0(i,j+1,k)+Ver_wm_8%m(k)*tt0(i,j+1,km)
+            t_interp = (barz+barzp)*half/Cstv_Tstr_8-one
             u_interp = 0.25d0*(ut0(i,j,k)+ut0(i-1,j,k)+ut0(i,j+1,k)+ut0(i-1,j+1,k))
-               Nvv(i,j,k) = (t_interp-one) * ( qt0(i,j+1,k) - qt0(i,j,k) ) * geomh_invDY_8 &
-                           + ( Cori_fcorv_8(i,j) + geomh_tyoav_8(j) * u_interp ) * u_interp &
-                           - (t_interp-one) * GVM%mc_Jy_8(i,j,k) * ( &
-                             Ver_wp_8%m(k)*half*( (qt0(i,j+1,k+1)-qt0(i,j+1,k ))*GVM%mc_iJz_8(i,j+1,k )   &
-                                                 +(qt0(i,j  ,k+1)-qt0(i,j  ,k ))*GVM%mc_iJz_8(i,j  ,k ) ) &
-                            +Ver_wm_8%m(k)*half*( (qt0(i,j+1,k  )-qt0(i,j+1,km))*GVM%mc_iJz_8(i,j+1,km)   &
-                                                 +(qt0(i,j  ,k  )-qt0(i,j  ,km))*GVM%mc_iJz_8(i,j  ,km) ) )
+            Nvv(i,j,k)= t_interp*( qt0(i,j+1,k) - qt0(i,j,k) ) * geomh_invDY_8 &
+                        + ( Cori_fcorv_8(i,j) + geomh_tyoav_8(j) * u_interp ) * u_interp &
+                        - t_interp*GVM%mc_Jy_8(i,j,k) * ( &
+                          Ver_wp_8%m(k)*half*( (qt0(i,j+1,k+1)-qt0(i,j+1,k ))*GVM%mc_iJz_8(i,j+1,k )   &
+                                              +(qt0(i,j  ,k+1)-qt0(i,j  ,k ))*GVM%mc_iJz_8(i,j  ,k ) ) &
+                         +Ver_wm_8%m(k)*half*( (qt0(i,j+1,k  )-qt0(i,j+1,km))*GVM%mc_iJz_8(i,j+1,km)   &
+                                              +(qt0(i,j  ,k  )-qt0(i,j  ,km))*GVM%mc_iJz_8(i,j  ,km) ) )
          end do
          end do
       end do
@@ -159,19 +158,28 @@
             Ntt(i,j,k) = Nttt
             Rzz(i,j,k) = w2
             Rtt(i,j,k) = w5
-            Ldiv= (Ruu(i,j,k)-Ruu(i-1,j,k))*geomh_invDXM_8(j) &
-               + (Rvv(i,j  ,k)*geomh_cyM_8(j)- &
-                  Rvv(i,j-1,k)*geomh_cyM_8(j-1))*geomh_invDYM_8(j)  &
-               + half*(GVM%mc_Ix_8(i,j,k)*(Ruu(i,j,k)+Ruu(i-1,j,k)) &
-               + GVM%mc_Iy_8(i,j,k)*(Rvv(i,j,k)+Rvv(i,j-1,k)) )
-            Ndiv=(Nuu(i,j,k)-Nuu(i-1,j,k))*geomh_invDXM_8(j) &
-               + (Nvv(i,j,k)*geomh_cyM_8(j)- &
+            Ldiv= (Ruu(i,j,k)-Ruu(i-1,j,k))*geomh_invDXM_8(j)      &
+                + (Rvv(i,j  ,k)*geomh_cyM_8(j)-                    &
+                   Rvv(i,j-1,k)*geomh_cyM_8(j-1))*geomh_invDYM_8(j)&
+               + half*(GVM%mc_Ix_8(i,j,k)*(Ruu(i,j,k)+Ruu(i-1,j,k))&
+                     + GVM%mc_Iy_8(i,j,k)*(Rvv(i,j,k)+Rvv(i,j-1,k)))
+            Ndiv=(Nuu(i,j,k)-Nuu(i-1,j,k))*geomh_invDXM_8(j)       &
+               + (Nvv(i,j  ,k)*geomh_cyM_8(j)-                     &
                   Nvv(i,j-1,k)*geomh_cyM_8(j-1))*geomh_invDYM_8(j) &
-               + half*( GVM%mc_Ix_8(i,j,k)*(Nuu(i,j,k)+Nuu(i-1,j,k)) &
-               + GVM%mc_Iy_8(i,j,k)*(Nvv(i,j,k)+Nvv(i,j-1,k)) )
+               + half*(GVM%mc_Ix_8(i,j,k)*(Nuu(i,j,k)+Nuu(i-1,j,k))&
+                     + GVM%mc_Iy_8(i,j,k)*(Nvv(i,j,k)+Nvv(i,j-1,k)))
 
-            RHS_sol(i,j,k) = ray*(Ldiv - invT_8*w1 + invT_8*( (w2-w2km)*Ver_idz_8%m(k) + GVM%mc_Iz_8(i,j,k)*(Ver_wp_8%m(k)*w2+Ver_wm_8%m(k)*w2km)) +&
-                                 w3 * w5 - w4 * w5km - Ndiv - (w3 * Nttt - w4 * Ntkm ))
+            RHS_sol(i,j,k) = Ldiv - invT_8*w1 + invT_8*( (w2-w2km)*Ver_idz_8%m(k)&
+                    + GVM%mc_Iz_8(i,j,k)*(Ver_wp_8%m(k)*w2+Ver_wm_8%m(k)*w2km))  &
+                    + w3 * w5 - w4 * w5km - Ndiv - (w3 * Nttt - w4 * Ntkm )
+!            RHS_sol(i,j,k) = & !9
+!            ray*Ldiv - & !2,3,5,6
+!            ray*invT_8*w1 + & !1
+!            ray*invT_8*( (w2-w2km)*Ver_idz_8%m(k) + GVM%mc_Iz_8(i,j,k)*(Ver_wp_8%m(k)*w2+Ver_wm_8%m(k)*w2km)) +  & !4,7
+!            ray*w3 * w5 - & !9
+!            ray*w4 * w5km - & !9
+!            ray*Ndiv - & !2,3,5,6
+!            ray*(w3 * Nttt - w4 * Ntkm )) !9
          end do
          end do
       end do

@@ -17,7 +17,6 @@
 
       subroutine matvec ( F_vector, F_minx,F_maxx,F_miny,F_maxy,&
                           F_prod  , F_i0,F_in,F_j0,F_jn, F_nk )
-      use cstv
       use geomh
       use dyn_fisl_options
       use HORgrid_options
@@ -141,7 +140,7 @@
             S5= (aa1-aa2)*geomh_invDXM_8(j) + half*(GVM%mc_Ix_8(i,j,k)*(aa1+aa2)) &
                     + (bb1*geomh_cyM_8(j)-bb2*geomh_cyM_8(j-1))*geomh_invDYM_8(j) &
                     + half*(GVM%mc_Iy_8(i,j,k)*(bb1+bb2)) + cc1
-            F_prod(i,j,k)= Cstv_hco0_8 * (S1*fdg2(i,j,k ) + S4*fdg2(i,j,km) +  S5*fdg2(i,j,kp))
+            F_prod(i,j,k)= S1*fdg2(i,j,k ) + S4*fdg2(i,j,km) +  S5*fdg2(i,j,kp)
          end do
          end do
          k0=2
@@ -204,7 +203,7 @@
                     + (bb1*geomh_cyM_8(j)-bb2*geomh_cyM_8(j-1))*geomh_invDYM_8(j) &
                     + half*(GVM%mc_Iy_8(i,j,k)*(bb1+bb2)) + cc1
             
-            F_prod(i,j,k)= Cstv_hco0_8 * (S1*fdg2(i,j,k ) + S4*fdg2(i,j,km) + S5*fdg2(i,j,kp))
+            F_prod(i,j,k)= S1*fdg2(i,j,k ) + S4*fdg2(i,j,km) + S5*fdg2(i,j,kp)
          end do
          end do
       end do
@@ -263,10 +262,10 @@
             endif
             S11= bb3*r1 ; S14= bb1*r1 ; S15= bb2*r1
 
-            F_prod(i,j,k)= F_prod(i,j,k) + Cstv_hco0_8* ( &
+            F_prod(i,j,k)= F_prod(i,j,k) + &
                S2 *fdg2(i-1,j,k ) + S3 *fdg2(i+1,j,k ) +  S6*fdg2(i-1,j,km) +  S7*fdg2(i-1,j,kp) &
              + S8 *fdg2(i+1,j,km) + S9 *fdg2(i+1,j,kp) + S10*fdg2(i,j-1,k ) + S11*fdg2(i,j+1,k ) &
-             + S12*fdg2(i,j-1,km) + S13*fdg2(i,j-1,kp) + S14*fdg2(i,j+1,km) + S15*fdg2(i,j+1,kp) )
+             + S12*fdg2(i,j-1,km) + S13*fdg2(i,j-1,kp) + S14*fdg2(i,j+1,km) + S15*fdg2(i,j+1,kp) 
             end do
          end do
       end do

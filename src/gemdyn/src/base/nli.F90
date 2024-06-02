@@ -20,7 +20,6 @@
       subroutine nli ( F_dt_8, i0, j0, k0, in, jn, k0t )
       use HORgrid_options
       use gem_options
-      use ldnh
       use dyn_fisl_options
       use dynkernel_options
       use coriolis
@@ -32,30 +31,26 @@
       use gmm_vt1
       use glb_ld
       use cstv
-      use dcst
       use ver
       use metric
       use adz_mem
       use sol_mem
       use step_options
-      use stat_mpi
       use, intrinsic :: iso_fortran_env
       implicit none
 
       integer, intent(in) :: i0, j0, k0, in, jn, k0t
       real(kind=REAL64), intent(IN) :: F_dt_8
 
-      integer :: i, j, k, km, i00, inn, j00, jnn,ni,nj
+      integer :: i, j, k, km, i00, inn, j00, jnn!,ni,nj
       integer :: HLT_np, HLT_start, HLT_end
       real :: onezero(G_nk)
       real, dimension(:,:,:), pointer :: tots, logT, logQ, tots2, logT2, logQ2
-      real(kind=REAL64) :: c0,div,w1,w2,w3,w4,barz,barzp,t_interp,u_interp,v_interp
+      real(kind=REAL64) :: div,w1,w2,w3,w4,barz,barzp,t_interp,u_interp,v_interp
       real(kind=REAL64) :: tau_8, tau_m_8, tau_nh_8, invT_8, invT_m_8, invT_nh_8
       real(kind=REAL64), parameter :: one=1.d0, half=0.5d0
 !     __________________________________________________________________
 !
-      ni = ldnh_maxx-ldnh_minx+1
-      nj = ldnh_maxy-ldnh_miny+1
       tau_8    = (2.0*F_dt_8) / 3.0
       tau_m_8  = tau_8
       tau_nh_8 = tau_8
@@ -63,7 +58,6 @@
       invT_m_8 = one/tau_m_8
       invT_nh_8= one/tau_nh_8
 
-      c0 = Dcst_rayt_8**2
       w3 = grav_8 * tau_8
 
       tots (1:l_ni,1:l_nj,1:l_nk) => WS1(1:)
@@ -184,28 +178,12 @@
 
                nl_c(i,j,k) = nl_c(i,j,k) + (w1 * nl_t(i,j,k) - w2 * nl_t(i,j,km))
 
-               Sol_rhs(i,j,k) =  c0 * ( rhsc(i,j,k) - nl_c(i,j,k) )
+               Sol_rhs(i,j,k) =  rhsc(i,j,k) - nl_c(i,j,k)
 
             end do
          end do
       end do
-      do k=2,l_nk-1
-     !    call statf_dm (Sol_rhs, 'RHS', k, 'ELL', 1,ni,1,nj,1,l_nk,i0,j0,k,in,jn,k,8)
-      end do
-     ! call statf_dm (Sol_rhs, 'RHS', 0, 'ELL', 1,ni,1,nj,1,l_nk,i0,j0,2,in,jn,l_nk-1,8)
-      
 
-!!$omp enddo
-
-!     Apply top and bottom boundary conditions
-!     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-!!$omp do
-      do j= j0, jn
-         do i= i0, in
-           ! Sol_rhs(i,j,l_nk) = Sol_rhs(i,j,l_nk) + isol_d * c0 * GVM%mc_cssp_H_8(i,j) * &
-           !              (nl_t(i,j,l_nk ) - Ver_wmstar_8(G_nk)*nl_t(i,j,l_nk-1))
-         end do
-      end do
 !!$omp enddo
 
       if (Schm_opentop_L) then
