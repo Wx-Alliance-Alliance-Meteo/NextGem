@@ -82,7 +82,7 @@
             km=max(k-1,1)
             kp=k+1
             do i= i0, in
-               F_prod(i,j,k) = Cstv_hco0_8*( &
+               F_prod(i,j,k) = &
                       -2.0d0*geomh_invDX_8(j)*geomh_invDXM_8(j)*fdg2(i,j,k)                 &
                       +geomh_invDX_8(j)*geomh_invDXM_8(j)*fdg2(i+1,j,k)                     &
                       +geomh_invDX_8(j)*geomh_invDXM_8(j)*fdg2(i-1,j,k)                     &
@@ -90,8 +90,7 @@
                       -geomh_invDYMv_8(j-1)*geomh_cyM_8(j-1)*geomh_invDYM_8(j)*fdg2(i,j,k)  &
                       +geomh_invDYMv_8(j)*geomh_cyM_8(j)*geomh_invDYM_8(j)*fdg2(i,j+1,k)    &
                       +geomh_invDYMv_8(j-1)*geomh_cyM_8(j-1)*geomh_invDYM_8(j)*fdg2(i,j-1,k)&
-                      - gg_sw_8*fdg2(i,j,k) &
-                      )
+                      - gg_sw_8*fdg2(i,j,k)
             end do
          end do
       end do

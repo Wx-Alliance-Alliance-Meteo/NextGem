@@ -43,10 +43,6 @@ module cstv
 ! Cstv_ptop_8        | pressure at the top                                                               |
 ! Cstv_Ztop_8        | ln(ptop)                                                                          |
 ! Cstv_Zsrf_8        | ln(pSref)                                                                         |
-! Cstv_hco0_8        | Helmholtz constant                                                                |
-! Cstv_hco1_8        | Helmholtz constant                                                                |
-! Cstv_hco2_8        | Helmholtz constant                                                                |
-! Cstv_hco3_8        | Helmholtz constant                                                                |
 !--------------------|------------------------------------------------------------------------------------
 !
       real(kind=REAL64) :: &
@@ -54,8 +50,6 @@ module cstv
       Cstv_Tau_8   ,Cstv_invT_8   ,Cstv_tau_m_8 ,Cstv_invT_m_8 ,&
       Cstv_tau_nh_8,Cstv_invT_nh_8,Cstv_dt_8, &
       Cstv_pref_8  ,Cstv_dtzD_8                 ,&
-      Cstv_ptop_8  ,Cstv_Ztop_8   ,Cstv_Zsrf_8  ,&
-      Cstv_hco0_8  ,Cstv_hco1_8   ,Cstv_hco2_8  ,&
-      Cstv_hco3_8
+      Cstv_ptop_8  ,Cstv_Ztop_8   ,Cstv_Zsrf_8  
 
 end module cstv

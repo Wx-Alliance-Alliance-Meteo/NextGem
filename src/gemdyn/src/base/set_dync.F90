@@ -37,12 +37,7 @@
       real(kind=REAL64), parameter :: zero=0.d0, one=1.d0, half=.5d0
 !
 !     ---------------------------------------------------------------
-      Cstv_hco0_8 = Dcst_rayt_8**2
-      Cstv_hco1_8 = zero
-      Cstv_hco2_8 = one
-      Cstv_hco3_8 = one
-      Cstv_hco2_8 = - one
-
+!
       Nstr2_8=grav_8*grav_8/(cpd_8*Cstv_Tstr_8)
       cstr2_8=rgasd_8*Cstv_Tstr_8/(one-cappa_8)
       gama_8=one/(Cstv_tau_m_8*Cstv_invT_nh_8+Nstr2_8*Cstv_tau_8*Cstv_tau_m_8)

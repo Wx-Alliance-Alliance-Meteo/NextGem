@@ -35,6 +35,7 @@
       use gmm_geof
       use gem_options
       use ptopo
+      use glb_pil
       use ldnh
       use stat_mpi
       implicit none
@@ -122,11 +123,11 @@
       
       if (.not.ctrl_testcases_adv_L) then
       call gtmg_start (29, 'SOL', 20)
-      call statf_dm (Sol_rhs, 'RHS', 1, 'TSTP', 1,ni,1,nj,1,l_nk,1,1,1,G_ni,G_nj,l_nk,8)
+      !call statf_dm (Sol_rhs, 'RHS', 1, 'TSTP', 1,ni,1,nj,1,l_nk,1+Glb_pil_w,1+Glb_pil_s,1,G_ni-Glb_pil_e,G_nj-Glb_pil_n,l_nk,8)
 
       call sol_fgmres (print_conv)
          
-      call statf_dm (Sol_lhs, 'LHS', 1, 'TSTP', 1,ni,1,nj,1,l_nk,1,1,1,G_ni,G_nj,l_nk,8)
+      !call statf_dm (Sol_lhs, 'LHS', 1, 'TSTP', 1,ni,1,nj,1,l_nk,1+Glb_pil_w,1+Glb_pil_s,1,G_ni-Glb_pil_e,G_nj-Glb_pil_n,l_nk,8)
       call gtmg_stop (25)
       endif
 

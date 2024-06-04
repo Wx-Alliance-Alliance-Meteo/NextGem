@@ -16,21 +16,22 @@
 !**s/r  Eigenabc_local - local eigenvalues and eigenvectors and inverse
 !                      tridiagonal coefficients For the preconditioning
 !
-      subroutine eigenabc_local ( eval_local, evec_local, ai_local, &
-                         bi_local,bi_local_inv,ci_local,Ni,Nj,Nk,wk)
+      subroutine eigenabc_local ( eval_local, evec_local, ai_local,&
+                            bi_local,bi_local_inv,ci_local,Ni,Nj,Nk)
       use HORgrid_options
       use gem_options
       use glb_ld
       use glb_pil
       use sol_mem
       use opr
+      use dcst
       use ptopo
       use, intrinsic :: iso_fortran_env
       implicit none
 
       integer Ni,Nj,Nk
       real(kind=REAL64)  eval_local(Ni),evec_local(Ni,Ni),ai_local(Ni,Nj,Nk), &
-              bi_local(Ni,Nj,Nk),bi_local_inv(Ni,Nj,Nk),ci_local(Ni,Nj,Nk),wk(*)
+              bi_local(Ni,Nj,Nk),bi_local_inv(Ni,Nj,Nk),ci_local(Ni,Nj,Nk)
 !author
 !     Abdessamad Qaddouri  - initial version - December 2006
 !
@@ -77,7 +78,7 @@
 
       do k=1,Nk
 
-         cst=wk(k)
+         cst= Dcst_rayt_8**2*Opr_zeval_8(k)
          iloc=0
          do i = Sol_ii0,Sol_iin
             iloc=iloc+1

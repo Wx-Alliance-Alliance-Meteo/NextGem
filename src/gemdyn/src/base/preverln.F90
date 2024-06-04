@@ -44,25 +44,20 @@
 
       integer :: i, j, err, errcode
       real(kind=REAL64), parameter :: zero = 0.d0, one = 1.d0
-      real(kind=REAL64) :: xxx, yyy, zzz
       real(kind=REAL64), dimension(KDIM,KDIM) :: wk1, B1
 !
 ! --------------------------------------------------------------------
 !
       F_evec_8= 0. ; F_levec_8= 0. ; wk1= 0. ; B1= 0. ; err= 0
 
-      xxx = - Cstv_hco2_8
-      yyy = - Cstv_hco1_8
-      zzz = + Cstv_hco3_8
-
       do j=1,F_nk
 
          i = j - 1
          if ( i > 0 ) then
 !           A wing
-            F_evec_8(i,j) = zzz*Opr_opszp2_8(2*G_nk+i) &
-                          + zzz*Opr_opszpl_8(2*G_nk+i) &
-                          + xxx*Opr_opszpm_8(2*G_nk+i)
+            F_evec_8(i,j) = Opr_opszp2_8(2*G_nk+i) &
+                          + Opr_opszpl_8(2*G_nk+i) &
+                          + Opr_opszpm_8(2*G_nk+i)
             if (F_evec_8(i,j)< 0.0) err= err-1
          end if
 
@@ -70,15 +65,14 @@
 !        B: positive definit
          wk1(i,j) = Opr_opszp0_8(G_nk+i)
 !        A diag
-         F_evec_8(i,j) = zzz*Opr_opszp2_8(G_nk+i) &
-                       + zzz*Opr_opszpl_8(G_nk+i) &
-                       + xxx*Opr_opszpm_8(G_nk+i) &
-                       + yyy*Opr_opszp0_8(G_nk+i)
+         F_evec_8(i,j) = Opr_opszp2_8(G_nk+i) &
+                       + Opr_opszpl_8(G_nk+i) &
+                       + Opr_opszpm_8(G_nk+i)
          i=j+1
          if(i < (F_nk+1)) then
-            F_evec_8(i,j) = zzz*Opr_opszp2_8(i) &
-                          + zzz*Opr_opszpl_8(i) &
-                          + xxx*Opr_opszpm_8(i)
+            F_evec_8(i,j) = Opr_opszp2_8(i) &
+                          + Opr_opszpl_8(i) &
+                          + Opr_opszpm_8(i)
             if (F_evec_8(i,j)< 0.0) err= err-1
          end if
 
