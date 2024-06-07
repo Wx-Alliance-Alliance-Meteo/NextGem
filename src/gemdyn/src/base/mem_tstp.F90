@@ -51,16 +51,15 @@ module mem_tstp
    public
    save
 
-      real, allocatable,  dimension (:,:  ) :: rhsb
-      real, allocatable, target, dimension (:) :: rhs, LT, NL, var_init
+      real, allocatable, target, dimension (:) :: LT, var_init
  
       real, allocatable, target, dimension (:) :: rhs_mid
       real, allocatable, target, dimension (:) :: rhs_dep
-      real, allocatable, target, dimension (:) :: sw_frc
+      real, allocatable, target, dimension (:) :: sw_frc, sw_rhs
       
       real, dimension (:,:,:), pointer :: Ruu,Rvv,Rww,Rtt,Rzz
-      real, dimension (:,:,:), pointer :: Nuu,Nvv,Nww,Ntt
-
+      real, dimension (:,:,:), pointer :: Nuu,Nvv
+      
       real, dimension (:,:,:), pointer :: rhsu,rhsv,rhst,rhsc,  &
                                           rhsw,rhsf,            &
                                           rhsu_mid, rhsv_mid,   &
@@ -90,8 +89,6 @@ module mem_tstp
                                   rhsu_bdf_t1, rhsv_bdf_t1, &
                                   rhsu_bdf_t2, rhsv_bdf_t2, &
                                   rhsw_bdf_t1, rhsw_bdf_t2
-
-      real, allocatable,  dimension (:,:  ) :: nl_b
       real, allocatable,  dimension (:,:,:) :: nl_u,nl_v,nl_t,nl_c,nl_w,nl_f
       real, allocatable,  dimension (:), target :: WS1
       real(kind=REAL64), allocatable, dimension (:), target :: WS1_8

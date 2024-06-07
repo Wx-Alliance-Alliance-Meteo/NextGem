@@ -25,7 +25,7 @@ module sol_mem
    integer :: Sol_miny,Sol_maxy,Sol_mink,Sol_maxk,Sol_k0
    integer :: Sol_ii0,Sol_iin,Sol_jj0,Sol_jjn,Sol_imin,Sol_imax,Sol_jmin,Sol_jmax
 
-   real(kind=REAL64), pointer, dimension (:,:,:) :: RHS_sol, Sol_rhs, Sol_lhs
+   real(kind=REAL64), pointer, dimension (:,:,:) :: Sol_rhs, Sol_lhs
 
    real(kind=REAL64) :: isol_i, isol_d
    real(kind=REAL64) :: norm_residual, relative_tolerance, nu , r0, rr2, ro2, lcl_sum(2)

@@ -82,10 +82,10 @@
                        l_minx,l_maxx,l_miny,l_maxy)
       endif
 
-      call rhs1 (dt_8) ! first guess into t0
+      call rhs1 (dt_8) ! also first guess into t0
 
       if ( .not. Grd_yinyang_L ) then
-         call nest_bcs (dt_8,rhsu,rhsv,l_minx,l_maxx,l_miny,l_maxy,l_nk)
+         call nest_bcs (dt_8,Ruu,Rvv,l_minx,l_maxx,l_miny,l_maxy,l_nk)
       end if
 
       err(1:11) = 0.d0
@@ -108,19 +108,13 @@
       call gtmg_stop (25)
 
       call gtmg_start (27, 'PRE', 20)
+      
       call oro_adj ()
-
+      
       call elliptic_rhs (dt_8, k0, k0t)
-
-      call rhs2 (dt_8, k0, k0t )
-
-      call pre (dt_8, i0, j0, k0, in, jn, k0t )
+      
       call gtmg_stop (27)
 
-      call gtmg_start (28, 'NLI', 20)
-      call nli (dt_8, i0, j0, k0, in, jn, k0t)
-      call gtmg_stop (28)
-      
       if (.not.ctrl_testcases_adv_L) then
       call gtmg_start (29, 'SOL', 20)
       !call statf_dm (Sol_rhs, 'RHS', 1, 'TSTP', 1,ni,1,nj,1,l_nk,1+Glb_pil_w,1+Glb_pil_s,1,G_ni-Glb_pil_e,G_nj-Glb_pil_n,l_nk,8)

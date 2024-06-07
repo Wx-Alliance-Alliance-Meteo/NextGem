@@ -90,21 +90,10 @@
       gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)=gmmk_me_full_s   ; GMM_tbl%ara(gmm_cnt)='QQ' ; GMM_tbl%cn(gmm_cnt)='SF' ; GMM_tbl%fst(gmm_cnt)='FUME'
       gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)=gmmk_me_large_s  ; GMM_tbl%ara(gmm_cnt)='QQ' ; GMM_tbl%cn(gmm_cnt)='SF' ; GMM_tbl%fst(gmm_cnt)='FUML'
 
-      allocate (rhsb(l_minx:l_maxx,l_miny:l_maxy))
-      rhsb = 0.
-
       dimH= (l_maxx-l_minx+1)*(l_maxy-l_miny+1)
       dim = dimH*G_nk
-      allocate (rhs(11*dim)) ; rhs=0.
-      allocate (LT(5*dim)) ; LT=0.
-      allocate (NL(4*dim)) ; NL=0.
-      
-      rhsu (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs(       1:)
-      rhsv (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs(   dim+1:)
-      rhst (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs(2 *dim+1:)
-      rhsc (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs(3 *dim+1:)
-      rhsw (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs(4 *dim+1:)
-      rhsf (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs(5 *dim+1:)
+     ! allocate (rhs(11*dim)) ; rhs=0.
+      allocate (LT  (5*dim)) ; LT =0.
       
       Ruu  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>LT(      1:)
       Rvv  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>LT(  dim+1:)
@@ -112,34 +101,36 @@
       Rtt  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>LT(3*dim+1:)
       Rzz  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>LT(4*dim+1:)
       
-      Nuu (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>NL(      1:)
-      Nvv (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>NL(  dim+1:)
-      Nww (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>NL(2*dim+1:)
-      Ntt (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>NL(3*dim+1:)
+      allocate (Nuu(l_minx:l_maxx,l_miny:l_maxy,1:l_nk))
+      allocate (Nvv(l_minx:l_maxx,l_miny:l_maxy,1:l_nk))
 
       !---for interpolated rhs values at midpoint
-      allocate (rhs_mid(6*dim))
+      allocate (rhs_mid(6*dim)) ; rhs_mid= 0.
       rhsu_mid   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs_mid(      1:)
       rhsv_mid   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs_mid(  dim+1:)
       rhst_mid   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs_mid(2*dim+1:)
       rhsc_mid   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs_mid(3*dim+1:)
       rhsw_mid   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs_mid(4*dim+1:)
       rhsf_mid   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs_mid(5*dim+1:)
-      rhsu_mid=0.;rhsv_mid=0.;rhst_mid=0.
-      rhsc_mid=0.;rhsw_mid=0.;rhsf_mid=0.
           
       !---for interpolated rhs values at departure
-      allocate (rhs_dep(6*dim))
+      allocate (rhs_dep(6*dim)) ; rhs_dep= 0.
       rhsu_dep   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs_dep(      1:)
       rhsv_dep   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs_dep(  dim+1:)
       rhst_dep   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs_dep(2*dim+1:)
       rhsc_dep   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs_dep(3*dim+1:)
       rhsw_dep   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs_dep(4*dim+1:)
       rhsf_dep   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>rhs_dep(5*dim+1:)
-      rhsu_dep=0.;rhsv_dep=0.;rhst_dep=0.
-      rhsc_dep=0.;rhsw_dep=0.;rhsf_dep=0.
       
       ! for SW code only
+      allocate (sw_rhs(6*dim)) ; sw_rhs=0.
+      rhsu (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>sw_rhs(      1:)
+      rhsv (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>sw_rhs(  dim+1:)
+      rhst (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>sw_rhs(2*dim+1:)
+      rhsc (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>sw_rhs(3*dim+1:)
+      rhsw (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>sw_rhs(4*dim+1:)
+      rhsf (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>sw_rhs(5*dim+1:)
+      
       allocate (orhsu(l_minx:l_maxx,l_miny:l_maxy,l_nk),&
                 orhsv(l_minx:l_maxx,l_miny:l_maxy,l_nk),&
                 orhst(l_minx:l_maxx,l_miny:l_maxy,l_nk),&
@@ -154,9 +145,7 @@
                 nl_t(l_minx:l_maxx,l_miny:l_maxy,l_nk),&
                 nl_c(l_minx:l_maxx,l_miny:l_maxy,l_nk),&
                 nl_w(l_minx:l_maxx,l_miny:l_maxy,l_nk),&
-                nl_f(l_minx:l_maxx,l_miny:l_maxy,l_nk),&
-                nl_b(l_minx:l_maxx,l_miny:l_maxy))
-      nl_b = 0.
+                nl_f(l_minx:l_maxx,l_miny:l_maxy,l_nk))
 
       !---for shallow-water budget
       allocate (sw_frc(12*dim))
