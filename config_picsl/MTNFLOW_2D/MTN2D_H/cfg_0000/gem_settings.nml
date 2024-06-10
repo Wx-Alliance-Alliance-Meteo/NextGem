@@ -1,0 +1,64 @@
+ &theo_cfgs
+  Theo_case_S= 'MTN_PINTY'
+/
+
+
+ &mtn_cfgs
+  mtn_ni = 640 ,  mtn_nj = 1 ,  mtn_nk = 160
+  mtn_dx = 375.
+  mtn_dz = 375.
+  mtn_tzero= 222.65
+  mtn_nstar= -1
+  mtn_flo  = 20.
+  mtn_hght = 250.
+  mtn_hwx  = 2.66
+  mtn_hwx1 = 8.
+  mtn_zblen_thk=25000.
+  mtn_rcoef = 1.,1.
+/
+  mtn_zblen_thk=9000.
+
+ &dyn_kernel
+  Dynamics_hydro_L=.false.
+  dynamics_Kernel_S = DYNAMICS_FISL_H
+/
+
+
+ &step
+  Step_runstrt_S = "20110122.000000"
+  Fcst_end_S     = "4"
+  Fcst_gstat_s   = '1p'
+  Step_dt        = 10.
+/
+
+
+ &dyn_fisl 
+  Cstv_tstr_8 = 222.65
+  Cstv_bA_m_8 = 0.5
+  Cstv_bA_8 = 0.5
+  Cstv_bA_nh_8 = 0.5
+  Schm_itcn = 2
+  Schm_itnlh  = 2
+  Schm_advec    = 2
+  /
+
+ &Sol
+  Sol_type_S='ITERATIVE_3D' 
+/
+
+ &gem_cfgs
+  Vtopo_length_S = '0s'
+/
+  Vtopo_length_S = '3600s'
+
+ &lam
+  Lam_ctebcs_L   = .true.
+  Lam_blend_H    = 50
+/
+
+ &out
+  Out3_etik_s    = MTN2DiH 
+  Out3_ip3       = -1
+  Out3_close_interval_S= '999h'
+/
+

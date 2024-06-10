@@ -1,0 +1,74 @@
+ &grid
+  Grd_typ_S       = 'GY'      , Grd_nj          = 190
+  Grd_overlap     = 2         ,
+  Grd_maxcfl      = 5         ,
+/
+
+ &dyn_kernel
+  Dynamics_kernel_S = 'DYNAMICS_SLMX'
+  Dynamics_sw_L   = .true.
+/
+  Dynamics_hydro_L = .true.
+
+ &step
+  Fcst_end_S     = "336h"
+  Fcst_gstat_s   = '1h'
+  Step_dt        = 900.
+/
+
+ &adz_cfgs
+  adz_itraj = 3
+/
+
+ &adv_cfgs
+  adv_verbose=1,
+/
+
+ &gem_cfgs
+  LCTL_RXSTAT_S   = 'GLB_8',
+/
+
+ &dyn_fisl
+
+  Cstv_bA_8       = 0.5        ,
+
+  Cstv_tstr_8     = 273.15     ,
+
+  Schm_itcn       = 2          , Schm_wload_L      = .false.
+  Schm_itnlh      = 2          ,
+                                 Schm_hzdadw_L     = .false.
+  Schm_itpc       = 2  
+/
+
+ &sol
+/
+ Sol_fgm_eps=1.e-12
+
+ &hvdif
+  Hzd_lnr         = .0         ,
+  Vspng_nk        = 0          ,
+/
+
+ &vert_layers
+  hyb_H = 5542.23876953, 2851.88769531, 842.43768311,
+  hyb_rcoef       = 1.,1.      ,
+/
+  hyb_H =    5574.64, 2962.03, 896.39,
+
+ &init_NONE
+  Init_balgm_L    = .false.    , Init_dftr_L     = .false.
+  Init_dfwin_L    = .true.     , Init_dflength_S = '6h'
+  Init_dfpl_S     = '6h'
+/
+
+ &out
+  Out3_etik_s     = "CASE6"    ,
+  Out3_nbitg      = 32         ,
+
+  Out3_close_interval_S= '336h',
+  Out3_postproc_fact   = 1     ,
+/
+
+ &williamson
+  Williamson_case = 6,
+/

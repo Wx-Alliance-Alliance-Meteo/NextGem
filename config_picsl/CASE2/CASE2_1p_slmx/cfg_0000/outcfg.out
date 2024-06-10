@@ -1,0 +1,10 @@
+grid=1,core;
+levels=1,eta, -1;
+
+steps=1,hour,<0,120,24>;
+steps=2,hour,<0,2,1>;
+steps=3,step,<0,1,1>;
+
+sortie([GZ,UU,VV,ME],grid,1,levels,1,steps,3)
+sortie([S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12],grid,1,levels,1,steps,3)
+

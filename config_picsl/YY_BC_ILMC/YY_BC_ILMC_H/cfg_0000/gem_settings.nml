@@ -1,0 +1,178 @@
+ &grid
+  Grd_typ_S       = 'GY'       ,
+  Grd_nj          =  95        ,
+  Grd_overlap     = 2.0        ,
+  Grd_maxcfl      = 5          ,
+/
+  Grd_xlon2       =180.0       ,
+  Grd_xlat2       =  0.0       ,
+  Grd_xlon1       =  0.0       ,
+  Grd_xlat1       = 90.0       ,
+
+ &step
+  Step_runstrt_S = "20090101.000000"
+  Fcst_start_S   =  "0h"
+  Fcst_end_S     = "24h"
+  Fcst_gstat_S   =  "1p"
+  Step_dt        = 1800.
+/
+
+ &gem_cfgs
+  LCTL_RXSTAT_S   = 'GLB_8',
+
+  Tr3d_list_S =   'O3,mono=2,mass=1,hzd=0,min=0.',
+                 'CH4,mono=2,mass=1,hzd=0,min=0.',
+                 'N2O,mono=2,mass=1,hzd=0,min=0.',
+                 'TF1,mono=2,mass=1,hzd=0,min=0.',
+                 'TF2,mono=2,mass=1,hzd=0,min=0.',
+
+  Stat_liste  = 'ALL_DYN_T1', 'ALL_TR_T1',
+/
+
+ &grdc_NONE
+ Grdc_maxcfl = 10,
+ Grdc_nfe = '1800S',
+ Grdc_dx = 1.0 ,
+ Grdc_dy = 1.0 ,
+ Grdc_latr =   0.,
+ Grdc_lonr = 180.,
+ Grdc_ni =  70 ,
+ Grdc_nj =  70 ,
+/
+
+  adz_pil_sub_w_g = 77 
+  adz_pil_sub_e_g = 77 
+  adz_pil_sub_s_g = 26 
+  adz_pil_sub_n_g = 26 
+
+ &adz_cfgs
+
+  adz_pil_sub_w_g = 120 
+  adz_pil_sub_e_g = 120 
+  adz_pil_sub_s_g = 26 
+  adz_pil_sub_n_g = 26 
+
+  adz_verbose = 1,
+  adz_BC_min_max_L   = .false.,
+  adz_ILMC_min_max_L = .false.,
+/
+
+ &dyn_fisl
+  Schm_psadj_print_L=.true.
+  Cstv_tstr_8     = 240.0
+  Schm_nblendyy   = 1
+  Schm_itcn       = 2          , Schm_wload_L      = .false.
+  Schm_itnlh      = 2          ,
+  Schm_hzdadw_L   = .true.     ,
+  Schm_psadj      = 1 
+/
+
+
+ &hvdif
+  Hzd_pwr         = 6          , Hzd_lnr       = 0.04
+  Vspng_coeftop   = 380000.    , Vspng_nk      = 6
+  Eq_sponge       = 50.0, 46.6, 38.3, 28.2, 18.4, 10.4, 4.6, 1.1
+  P_lmvd_weigh_high_lat = 0.0
+/
+
+ &vert_layers
+hyb_H =
+   64856.9,
+   61579.7,
+   58196.9,
+   54750.0,
+   51366.3,
+   48157.9,
+   45196.2,
+   42509.8,
+   40089.9,
+   37914.5,
+   35959.2,
+   34199.1,
+   32610.7,
+   31169.6,
+   29846.0,
+   28624.8,
+   27493.4,
+   26440.7,
+   25456.7,
+   24532.8,
+   23665.1,
+   22851.3,
+   22088.3,
+   21372.6,
+   20700.1,
+   20067.0,
+   19468.7,
+   18900.6,
+   18359.4,
+   17841.9,
+   17345.3,
+   16866.6,
+   16403.3,
+   15952.9,
+   15513.0,
+   15081.3,
+   14655.5,
+   14234.0,
+   13816.0,
+   13401.1,
+   12988.7,
+   12578.5,
+   12170.3,
+   11763.8,
+   11358.8,
+   10955.2,
+   10550.2,
+   10141.8,
+   9730.21,
+   9315.6,
+   8898.23,
+   8478.46,
+   8056.71,
+   7633.47,
+   7209.31,
+   6784.88,
+   6361.79,
+   5943.33,
+   5532.41,
+   5131.46,
+   4742.38,
+   4366.58,
+   4005.04,
+   3658.34,
+   3326.71,
+   3010.13,
+   2708.36,
+   2421.51,
+   2150.89,
+   1897.47,
+   1661.83,
+   1444.16,
+   1244.32,
+   1061.91,
+   896.252,
+   746.539,
+   610.529,
+   486.201,
+   373.724,
+   274.289,
+   189.184,
+   119.056,
+   63.5215,
+   21.184,
+  
+  Hyb_rcoef    = 3., 15.       ,
+/
+
+ &init
+  Init_balgm_L    = .false.    , Init_dftr_L     = .false.
+  Init_dfwin_L    = .true.     , Init_dflength_S = '3h'
+  Init_dfpl_S     = '6h'
+/
+
+ &out
+  Out3_etik_s     = "HYYBCILMC",
+  Out3_nbitg      = 32         ,
+  Out3_close_interval_S= '1h'  , Out3_postproc_fact= 3
+/

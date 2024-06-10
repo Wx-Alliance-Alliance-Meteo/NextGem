@@ -1,0 +1,60 @@
+ &theo_cfgs
+  Theo_case_S= 'MTN_SCHAR'
+/
+
+ &dyn_kernel
+  Dynamics_Kernel_S = 'DYNAMICS_SLMX'
+/
+  Dynamics_hydro_L  = .false
+
+
+ &mtn_cfgs
+  mtn_ni = 801 ,  mtn_nj = 1 ,  mtn_nk = 65
+  mtn_dx = 500.
+  mtn_dz = 300.
+  mtn_tzero= 288.
+  mtn_nstar= 0.01
+  mtn_flo  = 10.
+  mtn_hwx  = 10.
+  mtn_hwx1 = 8.
+  mtn_hght = 200.
+  mtn_zblen_thk=10000.
+  mtn_rcoef = 1.,1.
+/
+
+
+
+ &step
+  Step_runstrt_S = "20110122.000000"
+  Fcst_end_S     = "4"
+  Fcst_gstat_s   = '1p'
+  Step_dt        = 16.
+/
+
+
+ &dyn_fisl 
+  Cstv_tstr_8 = 240.
+  Cstv_bA_m_8 = 0.5
+  Cstv_bA_8 = 0.5
+  Cstv_bA_nh_8 = 0.5
+  Schm_itcn = 2
+  Schm_itnlh  = 2
+  Schm_advec    = 2
+/
+
+ &gem_cfgs
+  Vtopo_length_S = '0s'
+/
+
+ &lam
+  Lam_ctebcs_L   = .true.
+  Lam_blend_H    = 50
+/
+
+
+ &out
+  Out3_etik_s    = WT1SCH2DIH
+  Out3_ip3       = -1
+  Out3_close_interval_S= '999h'
+/
+

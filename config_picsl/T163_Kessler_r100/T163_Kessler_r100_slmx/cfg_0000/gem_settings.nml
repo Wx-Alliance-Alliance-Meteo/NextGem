@@ -1,0 +1,100 @@
+ &grid
+  Grd_typ_S       = 'GY'      , Grd_nj          = 95
+  Grd_overlap     = 2         ,
+  Grd_maxcfl      = 5         ,
+/
+
+ &dyn_kernel
+  Dynamics_Kernel_S = 'DYNAMICS_SLMX'
+  Dynamics_sw_L  = .false.
+/
+
+ &step
+  Fcst_end_S     = "240h"
+  Fcst_gstat_s   = '1p'
+  Step_dt        = 1800.
+/
+
+ &adz_cfgs
+  adz_itraj = 3
+  adz_verbose=0,
+/
+
+ &gem_cfgs
+  Lctl_rxstat_S = 'GLB_8'
+
+  Tr3d_list_S =  'QC,mono=1,mass=0,hzd=1',
+                 'RW,mono=1,mass=0,hzd=1',
+                 'HU,mono=1,mass=0,hzd=1',
+
+  Stat_liste  = 'ALL_DYN_T1', 'ALL_TR_T1',
+
+/
+
+ &dyn_fisl
+
+  Cstv_tstr_8     = 240.0 ,
+
+  Cstv_bA_8       = 0.6        ,
+  Cstv_bA_m_8     = 0.6        ,
+  Cstv_bA_nh_8    = 0.6        ,
+
+                                 Schm_nblendyy     = -1
+  Schm_itcn       = 2          , Schm_wload_L      = .false.
+  Schm_itnlh      = 2          ,
+                                 Schm_hzdadw_L     = .false.
+  Schm_Topo_L = .false.
+
+/
+
+ &hvdif
+  Hzd_pwr         = 2          , Hzd_lnr         = 0.349368550740457168E-01,
+  Hzd_pwr_tr      = 2          , Hzd_lnr_tr      = 0.104810565222137150,
+
+  Vspng_nk        = 6          , Vspng_coeftop   =  380000.
+/
+
+ &vert_layers
+  hyb_H=
+  0.19750000E+05,0.19250000E+05,0.18750000E+05,0.18250000E+05,0.17750000E+05,0.17250000E+05,0.16750000E+05,
+  0.16250000E+05,0.15750000E+05,0.15250000E+05,0.14750000E+05,0.14250000E+05,0.13750000E+05,0.13250000E+05,
+  0.12750000E+05,0.12250000E+05,0.11750000E+05,0.11250000E+05,0.10750000E+05,0.10250000E+05,0.97500000E+04,
+  0.92500000E+04,0.87500000E+04,0.82500000E+04,0.77500000E+04,0.72500000E+04,0.67500000E+04,0.62500000E+04,
+  0.57500000E+04,0.52500000E+04,0.47500000E+04,0.42500000E+04,0.37500000E+04,0.32500000E+04,0.27500000E+04,
+  0.22500000E+04,0.17500000E+04,0.12500000E+04,0.75000000E+03,0.25000000E+03,
+
+  hyb_rcoef       = 1.,1.      ,
+/
+  hyb_H= 15842.9,15479.6,15116.4,14753.1,14389.8,14026.6,
+         13663.3,13300.1,12936.8,12573.5,12210.3,11847.0,
+         11483.8,11120.5,10756.4,10388.4,10016.5,9640.47,
+         9260.33,8876.02,8487.5, 8094.72,7697.64, 7296.2,
+         6890.37,6480.09,6065.31,5645.99,5222.08,4793.51,
+         4360.25,3922.25,3479.44,3031.78,2579.22,2121.7,
+         1659.16,1191.55,718.825,240.915,
+
+ &init_NONE
+  Init_balgm_L    = .false.    , Init_dftr_L     = .false.
+  Init_dfwin_L    = .true.     , Init_dflength_S = '3h'
+  Init_dfpl_S     = '6h'
+/
+
+ &out
+  Out3_etik_s     = "H63R100"  ,
+  Out3_nbitg      = 32         ,
+
+  Out3_close_interval_S = '240h'
+  Out3_postproc_fact    = 1
+
+  Out3_npex = 1,
+  Out3_npey = 1,
+/
+
+ &dcmip
+ Dcmip_case  = 163,
+ Dcmip_X     = 120.,
+ Dcmip_prec_type = 0
+ Dcmip_pbl_type  = -1
+ Dcmip_nuZ_wd= -500.
+ Dcmip_nuZ_tr= -1500.
+/

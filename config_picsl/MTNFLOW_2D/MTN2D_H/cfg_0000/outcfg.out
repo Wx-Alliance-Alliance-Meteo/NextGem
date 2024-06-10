@@ -1,0 +1,14 @@
+ grid=1,core;
+
+ levels=1,eta, -1;
+
+ steps=8,step,<0,14400,600>;
+ steps=3,step,<0,7200,300>;
+ steps=4,step,<0,4800,200>;
+ steps=5,step,<0,2880,120>;
+ steps=1,step,<0,2400,100>;
+ steps=2,step,<0,1800,75>;
+ steps=6,step,<0,1440,60>;
+ steps=7,step,<0,720,30>;
+
+ sortie([ZDT1,GZ,PX,WT1,TH] , grid, 1, levels, 1, steps, 6)

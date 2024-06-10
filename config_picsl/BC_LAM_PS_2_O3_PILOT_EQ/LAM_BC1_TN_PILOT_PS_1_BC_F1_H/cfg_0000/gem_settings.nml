@@ -1,0 +1,87 @@
+ &grid
+  Grd_typ_S  = 'LU'    ,
+  Grd_ni     = 69      ,     Grd_nj    =69
+  Grd_dx     = 1.0     ,     Grd_dy    = 1.0
+  Grd_lonr   = 180.0   ,     Grd_latr  = 0.0
+  Grd_maxcfl = 10      ,
+/
+  Grd_xlon2  =180.0    ,
+  Grd_xlat2  =  0.0    ,
+  Grd_xlon1  =  0.0    ,
+  Grd_xlat1  = 90.0    ,
+
+ &step
+  Step_runstrt_S = "20090101.000000"
+  Fcst_start_S   =  "0h"
+  Fcst_end_S     = "24h"
+  Fcst_nesdt_S   = '1800S'
+  Fcst_gstat_S   =  "1p"
+  Step_dt        = 1800.
+/
+
+ &gem_cfgs
+  LCTL_RXSTAT_S   = 'GLB_8',
+
+  Tr3d_list_S =   'O3,mono=0,mass=1,hzd=0,min=0.',
+                 'CH4,mono=0,mass=1,hzd=0,min=0.',
+                 'N2O,mono=0,mass=1,hzd=0,min=0.',
+                 'TF1,mono=0,mass=1,hzd=0,min=0.',
+                 'TF2,mono=0,mass=1,hzd=0,min=0.',
+
+  Stat_liste  = 'ALL_DYN_T1', 'ALL_TR_T1',
+/
+
+ &adz_cfgs
+
+  adz_verbose = 1,
+  adz_BC_min_max_L   = .false.,
+  adz_ILMC_min_max_L = .false.,
+
+/
+
+ &dyn_fisl
+  Schm_psadj_print_L=.true.
+  Cstv_tstr_8     = 240.0
+  Schm_nblendyy   = 1
+  Schm_itcn       = 2          , Schm_wload_L      = .false.
+  Schm_itnlh      = 2          ,
+  Schm_hzdadw_L   = .true.     ,
+  Schm_psadj      = 2 
+/
+
+ &hvdif
+  Hzd_pwr         = 6          , Hzd_lnr       = 0.04
+  Vspng_coeftop   = 380000.    , Vspng_nk      = 6
+  Eq_sponge       = 50.0, 46.6, 38.3, 28.2, 18.4, 10.4, 4.6, 1.1
+  P_lmvd_weigh_high_lat = 0.0
+/
+
+ &vert_layers
+  Hyb_H=63905.,60615.,57347.,54142.,51109.,48294.,45682,
+        43246.,40991.,38910.,36996.,35235.,33614.,32119.,
+        30736.,29453.,28258.,27140.,26091.,25102.,24170.,
+        23292.,22466.,21689.,20957.,20265.,19611.,18990.,
+        18398.,17832.,17289.,16766.,16260.,15768.,15287.,
+        14816.,14351.,13891.,13434.,12981.,12531.,12084.,
+        11639.,11195.,10753.,10313., 9875., 9438., 9003.,
+         8571., 8140., 7712., 7287., 6866., 6449., 6036.,
+         5629., 5231., 4844., 4470., 4112., 3769., 3441.,
+         3130., 2835., 2556., 2291., 2042., 1808., 1590.,
+         1389., 1204., 1035.,  882.,  743.,  618.,  504.,
+          401.,  308.,  226.,  156.,   98.,   52.,   17.
+
+  
+  Hyb_rcoef    = 3., 15.       ,
+/
+
+ &init
+  Init_balgm_L    = .false.    , Init_dftr_L     = .false.
+  Init_dfwin_L    = .true.     , Init_dflength_S = '3h'
+  Init_dfpl_S     = '6h'
+/
+
+ &out
+  Out3_etik_s     = "F1BC1TNPIps1H",
+  Out3_nbitg      = 32         ,
+  Out3_close_interval_S= '1h'  , Out3_postproc_fact= 3
+/
