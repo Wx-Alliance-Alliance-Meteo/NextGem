@@ -14,7 +14,7 @@
 !---------------------------------- LICENCE END ---------------------------------
 !**s/r elliptic_rhs - Compute right hand side of the elliptic problem
 
-      subroutine elliptic_rhs ( F_dt_8, k0, k0t )
+      subroutine ez_elliptic_rhs ( F_dt_8, k0, k0t )
       use, intrinsic :: iso_fortran_env
       use dyn_fisl_options
       use HORgrid_options
@@ -46,11 +46,6 @@
 !
 !     ---------------------------------------------------------------
 !
-      if (EZ_newsol) then
-         call ez_elliptic_rhs ( F_dt_8, k0, k0t )
-         return
-      endif
-      
       i0= 1   +pil_w
       in= l_ni-pil_e
       j0= 1   +pil_s
@@ -179,77 +174,11 @@
                             + invT_8*GVM%mc_Iz_8(i,j,k)* (Ver_wp_8%m(k)*Rzz(i,j,k)+Ver_wm_8%m(k)*Rzz(i,j,km)) &
                             + (Rtt(i,j,k) - Rtt(i,j,km))*Ver_idz_8%m(k) &
                             + (Rtt(i,j,k)*Ver_wp_8%m(k) + Rtt(i,j,km)*Ver_wm_8%m(k))*(GVM%mc_Iz_8(i,j,k)-epsi_8)
-
-! this exception at k=1 will be removed soon and km should be replaced with simply k-1
-            if (k==1   ) then
-               w3   = (Ver_idz_8%m(k) + (GVM%mc_Iz_8(i,j,k) - epsi_8)*Ver_wp_8%m(k))
-               w5   = a*rhst_mid(i,j,k ) - b*rhst_dep(i,j,k )
-               w5   = gama_bdf_8 * ( c * w5   + a*rhsw_mid(i,j,k ) - b*rhsw_dep(i,j,k ))
-               w6   = invT_8*( logT(i,j,k ) - (one-one/tots(i,j,k )) )
-               Nwww = (tots(i,j,k)-one)*GVM%mc_iJz_8(i,j,k)*(qt0(i,j,k+1)-qt0(i,j,k)) &
-                     -(tots(i,j,k)-one)*grav_8*(one-one/tots(i,j,k)) 
-               Nttt = gama_bdf_8 * ( c * w6   + Nwww )
-               w7   = a*rhsf_mid(i,j,k ) - b*rhsf_dep(i,j,k )
-               Sol_rhs(i,j,k)= -invT_8*Rqq + dudx + dvdy + ubx*GVM%mc_Ix_8(i,j,k) + vby*GVM%mc_Iy_8(i,j,k)&
-                               + invT_8*w7*(Ver_idz_8%m(1)+GVM%mc_Iz_8(i,j,1)*Ver_wp_8%m(1)) + (w3*w5) - w3*Nttt
-            endif
          end do
          end do
-      end do
-      
-! this exception at k=l_nk will also be removed soon
-! precomputation of wka,wkb for special lower(l_nk) boundary condition
-      wkf= 0. ; wka=0. ; wkb=0. ; k=l_nk
-      do j=j0,jn
-         do i=i0,in
-            w1 = invT_8*( logT(i,j,k) - (one-one/tots(i,j,k)) )
-            w4 = (tots(i,j,k)-one)*GVM%mc_iJz_8(i,j,k)*(qt0(i,j,k+1)-qt0(i,j,k)) &
-               -(tots(i,j,k)-one)*grav_8*(one-one/tots(i,j,k))
-            w2 = gama_bdf_8 * ( c * w1 + w4 )
-            w1 = invT_8*( logT(i,j,k-1) - (one-one/tots(i,j,k-1)) )
-            w4= (tots(i,j,k-1)-one)*GVM%mc_iJz_8(i,j,k-1)*(qt0(i,j,k)-qt0(i,j,k-1)) &
-               -(tots(i,j,k-1)-one)*grav_8*(one-one/tots(i,j,k-1))
-            w3 = gama_bdf_8 * ( c * w1 + w4 )
-               
-            wkf(i,j,1)= GVM%mc_css_H_8(i,j) * (Rt(i,j,l_nk)-Ver_wmstar_8(G_nk)*Rt(i,j,l_nk-1)&
-         + invT_8*(Rzz(i,j,l_nk)-Ver_wmstar_8(G_nk)*Rzz(i,j,l_nk-1))) &
-         - GVM%mc_css_H_8(i,j) * (w2-Ver_wmstar_8(G_nk)*w3)
-         end do
-      end do
-      call HLT_split (1, 1, HLT_np, HLT_start, HLT_end)
-      call gem_xch_halo ( wkf(l_minx,l_miny,HLT_start),&
-                 l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
-
-! Specific scope is here important for wka,wkb
-      do j= j00, jn
-      do i= i00, inn
-         wka(i,j) = - GVM%mc_Jx_8(i,j,l_nk) * &
-                     Ver_wp_8%m(l_nk)*half*( wkf(i+1,j,1)*GVM%mc_iJz_8(i+1,j,l_nk) &
-                                           + wkf(i  ,j,1)*GVM%mc_iJz_8(i  ,j,l_nk) )
-      end do
-      end do
-      do j= j00, jnn
-      do i= i00, in
-         wkb(i,j) = - GVM%mc_Jy_8(i,j,l_nk) * &
-                     Ver_wp_8%m(l_nk)*half*( wkf(i,j+1,1)*GVM%mc_iJz_8(i,j+1,l_nk) &
-                                           + wkf(i,j  ,1)*GVM%mc_iJz_8(i,j  ,l_nk) )
-      end do
-      end do
-      
-      k=l_nk
-      do j= j0, jn
-         do i= i0, in
-            w1 = gama_8*(wkf(i,j,1)*GVM%mc_iJz_8(i,j,l_nk) - mu_8*half*wkf(i,j,1))
-            w2= (wka (i,j)-wka (i-1,j))*geomh_invDXM_8(j) &
-               + half * (GVM%mc_Ix_8(i,j,l_nk)*(wka(i,j)+wka(i-1,j)))
-            w3= (wkb(i,j)*geomh_cyM_8(j)-wkb(i,j-1)*geomh_cyM_8(j-1))*geomh_invDYM_8(j) &
-               + half * (GVM%mc_Iy_8(i,j,l_nk)*(wkb(i,j)+wkb(i,j-1)))
-            w4= w1*Ver_idz_8%m(l_nk) +(GVM%mc_Iz_8(i,j,l_nk)-epsi_8)*(Ver_wp_8%m(l_nk)*w1)
-            Sol_rhs(i,j,k)= Sol_rhs(i,j,k)-w2-w3-w4
-      end do
       end do
 !
 !     ---------------------------------------------------------------
 !
       return
-      end subroutine elliptic_rhs
+      end subroutine ez_elliptic_rhs

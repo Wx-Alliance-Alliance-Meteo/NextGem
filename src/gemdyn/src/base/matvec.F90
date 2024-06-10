@@ -44,6 +44,12 @@
 !
 !     ---------------------------------------------------------------
 !
+      if (EZ_newsol) then
+         call ez_matvec ( F_vector, F_minx,F_maxx,F_miny,F_maxy,&
+                          F_prod  , F_i0,F_in,F_j0,F_jn, F_nk )
+         return
+      endif
+      
       call gtmg_start (72, 'MATVEC1', 25 )
       i0 = 1+pil_w ; in = l_ni-pil_e
       j0 = 1+pil_s ; jn = l_nj-pil_n

@@ -17,7 +17,7 @@
 !                from new q , the right-hand sides (Ru,Rv,Rw,Rt,Rf)
 !                             and non-linear terms (Nu,Nv,Nw,Nt)
 
-      subroutine bac ( F_dt_8, i0, j0, k0, in, jn ,k0t )
+      subroutine ez_bac ( F_dt_8, i0, j0, k0, in, jn ,k0t )
       use dyn_fisl_options
       use geomh
       use sol_mem
@@ -45,13 +45,7 @@
 !
 !     ---------------------------------------------------------------
 !
-      if (EZ_newsol) then
-         call ez_bac ( F_dt_8, i0, j0, k0, in, jn ,k0t )
-         return
-      endif
-      
-
-         if (Ctrl_testcases_adv_L) then
+      if (Ctrl_testcases_adv_L) then
 !!$omp single
          call canonical_cases ("BAC")
 !!$omp end single
@@ -82,12 +76,7 @@
       do j= j0, jn
          do i= i0, in
             w5=(GVM%zmom_8(i,j,l_nk+1)-GVM%zmom_8(i,j,l_nk))/(GVM%zmom_8(i,j,l_nk)-GVM%zmom_8(i,j,l_nk-1))
-            ! pour le moment cette extrapolation ne fonctionne pas
-         !q_ext(i,j,l_nk+1)= Sol_lhs(i,j,l_nk)*(1+w5) - w5*Sol_lhs(i,j,l_nk-1)
-            q_ext(i,j,l_nk+1) = GVM%mc_alfas_H_8(i,j)*q_ext(i,j,l_nk  ) &
-                              - GVM%mc_betas_H_8(i,j)*q_ext(i,j,l_nk-1) &
-                              + GVM%mc_css_H_8  (i,j)* (Rtt(i,j,l_nk)-Ver_wmstar_8(G_nk)*Rtt(i,j,l_nk-1) &
-                              + invT_8*(Rzz(i,j,l_nk)-Ver_wmstar_8(G_nk)*Rzz(i,j,l_nk-1)))! &
+            q_ext(i,j,l_nk+1)= Sol_lhs(i,j,l_nk)*(1+w5) - w5*Sol_lhs(i,j,l_nk-1)
          enddo
       enddo
 !!$omp end do
@@ -187,4 +176,4 @@
 !     ---------------------------------------------------------------
 !
       return
-      end subroutine bac
+      end subroutine ez_bac

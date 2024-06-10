@@ -32,10 +32,11 @@ module sol_mem
    real(kind=REAL64),dimension(:      ), allocatable :: gg,rot_cos, rot_sin, p1, p2, IPIV_arr
    real(kind=REAL64),dimension(:,:    ), allocatable :: v_lcl_sum,rr,tt,N_mat, M_mat, T_mat1, hessenberg,thread_s
    real(kind=REAL64),dimension(:,:,:  ), allocatable :: work_space,thread_s2,fdg,w2_8,w3_8
-   real(kind=REAL128),dimension(:,:    ), allocatable :: thread_s128
+   real(kind=REAL128),dimension(:,:   ), allocatable :: thread_s128
    real(kind=REAL64),dimension(:,:,:,:), contiguous, pointer :: vv, wint_8
    real(kind=REAL64),dimension(:,:,:,:), allocatable :: A1,A2,B1,B2,C1,C2
    real(kind=REAL64),dimension(:,:,:,:), allocatable :: C1_bdf, C2_bdf
-   real             ,dimension (:,:,: ), allocatable :: fdg2
+   real             ,dimension (:,:,: ), allocatable :: fdg2,ext_q
+   real(kind=REAL64),dimension(:,:,:  ), allocatable :: Qdqdx,Qdqdy,Qdqdz,Qqbz,Qbarxz,Qbaryz,Qbarz 
 
 end module sol_mem

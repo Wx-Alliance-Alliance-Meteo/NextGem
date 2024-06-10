@@ -25,6 +25,7 @@
       use omp_lib
       use sol_mem
       use ptopo
+      use gmm_vt0
       use omp_timing
       use step_options
       use stat_mpi, only:statf_dm
@@ -62,6 +63,14 @@
 !
 !     ---------------------------------------------------------------
 !
+      do k=1, l_nk
+         do j= 1+pil_s,l_nj-pil_n
+            do i= 1+pil_w,l_ni-pil_e
+               Sol_lhs(i,j,k)= qt0(i,j,k)
+            end do
+         end do
+      end do
+
       outiter= 0 ; nbiter= 0 ; conv= 0.d0
 
       ! Residual of the initial iterate

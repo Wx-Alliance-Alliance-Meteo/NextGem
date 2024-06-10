@@ -18,6 +18,9 @@ module dyn_fisl_options
    public
    save
 
+   logical :: EZ_newsol = .false.
+
+      
    !# T* basic state temperature (K)
    real(kind=REAL64) :: Cstv_Tstr_8 = 240.0
    namelist /dyn_fisl  / Cstv_Tstr_8
