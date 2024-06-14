@@ -35,8 +35,7 @@
 
       integer :: i, j, k, HLT_np, HLT_start, HLT_end
       integer :: i0,in,j0,jn,km,i00,inn,j00,jnn,dim,ub
-      real, dimension(:,:,:), pointer :: wkf
-      real, dimension(:,:,:), pointer :: tots, logT, logQ, Rt
+      real, dimension(:,:,:), pointer :: tots, logT
       real(kind=REAL64) :: Rqq,tau_8,invT_8,a,b,c,barz,barzp
       real(kind=REAL64) :: w0,w1,w2,w3,w4,w5,w6,w7, dudx,dvdy,ubx,vby
       real(kind=REAL64) :: Nwww,Nttt,t_interp,u_interp,v_interp
@@ -67,23 +66,32 @@
 
       ub=0
       dim= l_ni*l_nj
-      tots (1:l_ni,1:l_nj,1:l_nk) => WS1(ub+1:) ; ub=ub+dim*l_nk
-      logT (1:l_ni,1:l_nj,1:l_nk) => WS1(ub+1:) ; ub=ub+dim*l_nk
-      dim= (l_maxx-l_minx+1)*(l_maxy-l_miny+1)
-      Rt   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => WS1(ub+1:) ; ub=ub+dim*l_nk
-      wkf  (l_minx:l_maxx,l_miny:l_maxy,1:1)    => WS1(ub+1:) ; ub=ub+dim
+      tots (1:l_ni,1:l_nj,0:l_nk) => WS1(ub+1:) ; ub=ub+dim*(l_nk+1)
+      logT (1:l_ni,1:l_nj,0:l_nk) => WS1(ub+1:) ; ub=ub+dim*(l_nk+1)
 
       do k=1, l_nk
          do j=1, l_nj
             do i= 1, l_ni
-               tots(i,j,k)= tt0(i,j,k)/Cstv_Tstr_8
-               logT(i,j,k)= log(tots(i,j,k))
+               tots (i,j,k)= tt0(i,j,k)/Cstv_Tstr_8
+               logT (i,j,k)= log(tots(i,j,k))
+               ext_q(i,j,k)= qt0(i,j,k)
             end do
          end do
       end do
-
+      do j= j0, jn
+      do i= i0, in
+         w1=  (GVM%zmom_8(i,j,l_nk+1)-GVM%zmom_8(i,j,l_nk))&
+             /(GVM%zmom_8(i,j,l_nk)-GVM%zmom_8(i,j,l_nk-1))
+         w2= (GVM%zmom_8(i,j,1)-ver_z_8%m(0))/(GVM%zmom_8(i,j,2)-GVM%zmom_8(i,j,1))
+         w3= (GVM%ztht_8(i,j,1)-GVM%zthtlid_8(i,j))/(GVM%ztht_8(i,j,2)-GVM%ztht_8(i,j,1))
+         ext_q(i,j,l_nk+1)= (1+w1)*qt0 (i,j,l_nk) - w1 *qt0 (i,j,l_nk-1)
+         ext_q(i,j,0     )= (1+w2)*qt0 (i,j,1   ) - w2 *qt0 (i,j,2     )
+         tots (i,j,0     )= (1+w3)*tots(i,j,1   ) - w3 *tots(i,j,2     )
+         logT (i,j,0)= log(tots(i,j,0))
+      end do
+      end do
       do k=1, l_nk
-         km=max(k-1,1)
+         km=k-1 !max(k-1,1)
          do j= Adz_j0 , Adz_jn
          do i= Adz_i0u, Adz_inu
             Ruu(i,j,k) = a*rhsu_mid(i,j,k) - b*rhsu_dep(i,j,k) 
@@ -107,13 +115,13 @@
             t_interp = (barz+barzp)*half/Cstv_Tstr_8-one
             v_interp = 0.25d0*(vt0(i  ,j,k)+vt0(i  ,j-1,k)+&
                                vt0(i+1,j,k)+vt0(i+1,j-1,k))
-            Nuu(i,j,k)= t_interp*( qt0(i+1,j,k) - qt0(i,j,k) ) * geomh_invDX_8(j) &
+            Nuu(i,j,k)= t_interp*( ext_q(i+1,j,k) - ext_q(i,j,k) ) * geomh_invDX_8(j) &
                         - ( Cori_fcoru_8(i,j) + geomh_tyoa_8(j) * ut0(i,j,k) ) * v_interp &
                         - t_interp*GVM%mc_Jx_8(i,j,k) * ( &
-                          Ver_wp_8%m(k)*half*( (qt0(i+1,j,k+1)-qt0(i+1,j,k ))*GVM%mc_iJz_8(i+1,j,k )   &
-                                              +(qt0(i  ,j,k+1)-qt0(i  ,j,k ))*GVM%mc_iJz_8(i  ,j,k ) ) &
-                         +Ver_wm_8%m(k)*half*( (qt0(i+1,j,k  )-qt0(i+1,j,km))*GVM%mc_iJz_8(i+1,j,km)   &
-                                              +(qt0(i  ,j,k  )-qt0(i  ,j,km))*GVM%mc_iJz_8(i  ,j,km) ) )
+                          Ver_wp_8%m(k)*half*( (ext_q(i+1,j,k+1)-ext_q(i+1,j,k ))*GVM%mc_iJz_8(i+1,j,k )   &
+                                              +(ext_q(i  ,j,k+1)-ext_q(i  ,j,k ))*GVM%mc_iJz_8(i  ,j,k ) ) &
+                         +Ver_wm_8%m(k)*half*( (ext_q(i+1,j,k  )-ext_q(i+1,j,km))*GVM%mc_iJz_8(i+1,j,km)   &
+                                              +(ext_q(i  ,j,k  )-ext_q(i  ,j,km))*GVM%mc_iJz_8(i  ,j,km) ) )
          end do
          end do         
          do j= j00, jnn
@@ -122,13 +130,13 @@
             barzp= Ver_wp_8%m(k)*tt0(i,j+1,k)+Ver_wm_8%m(k)*tt0(i,j+1,km)
             t_interp = (barz+barzp)*half/Cstv_Tstr_8-one
             u_interp = 0.25d0*(ut0(i,j,k)+ut0(i-1,j,k)+ut0(i,j+1,k)+ut0(i-1,j+1,k))
-            Nvv(i,j,k)= t_interp*( qt0(i,j+1,k) - qt0(i,j,k) ) * geomh_invDY_8 &
+            Nvv(i,j,k)= t_interp*( ext_q(i,j+1,k) - ext_q(i,j,k) ) * geomh_invDY_8 &
                         + ( Cori_fcorv_8(i,j) + geomh_tyoav_8(j) * u_interp ) * u_interp &
                         - t_interp*GVM%mc_Jy_8(i,j,k) * ( &
-                          Ver_wp_8%m(k)*half*( (qt0(i,j+1,k+1)-qt0(i,j+1,k ))*GVM%mc_iJz_8(i,j+1,k )   &
-                                              +(qt0(i,j  ,k+1)-qt0(i,j  ,k ))*GVM%mc_iJz_8(i,j  ,k ) ) &
-                         +Ver_wm_8%m(k)*half*( (qt0(i,j+1,k  )-qt0(i,j+1,km))*GVM%mc_iJz_8(i,j+1,km)   &
-                                              +(qt0(i,j  ,k  )-qt0(i,j  ,km))*GVM%mc_iJz_8(i,j  ,km) ) )
+                          Ver_wp_8%m(k)*half*( (ext_q(i,j+1,k+1)-ext_q(i,j+1,k ))*GVM%mc_iJz_8(i,j+1,k )   &
+                                              +(ext_q(i,j  ,k+1)-ext_q(i,j  ,k ))*GVM%mc_iJz_8(i,j  ,k ) ) &
+                         +Ver_wm_8%m(k)*half*( (ext_q(i,j+1,k  )-ext_q(i,j+1,km))*GVM%mc_iJz_8(i,j+1,km)   &
+                                              +(ext_q(i,j  ,k  )-ext_q(i,j  ,km))*GVM%mc_iJz_8(i,j  ,km) ) )
          end do
          end do
          do j= j0, jn
@@ -137,15 +145,31 @@
             w1= a*rhst_mid(i,j,k) - b*rhst_dep(i,j,k)
             w2= a*rhsw_mid(i,j,k) - b*rhsw_dep(i,j,k)
             w3= invT_8*( logT(i,j,k) - (one-one/tots(i,j,k)) )
-            w4= w0*(GVM%mc_iJz_8(i,j,k)*(qt0(i,j,k+1)-qt0(i,j,k)) - grav_8*(one-one/tots(i,j,k)))
+            w4= w0*(GVM%mc_iJz_8(i,j,k)*(ext_q(i,j,k+1)-ext_q(i,j,k)) - grav_8*(one-one/tots(i,j,k)))
             Rtt(i,j,k)= w1 - w3
             Rww(i,j,k)= w2 - w4
             Rtt(i,j,k)= gama_bdf_8 * ( c*Rtt(i,j,k) + Rww(i,j,k) )
             Rzz(i,j,k)= a*rhsf_mid(i,j,k) - b*rhsf_dep(i,j,k ) - invT_8*(GVM%ztht_8(i,j,k)-Ver_z_8%t(k))
-            
-            Rt(i,j,k) = gama_bdf_8 * ( c*w1 + w2 ) ! special one for wkf below
          end do
          end do
+      end do
+
+      do j= j0, jn
+      do i= i0, in
+         w0= tots(i,j,0)-one
+         w7= (GVM%ztht_8(i,j,1)-GVM%zthtlid_8(i,j))/(GVM%ztht_8(i,j,2)-GVM%ztht_8(i,j,1))
+         w1= a*rhst_mid(i,j,1) - b*rhst_dep(i,j,1)
+         w2= a*rhst_mid(i,j,2) - b*rhst_dep(i,j,2)
+         w3= (1+w7)*w1 - w7*w2
+         w1= a*rhsw_mid(i,j,1) - b*rhsw_dep(i,j,1)
+         w2= a*rhsw_mid(i,j,2) - b*rhsw_dep(i,j,2)
+         w4= (1+w7)*w1 - w7*w2
+         w5= invT_8*( logT(i,j,0) - (one-one/tots(i,j,0)) )
+         w6= w0*(GVM%mc_iJz_8(i,j,0)*(ext_q(i,j,1)-ext_q(i,j,0)) - grav_8*(one-one/tots(i,j,0)))
+         Rtt(i,j,0)= gama_bdf_8 * ( c*(w3 - w5) + w4 - w6 )
+         w1= half*(ver_z_8%m(0)+ver_z_8%m(1))
+         Rzz(i,j,0)= - invT_8*(GVM%zthtlid_8(i,j)-w1)
+      end do
       end do
       
       call HLT_split (1, 2*l_nk, HLT_np, HLT_start, HLT_end)
@@ -157,7 +181,7 @@
       end do
 
       do k=1, l_nk
-         km=max(k-1,1)
+         km=k-1 !max(k-1,1)
          do j= j0, jn
          do i= i0, in
             Rqq = a*rhsc_mid(i,j,k ) - b*rhsc_dep(i,j,k )
@@ -177,7 +201,7 @@
          end do
          end do
       end do
-!
+!     
 !     ---------------------------------------------------------------
 !
       return

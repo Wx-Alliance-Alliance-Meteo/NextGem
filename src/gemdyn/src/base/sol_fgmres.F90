@@ -50,7 +50,7 @@
 
       logical almost_zero
 
-      integer :: i, j, k, k1, ii, jj, ierr
+      integer :: i, j, k, k1, ii, jj, ierr, i0,in,j0,jn,k0,kn
       integer :: initer, outiter, it, nbiter, success_lts
       integer :: HLT_np, HLT_start, HLT_end
 
@@ -71,6 +71,12 @@
          end do
       end do
 
+      i0= Sol_i0
+      in= Sol_in
+      j0= Sol_j0
+      jn= Sol_jn
+      k0= 1
+      kn= l_nk
       outiter= 0 ; nbiter= 0 ; conv= 0.d0
 
       ! Residual of the initial iterate
@@ -85,15 +91,14 @@
       endif
       call gtmg_start (75, 'FGMR1', 25 )
 
-
 !  Compute ||b*b|| to determine the required error for convergence
 
       local_dot(1)=0.d0
 !!$omp master
 !!$omp do collapse(2)
-      do k=Sol_k0,l_nk
-         do j=Sol_j0,Sol_jn
-            do i=Sol_i0,Sol_in
+      do k=k0,kn
+         do j=j0,jn
+            do i=i0,in
                vv(i,j,k,1)  = Sol_rhs(i,j,k) - work_space(i,j,k)
                local_dot(1) = local_dot(1) + (Sol_rhs(i,j,k)*Sol_rhs(i,j,k))
             end do
@@ -108,9 +113,9 @@
          local_dot(2)=0.d0
 !!$omp master
 !!$omp do collapse(2)
-         do k=Sol_k0,l_nk
-            do j=Sol_j0,Sol_jn
-               do i=Sol_i0,Sol_in
+         do k=k0,kn
+            do j=j0,jn
+               do i=i0,in
                   local_dot(2) = local_dot(2) + (vv(i, j, k, 1) * vv(i, j, k, 1))
                end do
             end do
@@ -141,9 +146,9 @@
          wnu = 1.0d0 / residual
 
 !!$omp do collapse(2)
-         do k=Sol_k0,l_nk
-            do j=Sol_j0,Sol_jn
-               do i=Sol_i0,Sol_in
+         do k=k0,kn
+            do j=j0,jn
+               do i=i0,in
                   vv(i,j,k,1) = vv(i,j,k,1) * wnu
                end do
             end do
@@ -167,7 +172,7 @@
             nbiter = nbiter + 1
 
             call HLT_split (1, Sol_nk, HLT_np, HLT_start, HLT_end)
-            Cpntr= c_loc( vv(Sol_imin,Sol_jmin,Sol_k0,initer) )
+            Cpntr= c_loc( vv(Sol_imin,Sol_jmin,k0,initer) )
             call C_F_POINTER ( Cpntr, xchg, [Sol_dimx*Sol_dimy,Sol_nk] )
             call gem_xch_halo_8 ( xchg(1,HLT_start),&
                 Sol_imin,Sol_imax,Sol_jmin,Sol_jmax, HLT_np,Sol_ovlpx)
@@ -196,9 +201,9 @@
 
 !!$omp master
 !!$omp do collapse(2)
-               do k=Sol_k0,l_nk
-                  do j=Sol_j0,Sol_jn
-                     do i=Sol_i0,Sol_in
+               do k=k0,kn
+                  do j=j0,jn
+                     do i=i0,in
                         v_local_prod(it,1) = v_local_prod(it,1) + ( vv(i, j, k, it) * vv(i, j, k, initer  ) )
                         v_local_prod(it,2) = v_local_prod(it,2) + ( vv(i, j, k, it) * vv(i, j, k, initer+1) )
                      end do
@@ -236,9 +241,9 @@
 !!$omp end single copyprivate(wro2)
 
 !!$omp do collapse(2)
-            do k=Sol_k0,l_nk
-               do j=Sol_j0,Sol_jn
-                  do i=Sol_i0,Sol_in
+            do k=k0,kn
+               do j=j0,jn
+                  do i=i0,in
                      vv(i, j, k, initer)  = vv(i, j, k, initer) / rr(initer,initer)
                   enddo
                enddo
@@ -299,9 +304,9 @@
 
             do it=1,initer
 !!$omp do collapse(2)
-               do k=Sol_k0,l_nk
-                  do j=Sol_j0,Sol_jn
-                     do i=Sol_i0,Sol_in
+               do k=k0,kn
+                  do j=j0,jn
+                     do i=i0,in
                         vv(i, j, k, initer+1) = vv(i, j, k, initer+1) - vv(i, j, k, it) * rr(it,initer+1)
                      end do
                   end do
@@ -321,9 +326,9 @@
                local_dot(1) = 0.d0; lcl_sum=0.d0
 !!$omp master
 !!$omp do collapse(2)
-               do k=Sol_k0,l_nk
-                  do j=Sol_j0,Sol_jn
-                     do i=Sol_i0,Sol_in
+               do k=k0,kn
+                  do j=j0,jn
+                     do i=i0,in
                         local_dot(1) = local_dot(1) + (vv(i, j, k, initer+1) * vv(i, j, k, initer+1))
                      end do
                   end do
@@ -346,9 +351,9 @@
             endif
             wnu = 1.d0 / rr(initer+1,initer+1)
 !!$omp do collapse(2)
-            do k=Sol_k0,l_nk
-               do j=Sol_j0,Sol_jn
-                  do i=Sol_i0,Sol_in
+            do k=k0,kn
+               do j=j0,jn
+                  do i=i0,in
                      vv(i, j, k, initer+1) = vv(i, j, k, initer+1) * wnu
                   end do
                end do
@@ -417,10 +422,10 @@
          do it=1,initer
 
 !!$omp do collapse(2)
-            do k=Sol_k0,l_nk
-               do j=Sol_j0,Sol_jn
+            do k=k0,kn
+               do j=j0,jn
 !DIR$ SIMD
-                  do i=Sol_i0,Sol_in
+                  do i=i0,in
                      Sol_lhs(i, j, k) = Sol_lhs(i, j, k) + gg(it)* wint_8(i, j, k, it)
                   end do
                end do
@@ -432,6 +437,7 @@
          outiter = outiter + 1
 
          if (residual <= Rel_tolerance .or. outiter >= sol_fgm_maxits) return
+
 
          ! Solution is not convergent : compute residual vector and continue.
 !!$omp  single
@@ -449,10 +455,10 @@
             end if
 
 !!$omp do collapse(2)
-            do k=Sol_k0,l_nk
-               do j=Sol_j0,Sol_jn
+            do k=k0,kn
+               do j=j0,jn
 !DIR$ SIMD
-                  do i=Sol_i0,Sol_in
+                  do i=i0,in
                      vv(i, j, k, 1) = vv(i, j, k, 1) + t * vv(i, j, k, it)
                   end do
                end do

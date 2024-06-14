@@ -19,7 +19,7 @@ module dyn_fisl_options
    save
 
    logical :: EZ_newsol = .false.
-
+   logical :: Euler_step_one = .true.
       
    !# T* basic state temperature (K)
    real(kind=REAL64) :: Cstv_Tstr_8 = 240.0

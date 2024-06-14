@@ -53,7 +53,7 @@
       gg_sw_bdf_8=1.d0/(bdf_tau**2)*Cstv_h0inv_8/grav_8
       !-----------------
 
-      if(F_slmx_L) then
+      if(F_slmx_L .or. .not.Euler_step_one) then
           gama_8 = gama_bdf_8
           gg_8 = gg_bdf_8
           gg_sw_8 = gg_sw_bdf_8

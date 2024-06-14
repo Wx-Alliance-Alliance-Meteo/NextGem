@@ -13,7 +13,7 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
 
-!** matvec - 3D Matrix-vector product subroutines
+!** matvec - 3D Matrix-vector product subroutine
 
       subroutine ez_matvec ( F_vector, F_minx,F_maxx,F_miny,F_maxy,&
                              F_prod  , F_i0,F_in,F_j0,F_jn, F_nk )
@@ -31,7 +31,7 @@
       implicit none
 
       integer, intent(in) :: F_minx,F_maxx,F_miny,F_maxy,F_i0,F_in,F_j0,F_jn,F_nk
-      real(kind=REAL64), dimension(F_minx:F_maxx,F_miny:F_maxy,F_nk), intent(in) :: F_vector
+      real(kind=REAL64), dimension(F_minx:F_maxx,F_miny:F_maxy,F_nk), intent(inout) :: F_vector
       real(kind=REAL64), dimension(F_i0:F_in,F_j0:F_jn,F_nk), intent(out) :: F_prod
 
       integer :: HLT_j0, HLT_jn, HLT_nj, HLT_nk, &
@@ -60,16 +60,15 @@
          ext_q(:,j0-1,k) = ext_q(:,j0,k)
          ext_q(:,jn+1,k) = ext_q(:,jn,k)
       end do
-
       do j= j0, jn
       do i= i0, in
          r1=  (GVM%zmom_8(i,j,l_nk+1)-GVM%zmom_8(i,j,l_nk))&
              /(GVM%zmom_8(i,j,l_nk)-GVM%zmom_8(i,j,l_nk-1))
-         r2= (ver_z_8%m(0)-GVM%zmom_8(i,j,2))/(GVM%zmom_8(i,j,2)-GVM%zmom_8(i,j,1))
+         r2= (GVM%zmom_8(i,j,1)-ver_z_8%m(0))/(GVM%zmom_8(i,j,2)-GVM%zmom_8(i,j,1))
          ext_q(i,j,l_nk+1)=  (1+r1)*F_vector(i,j,l_nk  ) &
                            -    r1 *F_vector(i,j,l_nk-1)
-         ext_q(i,j,0)= (1+r2)*F_vector(i,j,2) &
-                         -r2 *F_vector(i,j,1)
+         ext_q(i,j,0)= (1+r2)*F_vector(i,j,1) &
+                         -r2 *F_vector(i,j,2)
       end do
       end do
 
@@ -96,7 +95,7 @@
          if (k>0) then
             do j= j0-1, jn+1
             do i= i0-1, in+1
-               Qdqdz(i,j,k-1)= GVM%mc_iJz_8(i,j,k-1)*(ext_q(i,j,k)-ext_q(i,j,k-1))*Ver_idz_8%t(k) ! on Thermo levels
+               Qdqdz(i,j,k-1)= GVM%mc_iJz_8(i,j,k-1)*(ext_q(i,j,k)-ext_q(i,j,k-1))!*Ver_idz_8%t(k) ! on Thermo levels
             end do
             end do
             do j= j0-1, jn+1
@@ -123,7 +122,7 @@
          end do
          end do
       end do
-      
+
       do k= 1, l_nk
          do j= j0, jn
             do i= i0, in
@@ -131,7 +130,7 @@
                +geomh_invDX_8 (j)*( (Qdqdx(i,j,k)-Qdqdx(i-1,j,k)) - (GVM%mc_Jx_8(i,j,k)*Qbarxz(i,j,k)-GVM%mc_Jx_8(i-1,j,k)*Qbarxz(i-1,j,k))) &
                +geomh_invDYM_8(j)*( (geomh_cyv_8(j)*Qdqdy(i,j,k)-geomh_cyv_8(j-1)*Qdqdy(i,j-1,k)) &
                                    -(GVM%mc_Jy_8(i,j,k)*geomh_cyv_8(j)*Qbaryz(i,j,k)-GVM%mc_Jy_8(i,j-1,k)*geomh_cyv_8(j-1)*Qbaryz(i,j-1,k))) &
-               +gama_8*Ver_idz_8%m(k)*(Qdqdz(i,j,k)-mu_8*Qqbz(i,j,k)) - (Qdqdz(i,j,k-1)-mu_8*Qqbz(i,j,k-1)) &
+               +gama_8*Ver_idz_8%m(k)*((Qdqdz(i,j,k)-mu_8*Qqbz(i,j,k)) - (Qdqdz(i,j,k-1)-mu_8*Qqbz(i,j,k-1))) &
                -gama_8*epsi_8*(Qbarz(i,j,k)-mu_8*ext_q(i,j,k)) &
                +(half*(Qdqdx(i-1,j,k)+Qdqdx(i,j,k)) - GVM%mc_Jx_8(i,j,k)*Qbarz(i,j,k))*GVM%mc_Ix_8(i,j,k) &
                +(half*(Qdqdy(i,j-1,k)+Qdqdy(i,j,k)) - GVM%mc_Jy_8(i,j,k)*Qbarz(i,j,k))*GVM%mc_Iy_8(i,j,k) &

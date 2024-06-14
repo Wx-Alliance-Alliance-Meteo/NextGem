@@ -93,13 +93,13 @@
       dimH= (l_maxx-l_minx+1)*(l_maxy-l_miny+1)
       dim = dimH*G_nk
      ! allocate (rhs(11*dim)) ; rhs=0.
-      allocate (LT  (5*dim)) ; LT =0.
+      allocate (LT  (5*dim+2*dimH)) ; LT =0.
       
       Ruu  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>LT(      1:)
       Rvv  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>LT(  dim+1:)
       Rww  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>LT(2*dim+1:)
-      Rtt  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>LT(3*dim+1:)
-      Rzz  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>LT(4*dim+1:)
+      Rtt  (l_minx:l_maxx,l_miny:l_maxy,0:l_nk)=>LT(3*dim+1:)
+      Rzz  (l_minx:l_maxx,l_miny:l_maxy,0:l_nk)=>LT(4*dim+diMH+1:)
       
       allocate (Nuu(l_minx:l_maxx,l_miny:l_maxy,1:l_nk))
       allocate (Nvv(l_minx:l_maxx,l_miny:l_maxy,1:l_nk))
@@ -169,6 +169,7 @@
                  GVM%zmom_v(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
                  GVM%ztht_v(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
                  GVM%lg_pstar_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1) )
+      allocate ( GVM%zthtlid_8(l_minx:l_maxx,l_miny:l_maxy))
 
       allocate ( GVM%mc_Jx_8 (l_minx:l_maxx,l_miny:l_maxy,G_nk), &
                  GVM%mc_Jy_8 (l_minx:l_maxx,l_miny:l_maxy,G_nk), &

@@ -54,7 +54,11 @@
       Vtopo_L= (Vtopo_L.and.(Nest_current_dayfrac_8<=Vtopo_start_8+Vtopo_ndt_8))
 !!$omp end single
 
-      call dynstep ()
+      if (Dynamics_sw_L) then
+         call SW_dynstep ()
+      else
+         call dynstep ()
+      endif
       
       call gtmg_stop (10)
 

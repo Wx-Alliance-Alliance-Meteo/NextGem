@@ -117,6 +117,7 @@
 !!$omp do
       do i= 1, ubound(trt0,1)
          trt0(i) = trt1(i)
+         trt2(i) = trt1(i)
       end do
 !!$omp end do nowait
 
@@ -185,6 +186,7 @@
 !!$omp end parallel
       call OUTs_end (.false.)
       
+      dynt0= dynt1
       dynt2= dynt1
       var_init= dynt1
       

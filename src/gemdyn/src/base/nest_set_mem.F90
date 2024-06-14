@@ -97,9 +97,14 @@
       call nest_init_weight(nest_weightv,0,-1,0,l_minx,l_maxx,l_miny,l_maxy,l_nk+1)
       call nest_init_weight(nest_weightq,0,0,-1,l_minx,l_maxx,l_miny,l_maxy,l_nk+1)
 
-      allocate ( nest_metric%zmom_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
-                 nest_metric%ztht_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
-             nest_metric%lg_pstar_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1) )
+      allocate (nest_metric%zmom_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
+                nest_metric%ztht_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
+                nest_metric%zmom_u(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
+                nest_metric%ztht_u(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
+                nest_metric%zmom_v(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
+                nest_metric%ztht_v(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
+                nest_metric%lg_pstar_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1) )
+      allocate (nest_metric%zthtlid_8(l_minx:l_maxx,l_miny:l_maxy))
 
       allocate ( nest_metric%mc_Jx_8 (l_minx:l_maxx,l_miny:l_maxy,G_nk), &
                  nest_metric%mc_Jy_8 (l_minx:l_maxx,l_miny:l_maxy,G_nk), &

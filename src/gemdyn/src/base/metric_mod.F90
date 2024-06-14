@@ -22,6 +22,7 @@ module metric
    type Vmetric
       real(kind=REAL64), dimension(:,:,:), allocatable :: zmom_8, ztht_8, lg_pstar_8
       real(kind=REAL64), dimension(:,:,:), allocatable :: zmom_u, ztht_u, zmom_v, ztht_v
+      real(kind=REAL64), dimension(:,:  ), allocatable :: zthtlid_8
       
       real(kind=REAL64), dimension(:,:,:), allocatable :: mc_Ix_8, mc_Iy_8, mc_Iz_8
       real(kind=REAL64), dimension(:,:,:), allocatable :: mc_Jx_8,  mc_Jy_8,  mc_iJz_8

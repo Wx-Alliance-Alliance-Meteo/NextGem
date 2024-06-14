@@ -68,6 +68,7 @@
             zthtu_8(i,j,G_nk+1)= fis0u(i,j)/grav_8
             zthtv_8(i,j,G_nk+1)= fis0v(i,j)/grav_8
             F_metric%lg_pstar_8(i,j,G_nk+1)=log(1.d5)-grav_8*F_metric%zmom_8(i,j,G_nk+1)/(rgasd_8*Cstv_Tstr_8)
+            F_metric%zthtlid_8(i,j)= half*(ver_z_8%m(0)+F_metric%zmom_8(i,j,1))
          end do
       end do
 

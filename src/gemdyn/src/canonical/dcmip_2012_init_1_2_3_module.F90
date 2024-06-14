@@ -1131,15 +1131,15 @@ IMPLICIT NONE
 
         r = acos( sin(phim)*sin(lat) + cos(phim)*cos(lat)*cos(lon - lambdam) )
 
-        if (r < Rm) then
+!        if (r < Rm) then
 
-                zs = (h0/2.d0)*(1.d0+cos(pi*r/Rm))*cos(pi*r/zetam)**2.d0   ! mountain height
+!                zs = (h0/2.d0)*(1.d0+cos(pi*r/Rm))*cos(pi*r/zetam)**2.d0   ! mountain height
 
-        else
+!        else
 
                 zs = 0.d0
 
-        endif
+!        endif
 
 !       Set topography (Otherwise use prescribed topography)
 !       ----------------------------------------------------

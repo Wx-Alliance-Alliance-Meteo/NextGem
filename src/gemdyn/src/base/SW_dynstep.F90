@@ -13,9 +13,9 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
 
-!**s/r dynstep - Advance the dynamics by one timestep
+!**s/r SW_dynstep - Advance the SW dynamics by one timestep
 
-      subroutine dynstep ()
+      subroutine SW_dynstep ()
       use ISO_C_BINDING
       use step_options
       use theo_options
@@ -36,27 +36,24 @@
 !
       call pw_switch    ()
 
-      if ((Step_kount.eq.1).and.Euler_step_one) then
-
-         call tstpdyn(0.75d0*Cstv_dt_8) ! EULER
-
+      if (Step_kount.eq.1) then
+         
+         call SW_tstpdyn(0.75d0*Cstv_dt_8) !Shallow-Water (1st substep = EULER)
+         
          call t02t1 ()
          call pw_update_UV ()
          call pw_switch ()
-
-         call t02t2 () ! tracers have been modified by physics at t=0
-
-         call tstpdyn(0.5d0*Cstv_dt_8 ) ! BDF2
-
-!     special for tracer advection only
-         call adz_traject(Cstv_dt_8) !ext,ut0
-
+         
+         call t02t2 ()          ! tracers have been modified by physics at t=0
+         
+         call SW_tstpdyn(0.5d0 *Cstv_dt_8) !Shallow-Water (2nd substep = BDF2 )
+         
       else
-            
+         
          call t02t2 ()
-         if ((Step_kount.eq.2).and.Euler_step_one)  dynt2= var_init
-         call tstpdyn(Cstv_dt_8) ! BDF2
-
+         if (Step_kount.eq.2) dynt2= var_init
+         call SW_tstpdyn(Cstv_dt_8) !Shallow-Water (all other timesteps= BDF2 )
+         
       endif
 
       if (.not.Grd_yinyang_L) then
@@ -92,4 +89,4 @@
 !     ---------------------------------------------------------------
 !
       return
-      end subroutine dynstep
+      end subroutine SW_dynstep
