@@ -122,7 +122,7 @@
       call sol_fgmres (print_conv)
          
       !call statf_dm (Sol_lhs, 'LHS', 1, 'TSTP', 1,ni,1,nj,1,l_nk,1+Glb_pil_w,1+Glb_pil_s,1,G_ni-Glb_pil_e,G_nj-Glb_pil_n,l_nk,8)
-      call gtmg_stop (25)
+      call gtmg_stop (29)
       endif
 
 !10.  Back subtitution; same back sub!

@@ -39,19 +39,13 @@
       integer :: i, j, k
       integer :: HLT_start, HLT_end, local_np
       real :: w5,w6,q_ext(l_minx:l_maxx,l_miny:l_maxy,0:l_nk+1)
-      real(kind=REAL64) :: tau_8, invT_8,&
+      real(kind=REAL64) :: tau_8, invT_8,a,b,&
                            Buoy, wp_8(G_nk  ), wm_8(G_nk  )
       real(kind=REAL64), parameter :: one=1.d0, half=0.5d0
 !
 !     ---------------------------------------------------------------
 !
-      if (EZ_newsol) then
-         call ez_bac ( F_dt_8, i0, j0, k0, in, jn ,k0t )
-         return
-      endif
-      
-
-         if (Ctrl_testcases_adv_L) then
+      if (Ctrl_testcases_adv_L) then
 !!$omp single
          call canonical_cases ("BAC")
 !!$omp end single
@@ -83,7 +77,8 @@
          do i= i0, in
             w5=(GVM%zmom_8(i,j,l_nk+1)-GVM%zmom_8(i,j,l_nk))/(GVM%zmom_8(i,j,l_nk)-GVM%zmom_8(i,j,l_nk-1))
             ! pour le moment cette extrapolation ne fonctionne pas
-         !q_ext(i,j,l_nk+1)= Sol_lhs(i,j,l_nk)*(1+w5) - w5*Sol_lhs(i,j,l_nk-1)
+! q_ext(i,j,l_nk+1)= Sol_lhs(i,j,l_nk)*(1+w5) - w5*Sol_lhs(i,j,l_nk-1)
+            ! so we keep the following
             q_ext(i,j,l_nk+1) = GVM%mc_alfas_H_8(i,j)*q_ext(i,j,l_nk  ) &
                               - GVM%mc_betas_H_8(i,j)*q_ext(i,j,l_nk-1) &
                               + GVM%mc_css_H_8  (i,j)* (Rtt(i,j,l_nk)-Ver_wmstar_8(G_nk)*Rtt(i,j,l_nk-1) &
@@ -178,6 +173,13 @@
                Buoy = (q_ext(i,j,k+1)-q_ext(i,j,k))*GVM%mc_iJz_8(i,j,k)  &
                     + wt0(i,j,k)*invT_8 - Rww(i,j,k)
                tt0(i,j,k) = Cstv_Tstr_8 / (one - Buoy / grav_8 )
+! or alternatively
+!!$               a = 4.d0*invT_8/3.d0
+!!$               b =      invT_8/3.d0
+!!$               w5= a*rhst_mid(i,j,k) - b*rhst_dep(i,j,k)&
+!!$                   - invT_8* ( log(tt0(i,j,k)/Cstv_Tstr_8) - (one-Cstv_Tstr_8/tt0(i,j,k) ))
+!!$               Buoy = half*(q_ext(i,j,k+1)+q_ext(i,j,k))/(cpd_8*Cstv_Tstr_8) + tau_8*(w5-mu_8*wt0(i,j,k))
+!!$               tt0(i,j,k) = Cstv_Tstr_8 / (one - Buoy)
 
             end do
          end do

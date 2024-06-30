@@ -33,7 +33,7 @@
 !
 !     ---------------------------------------------------------------
 !
-      call gtmg_start (74, 'JACOBI', 25 )
+      call gtmg_start (74, 'JACOBI', 29 )
  
       do j= 1, nj
          jj=Sol_jj0 + j+l_j0 - 2

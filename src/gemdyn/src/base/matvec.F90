@@ -35,7 +35,7 @@
 
       integer :: HLT_j0, HLT_jn, HLT_nj, HLT_nk, &
                  HLT_np, HLT_start, HLT_end
-      integer :: i, j, k, k0, k0t, km, kp, n
+      integer :: i, j, k, kn, km, kp, n
       integer :: i0,in,j0,jn
       real(kind=REAL64)  :: r1, aa1, aa2, aa3, bb1, bb2, bb3, cc1,&
                  S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15
@@ -44,46 +44,27 @@
 !
 !     ---------------------------------------------------------------
 !
-      if (EZ_newsol) then
-         call ez_matvec ( F_vector, F_minx,F_maxx,F_miny,F_maxy,&
-                          F_prod  , F_i0,F_in,F_j0,F_jn, F_nk )
-         return
-      endif
-      
-      call gtmg_start (72, 'MATVEC1', 25 )
+      call gtmg_start (72, 'MATVEC1', 29 )
       i0 = 1+pil_w ; in = l_ni-pil_e
       j0 = 1+pil_s ; jn = l_nj-pil_n
-      k0=1+Lam_gbpil_T
-      k0t=k0 ; if (Schm_opentop_L) k0t=k0-1
 
-!!$omp do collapse(2)
-      do k= k0, l_nk
+      kn=l_nk
+      if (EZ_newsol) kn=1
+
+      do k= 1, l_nk
          do j=j0, jn
             do i=i0, in
                fdg2(i,j,k)= F_vector(i,j,k)
             end do
          end do
       end do
-!!$omp enddo
 
-!!$omp do
-         do j= j0, jn
-            do i= i0, in
+      do j= j0, jn
+         do i= i0, in
             fdg2(i,j,l_nk+1)=GVM%mc_alfas_H_8(i,j) * F_vector(i,j,l_nk) &
                             -GVM%mc_betas_H_8(i,j) * F_vector(i,j,l_nk-1)
          end do
       end do
-!!$omp enddo
-
-      if (Schm_opentop_L) then
-!!$omp do
-         do j= j0, jn
-            do i= i0, in
-               fdg2(i,j,k0t) = GVM%mc_alfat_8(i,j)* F_vector(i,j,k0)
-            end do
-         end do
-!!$omp enddo
-      endif
 
       if ( Grd_yinyang_L) then
          call yyg_xchng_hlt (fdg2, l_minx,l_maxx,l_miny,l_maxy, &
@@ -94,12 +75,12 @@
                    l_minx,l_maxx,l_miny,l_maxy, HLT_np, 1)
       endif
       call gtmg_stop (72)
-      call gtmg_start (73, 'MATVEC2', 25 )
+      call gtmg_start (73, 'MATVEC2', 29 )
 
 ! Special treatment at k==1 for S1,S4,S5
-      if (k0==1) then
-         k= 1 ; km=1 ; kp=2
-         do j= j0, jn
+
+      k= 1 ; km=1 ; kp=2
+      do j= j0, jn
          do i= i0, in
             aa1=-geomh_invDX_8(j) + half*GVM%mc_Jx_8(i,j,k)*   &
               (Ver_wp_8%m(k)*GVM%mc_iJz_8(i,j,k) - Ver_wm_8%m(k)*GVM%mc_iJz_8(i,j,km))
@@ -148,11 +129,9 @@
                     + half*(GVM%mc_Iy_8(i,j,k)*(bb1+bb2)) + cc1
             F_prod(i,j,k)= S1*fdg2(i,j,k ) + S4*fdg2(i,j,km) +  S5*fdg2(i,j,kp)
          end do
-         end do
-         k0=2
-      endif
+      end do
       
-      do k=k0,l_nk
+      do k=2,kn
          do j= j0, jn
          km=max(k-1,1)
          kp=k+1
@@ -215,7 +194,7 @@
       end do
       
 ! All the other S*
-      do k= 1+Lam_gbpil_T, l_nk
+      do k= 1, kn
          do j= j0, jn
          km=max(k-1,1)
          kp=k+1
@@ -275,8 +254,10 @@
             end do
          end do
       end do
-      
+
       call gtmg_stop (73)
+
+      if (EZ_newsol) call ez_matvec ( F_vector, F_minx,F_maxx,F_miny,F_maxy,F_prod  , F_i0,F_in,F_j0,F_jn, F_nk )
 !     
 !     ---------------------------------------------------------------
 !     

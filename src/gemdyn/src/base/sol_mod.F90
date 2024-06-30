@@ -37,6 +37,5 @@ module sol_mem
    real(kind=REAL64),dimension(:,:,:,:), allocatable :: A1,A2,B1,B2,C1,C2
    real(kind=REAL64),dimension(:,:,:,:), allocatable :: C1_bdf, C2_bdf
    real             ,dimension (:,:,: ), allocatable :: fdg2,ext_q
-   real(kind=REAL64),dimension(:,:,:  ), allocatable :: Qdqdx,Qdqdy,Qdqdz,Qqbz,Qbarxz,Qbaryz,Qbarz 
 
 end module sol_mem

@@ -15,6 +15,7 @@
 
       subroutine check_picard_stop (F_dt_8, err, err2nrm)
       use glb_ld
+      use glb_pil
       use geomh
       use ver
       use dyn_fisl_options
@@ -28,7 +29,7 @@
 
       include 'mpif.h'
       integer :: i,j,k,k00,ierr
-      real(kind=REAL64) :: dtA_8,dtzA_8,dtD_8,dtzD_8,half_dt_8,double_dt_8,pos, inv_dt_8, N
+      real(kind=REAL64) :: inv_dt_8, N
       real(kind=REAL64), dimension(l_ni) :: xm,ym,zm
       !----for stopping criteria------
       real(kind=REAL64) :: max_x, max_y, max_z, tmp, glb !<-- hold max value in eachdirection
@@ -37,16 +38,7 @@
 !
 !     ---------------------------------------------------------------
 !
-
-      if (Schm_advec == 0) then ! no advection
-
-       half_dt_8 = 0.d0
-       double_dt_8 = 0.d0
-
-      else
-       inv_dt_8 = 1.0/F_dt_8
-      end if
-
+      inv_dt_8 = 1.0/F_dt_8
 
       call adz_prepareWinds ()
 
@@ -57,13 +49,13 @@
       ! || 1/tau( 3/2 x^{+} - 2x^{0} + 1/2 x^{-} ) - V^{+} ||_{inf}
       ! where x^{0} and x^{+} are the current estimates of the
       ! mid and departure points
-
+      xerr = 0.d0 ; yerr = 0.d0 ; zerr = 0.d0 ; err = -huge(1.)
       x_sum = 0.d0; y_sum = 0.d0; z_sum = 0.d0; total_sum = 0.d0
-      N = G_ni * G_nj * l_nk
+      N = ((G_ni-Glb_pil_e)-(1+Glb_pil_w)+1)*((G_nj-Glb_pil_n)-(1+Glb_pil_s)+1)*G_nk
 
       do k= k00, l_nk
-        do j= 1, l_nj
-          do i= 1, l_ni
+         do j= 1+pil_s, l_nj-pil_n
+            do i= 1+pil_w, l_ni-pil_e
              !---for infinity norm---
              xerr(i) = abs( inv_dt_8*((3.0/2.0)*dble(i+l_i0-1) - 2.0*Adz_wpxyz(i,j,k,1) + (1.0/2.0)*Adz_dpxyz(i,j,k,1)) - Adz_uu_arr(i,j,k)*geomh_inv_hx_8 )
              yerr(i) = abs( inv_dt_8*((3.0/2.0)*dble(j+l_j0-1) - 2.0*Adz_wpxyz(i,j,k,2) + (1.0/2.0)*Adz_dpxyz(i,j,k,2)) - Adz_vv_arr(i,j,k)*geomh_inv_hy_8 )
@@ -75,28 +67,24 @@
              z_sum = ( inv_dt_8*((3.0/2.0)*Ver_z_8%m(k)   - 2.0*Adz_wpz(i,j,k) + (1.0/2.0)*Adz_dpz(i,j,k)) - Adz_ww_arr(i,j,k) )**2  
              
              total_sum =  total_sum + x_sum + y_sum + z_sum 
-
            end do
 
             !max value of x,y,z array
-            max_x = maxval(xerr)
-            max_y = maxval(yerr)
-            max_z = maxval(zerr)
+           max_x = maxval(xerr)
+           max_y = maxval(yerr)
+           max_z = maxval(zerr)
 
             !which direction has the max error
-            tmp = max(max_x, max(max_y, max_z))
-            err = max(err, tmp)
+           tmp = max(max_x, max(max_y, max_z))
+           err = max(err, tmp)
         end do
       enddo
 
 !     take square root of total error
-      call MPI_allreduce ( err  , glb  , 1,&
-      MPI_DOUBLE_PRECISION,MPI_MAX,COMM_MULTIGRID,ierr )
+      call MPI_allreduce ( err       , glb, 1, MPI_DOUBLE_PRECISION,MPI_MAX,COMM_MULTIGRID,ierr )
       err= glb
-      call MPI_allreduce ( total_sum  , glb  , 1,&
-      MPI_DOUBLE_PRECISION,MPI_SUM,COMM_MULTIGRID,ierr )
-      total_sum= glb
-      err2nrm = sqrt(total_sum/N)
+      call MPI_allreduce ( total_sum , glb, 1, MPI_DOUBLE_PRECISION,MPI_SUM,COMM_MULTIGRID,ierr )
+      err2nrm = sqrt(glb/N)
 !
 !     ---------------------------------------------------------------
 !
