@@ -116,8 +116,7 @@
 
       allocate ( nest_metric%mc_css_H_8   (l_minx:l_maxx,l_miny:l_maxy), &
                  nest_metric%mc_alfas_H_8 (l_minx:l_maxx,l_miny:l_maxy), &
-                 nest_metric%mc_betas_H_8 (l_minx:l_maxx,l_miny:l_maxy), &
-                 nest_metric%mc_cssp_H_8  (l_minx:l_maxx,l_miny:l_maxy) )
+                 nest_metric%mc_betas_H_8 (l_minx:l_maxx,l_miny:l_maxy) )
 
       allocate ( nest_metric%mc_cst_8   (l_minx:l_maxx,l_miny:l_maxy), &
                  nest_metric%mc_alfat_8 (l_minx:l_maxx,l_miny:l_maxy), &

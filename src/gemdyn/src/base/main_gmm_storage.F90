@@ -181,8 +181,7 @@
 
       allocate ( GVM%mc_css_H_8   (l_minx:l_maxx,l_miny:l_maxy), &
                  GVM%mc_alfas_H_8 (l_minx:l_maxx,l_miny:l_maxy), &
-                 GVM%mc_betas_H_8 (l_minx:l_maxx,l_miny:l_maxy), &
-                 GVM%mc_cssp_H_8  (l_minx:l_maxx,l_miny:l_maxy) )
+                 GVM%mc_betas_H_8 (l_minx:l_maxx,l_miny:l_maxy) )
 
       allocate ( GVM%mc_cst_8   (l_minx:l_maxx,l_miny:l_maxy), &
                  GVM%mc_alfat_8 (l_minx:l_maxx,l_miny:l_maxy), &

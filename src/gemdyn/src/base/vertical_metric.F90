@@ -122,7 +122,7 @@
 !DIR$ SIMD
          do i=1-G_halox+1,l_ni+G_halox-1
             F_metric%mc_iJz_8(i,j,0)=one/(F_metric%zmom_8(i,j,1)-ver_z_8%m(0))
-            F_metric%mc_css_H_8(i,j) = one/(gama_8*(isol_i*F_metric%mc_iJz_8(i,j,G_nk)+isol_d*Ver_idz_8%t(G_nk)-half*mu_8))
+            F_metric%mc_css_H_8(i,j) = one/(gama_8*(F_metric%mc_iJz_8(i,j,G_nk)-half*mu_8))
          end do
       end do
 
@@ -133,40 +133,12 @@
          end do
       end do
 
-      if (Schm_opentop_L) then
-         do j=1-G_haloy+1,l_nj+G_haloy-1
-            do i=1-G_halox+1,l_ni+G_halox-1
-               F_metric%mc_cst_8(i,j)= one / (-(mu_8* Cstv_tau_nh_8)*(isol_d*Ver_idz_8%t(k0-1) &
-                              +isol_i*F_metric%mc_iJz_8(i,j,k0-1)) &
-                              + half* one/(Cstv_tau_8*cpd_8*Cstv_Tstr_8))
-            end do
-         end do
-      endif
       do j=1-G_haloy+1,l_nj+G_haloy-1
          do i=1-G_halox+1,l_ni+G_halox-1
-            F_metric%mc_alfas_H_8(i,j) = F_metric%mc_css_H_8(i,j)*(gama_8*(isol_i*F_metric%mc_iJz_8(i,j,G_nk)+isol_d*Ver_idz_8%t(G_nk) &
-                                + half*mu_8) + Ver_wmstar_8(G_nk)*gama_8*(isol_i*F_metric%mc_iJz_8(i,j,G_nk-1) &
-                                               + isol_d*Ver_idz_8%t(G_nk-1)-half*mu_8) )
-
-            F_metric%mc_betas_H_8(i,j) = F_metric%mc_css_H_8(i,j)* Ver_wmstar_8(G_nk)*gama_8* &
-                                (isol_i*F_metric%mc_iJz_8(i,j,G_nk-1)+isol_d*Ver_idz_8%t(G_nk-1)+half*mu_8)
-
-            F_metric%mc_cssp_H_8(i,j) = gama_8*(Ver_idz_8%m(G_nk)-epsi_8*Ver_wp_8%m(G_nk))*&
-                               (isol_i*F_metric%mc_iJz_8(i,j,G_nk)+isol_d*Ver_idz_8%t(G_nk)-half*mu_8)*F_metric%mc_css_H_8(i,j)
+            F_metric%mc_alfas_H_8(i,j) = ( F_metric%mc_iJz_8(i,j,G_nk) + half*mu_8 + Ver_wmstar_8(G_nk)*(F_metric%mc_iJz_8(i,j,G_nk-1) -half*mu_8) ) / (F_metric%mc_iJz_8(i,j,G_nk)-half*mu_8)
+            F_metric%mc_betas_H_8(i,j) =                                             Ver_wmstar_8(G_nk)*(F_metric%mc_iJz_8(i,j,G_nk-1) +half*mu_8)   / (F_metric%mc_iJz_8(i,j,G_nk)-half*mu_8)
          enddo
       enddo
-      if (Schm_opentop_L) then
-         do j=1-G_haloy+1,l_nj+G_haloy-1
-            do i=1-G_halox+1,l_ni+G_halox-1
-               F_metric%mc_alfat_8(i,j)  = (-(mu_8* Cstv_tau_nh_8)*(isol_d*Ver_idz_8%t(k0-1)+isol_i*F_metric%mc_iJz_8(i,j,k0-1))  &
-                                 - half* one/(Cstv_tau_8*cpd_8*Cstv_Tstr_8))*F_metric%mc_cst_8(i,j)
-               F_metric%mc_cstp_8(i,j)   = F_metric%mc_cst_8(i,j) * gama_8 * &
-                                 ((isol_d*Ver_idz_8%t(k0-1)+isol_i*F_metric%mc_iJz_8(i,j,k0-1))*&
-                                 (Ver_idz_8%m(k0)+Ver_wm_8%m(k0)*epsi_8) + &
-                                  mu_8*half*(Ver_idz_8%m(k0)+Ver_wm_8%m(k0)*epsi_8) )
-            end do
-         end do
-      endif
 
 !      call heights_uv ()
 !
@@ -294,7 +266,7 @@
 !DIR$ SIMD
          do i=1-G_halox+1,l_ni+G_halox-1
             F_metric%mc_iJz_8(i,j,0)=one/(F_metric%zmom_8(i,j,1)-ver_z_8%m(0))
-            F_metric%mc_css_H_8(i,j) = one/(gama_8*(isol_i*F_metric%mc_iJz_8(i,j,G_nk)+isol_d*Ver_idz_8%t(G_nk)-half*mu_8))
+            F_metric%mc_css_H_8(i,j) = one/(gama_8*(F_metric%mc_iJz_8(i,j,G_nk)-half*mu_8))
          end do
       end do
 !!$omp enddo
@@ -307,46 +279,14 @@
       end do
 !!$omp enddo
 
-      if (Schm_opentop_L) then
-!!$omp do
-         do j=1-G_haloy+1,l_nj+G_haloy-1
-            do i=1-G_halox+1,l_ni+G_halox-1
-               F_metric%mc_cst_8(i,j)= one / (-(mu_8* Cstv_tau_nh_8)*(isol_d*Ver_idz_8%t(k0-1) &
-                              +isol_i*F_metric%mc_iJz_8(i,j,k0-1)) &
-                              + half* one/(Cstv_tau_8*cpd_8*Cstv_Tstr_8))
-            end do
-         end do
-!!$omp enddo
-      endif
 !!$omp do
       do j=1-G_haloy+1,l_nj+G_haloy-1
          do i=1-G_halox+1,l_ni+G_halox-1
-            F_metric%mc_alfas_H_8(i,j) = F_metric%mc_css_H_8(i,j)*(gama_8*(isol_i*F_metric%mc_iJz_8(i,j,G_nk)+isol_d*Ver_idz_8%t(G_nk) &
-                                + half*mu_8) + Ver_wmstar_8(G_nk)*gama_8*(isol_i*F_metric%mc_iJz_8(i,j,G_nk-1) &
-                                               + isol_d*Ver_idz_8%t(G_nk-1)-half*mu_8) )
-
-            F_metric%mc_betas_H_8(i,j) = F_metric%mc_css_H_8(i,j)* Ver_wmstar_8(G_nk)*gama_8* &
-                                (isol_i*F_metric%mc_iJz_8(i,j,G_nk-1)+isol_d*Ver_idz_8%t(G_nk-1)+half*mu_8)
-
-            F_metric%mc_cssp_H_8(i,j) = gama_8*(Ver_idz_8%m(G_nk)-epsi_8*Ver_wp_8%m(G_nk))*&
-                               (isol_i*F_metric%mc_iJz_8(i,j,G_nk)+isol_d*Ver_idz_8%t(G_nk)-half*mu_8)*F_metric%mc_css_H_8(i,j)
+            F_metric%mc_alfas_H_8(i,j) = ( F_metric%mc_iJz_8(i,j,G_nk) + half*mu_8 + Ver_wmstar_8(G_nk)*(F_metric%mc_iJz_8(i,j,G_nk-1) -half*mu_8) ) / (F_metric%mc_iJz_8(i,j,G_nk)-half*mu_8)
+            F_metric%mc_betas_H_8(i,j) =                                             Ver_wmstar_8(G_nk)*(F_metric%mc_iJz_8(i,j,G_nk-1) +half*mu_8)   / (F_metric%mc_iJz_8(i,j,G_nk)-half*mu_8)
          enddo
       enddo
 !!$omp enddo
-      if (Schm_opentop_L) then
-!!$omp do
-         do j=1-G_haloy+1,l_nj+G_haloy-1
-            do i=1-G_halox+1,l_ni+G_halox-1
-               F_metric%mc_alfat_8(i,j)  = (-(mu_8* Cstv_tau_nh_8)*(isol_d*Ver_idz_8%t(k0-1)+isol_i*F_metric%mc_iJz_8(i,j,k0-1))  &
-                                 - half* one/(Cstv_tau_8*cpd_8*Cstv_Tstr_8))*F_metric%mc_cst_8(i,j)
-               F_metric%mc_cstp_8(i,j)   = F_metric%mc_cst_8(i,j) * gama_8 * &
-                                 ((isol_d*Ver_idz_8%t(k0-1)+isol_i*F_metric%mc_iJz_8(i,j,k0-1))*&
-                                 (Ver_idz_8%m(k0)+Ver_wm_8%m(k0)*epsi_8) + &
-                                  mu_8*half*(Ver_idz_8%m(k0)+Ver_wm_8%m(k0)*epsi_8) )
-            end do
-         end do
-!!$omp enddo
-      endif
 
 !      call heights_uv () !revisit that code
 !
