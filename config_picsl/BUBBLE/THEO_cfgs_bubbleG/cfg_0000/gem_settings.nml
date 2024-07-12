@@ -41,7 +41,7 @@
   Lam_ctebcs_L  = .true.
   Lam_blend_H   = 0
 /
- &hvdif
+ &hvdif_off
   Hzd_pwr         = 2          , Hzd_lnr       = 0.02
 /
 

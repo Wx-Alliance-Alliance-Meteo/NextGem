@@ -17,8 +17,7 @@
   bubble_theta      = 303.15
   bubble_rad        = 5
   bubble_kctr = 124
-  bubble_gaus_L = .true.
-  bubble_hydro_L = .true.
+  bubble_gaus_L = .false.
 /
  &bubble_cfgs2
   bubble_ni = 41 ,  bubble_nj = 1 , bubble_nk = 30
@@ -26,7 +25,6 @@
   bubble_theta      = 303.15
   bubble_rad        = 5
   bubble_kctr = -1
-  bubble_gaus_L = .true.
 /
 
   Fcst_end_S     = '18m'
