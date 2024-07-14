@@ -16,8 +16,8 @@
 !**s/r nest_indata - Read and process nesting data during LAM
 !                    integration for LBC.
 
-      subroutine nest_indata ( F_u , F_v, F_w, F_t , F_q, F_zd, F_s, &
-                               F_tr, F_topo, F_stag_L, F_datev_S    ,&
+      subroutine nest_indata ( F_u , F_v, F_w, F_t , F_q, F_zd  , &
+                               F_tr, F_topo, F_stag_L, F_datev_S, &
                                Mminx, Mmaxx, Mminy, Mmaxy, Nk, Ntr )
       use dyn_fisl_options
       use gem_options
@@ -33,7 +33,6 @@
       integer, intent(in) :: Mminx, Mmaxx, Mminy, Mmaxy, Nk, Ntr
       real, dimension(Mminx:Mmaxx,Mminy:Mmaxy,Nk),   intent(out) :: F_u, F_v, F_w, F_t, F_zd
       real, dimension(Mminx:Mmaxx,Mminy:Mmaxy,Nk+1), intent(out) :: F_q
-      real, dimension(Mminx:Mmaxx,Mminy:Mmaxy),      intent(out) :: F_s
       real, dimension(Mminx:Mmaxx,Mminy:Mmaxy,2),    intent(out) :: F_topo
       real, dimension(Mminx:Mmaxx,Mminy:Mmaxy,Nk*Ntr),intent(out) :: F_tr
 
@@ -41,6 +40,7 @@
       integer :: HLT_start, HLT_end, local_np
       real, dimension(:,:  ), pointer :: nest_orols
       real, dimension(:,:,:), pointer :: uu, vv, tt, sumpqj
+      real, dimension(l_minx:l_maxx,l_miny:l_maxy) :: p0
 !     
 !     ---------------------------------------------------------------
 !
@@ -53,7 +53,7 @@
       
 !!$omp single
       Inp_src_GZ_L= .false. ; Inp_gtmg= (/85,90/)
-      call inp_data (F_u , F_v, F_w, F_t , F_q, F_zd, F_s, F_tr     ,&
+      call inp_data (F_u , F_v, F_w, F_t , F_q, F_zd, p0, F_tr     ,&
                      F_topo(l_minx,l_miny,1),F_topo(l_minx,l_miny,2),&
               F_stag_L,F_datev_S,l_minx,l_maxx,l_miny,l_maxy,G_nk,Ntr)
 !!$omp end single
@@ -111,7 +111,7 @@
                          1-G_haloy*south,l_njv+G_haloy*north, .true. )
       endif
                        
-      call derivate_data ( F_zd, F_w, F_u, F_v, F_t , F_s, F_q           ,&
+      call derivate_data ( F_zd, F_w, F_u, F_v, F_t , p0, F_q           ,&
                            F_topo(l_minx,l_miny,1),nest_orols,nest_metric,&
                            l_minx,l_maxx,l_miny,l_maxy, G_nk             ,&
                            .not.Inp_zd_L, .not.Inp_w_L, .not. Inp_qt_L )
@@ -121,9 +121,9 @@
       return
       end subroutine nest_indata
 
-      subroutine nest_indata_svr ( F_u , F_v, F_w, F_t , F_q, F_zd, F_s, &
-                               F_tr, F_topo, F_datev_S    ,&
-                               Mminx, Mmaxx, Mminy, Mmaxy, Nk, Ntr )
+      subroutine nest_indata_svr ( F_u , F_v, F_w, F_t , F_q, F_zd,&
+                                   F_tr, F_topo, F_datev_S        ,&
+                                   Mminx, Mmaxx, Mminy, Mmaxy,Nk,Ntr )
       use, intrinsic :: iso_fortran_env
       use dyn_fisl_options
       use gem_options
@@ -141,7 +141,6 @@
       integer, intent(in) :: Mminx, Mmaxx, Mminy, Mmaxy, Nk, Ntr
       real, dimension(Mminx:Mmaxx,Mminy:Mmaxy,Nk),   intent(out) :: F_u, F_v, F_w, F_t, F_zd
       real, dimension(Mminx:Mmaxx,Mminy:Mmaxy,Nk+1), intent(out) :: F_q
-      real, dimension(Mminx:Mmaxx,Mminy:Mmaxy),      intent(out) :: F_s
       real, dimension(Mminx:Mmaxx,Mminy:Mmaxy,2),    intent(out) :: F_topo
       real, dimension(Mminx:Mmaxx,Mminy:Mmaxy,Nk*Ntr),intent(out) :: F_tr
 
@@ -152,6 +151,7 @@
       real, dimension(:,:  ), pointer :: nest_orols
       real(kind=REAL64) :: dayfrac
       real(kind=REAL64), parameter :: one=1.0d0, sid=86400.0d0, rsid=one/sid
+      real, dimension(l_minx:l_maxx,l_miny:l_maxy) :: p0
 !     
 !     ---------------------------------------------------------------
 !             
@@ -173,7 +173,7 @@
          endif
       endif
       
-      call inp_data (F_u , F_v, F_w, F_t , F_q, F_zd, F_s, F_tr     ,&
+      call inp_data (F_u , F_v, F_w, F_t , F_q, F_zd, p0, F_tr     ,&
                      F_topo(l_minx,l_miny,1),F_topo(l_minx,l_miny,2),&
                 .true.,F_datev_S,l_minx,l_maxx,l_miny,l_maxy,G_nk,Ntr)
 !!$omp end single
@@ -203,7 +203,7 @@
                    
       call canonical_indata()
                              
-      call derivate_data ( F_zd, F_w, F_u, F_v, F_t , F_s, F_q           ,&
+      call derivate_data ( F_zd, F_w, F_u, F_v, F_t , p0, F_q           ,&
                            F_topo(l_minx,l_miny,1),nest_orols,nest_metric,&
                            l_minx,l_maxx,l_miny,l_maxy, G_nk             ,&
                            .not.Inp_zd_L, .not.Inp_w_L, .not. Inp_qt_L )

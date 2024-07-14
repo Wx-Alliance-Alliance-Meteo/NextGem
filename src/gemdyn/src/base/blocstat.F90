@@ -142,9 +142,8 @@
             tmp_liste(cnt+2) = 'ZDT2'
             tmp_liste(cnt+3) = 'WT2'
             tmp_liste(cnt+4) = 'TT2'
-            tmp_liste(cnt+5) = 'ST2'
-            tmp_liste(cnt+6) = 'QT2'
-            cnt = cnt + 6
+            tmp_liste(cnt+5) = 'QT2'
+            cnt = cnt + 5
             cycle
          end if
          if ((stat_liste(k) == 'ALL_DYN_T1') .or. (stat_liste(k) == 'ALL')) then
@@ -154,9 +153,8 @@
             tmp_liste(cnt+2) = 'ZDT1'
             tmp_liste(cnt+3) = 'WT1'
             tmp_liste(cnt+4) = 'TT1'
-            tmp_liste(cnt+5) = 'ST1'
-            tmp_liste(cnt+6) = 'QT1'
-            cnt = cnt + 6
+            tmp_liste(cnt+5) = 'QT1'
+            cnt = cnt + 5
             if (stat_liste(k) /= 'ALL') cycle
          end if
          if (stat_liste(k) == 'ALL_DYN_T0') then
@@ -166,9 +164,8 @@
             tmp_liste(cnt+2) = 'ZDT0'
             tmp_liste(cnt+3) = 'WT0'
             tmp_liste(cnt+4) = 'TT0'
-            tmp_liste(cnt+5) = 'ST0'
-            tmp_liste(cnt+6) = 'QT0'
-            cnt = cnt + 6
+            tmp_liste(cnt+5) = 'QT0'
+            cnt = cnt + 5
             cycle
          end if
          if (stat_liste(k) == 'ALL_TR_T2') then

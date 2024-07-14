@@ -77,7 +77,7 @@
 
       real, dimension(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1) :: zmom_8,lg_pstar,log_pt,log_pm,pt_plus,pm_plus
       real, dimension(l_minx:l_maxx,l_miny:l_maxy,G_nk)     :: tt
-      real, dimension(l_minx:l_maxx,l_miny:l_maxy)          :: ps
+      real, dimension(l_minx:l_maxx,l_miny:l_maxy)          :: ps,st1
 
       real(kind=REAL64), parameter :: Rd = Rgasd_8, & ! cte gaz - air sec   [J kg-1 K-1]
                                       Rv = Rgasv_8    ! cte gaz - vap eau   [J kg-1 K-1]

@@ -63,7 +63,7 @@
                                l_minx,l_maxx,l_miny,l_maxy)
          if ( .not. Grd_yinyang_L .and. Lam_ctebcs_L ) then
             call nest_indata  (nest_u, nest_v , nest_w, nest_t   ,&
-                               nest_q, nest_zd, nest_s, nest_tr  ,&
+                               nest_q, nest_zd, nest_tr  ,&
                                nest_fullme,.false.,Step_runstrt_S,&
                                l_minx,l_maxx,l_miny,l_maxy,G_nk,Tr3d_ntr)
          endif

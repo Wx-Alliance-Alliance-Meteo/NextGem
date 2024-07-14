@@ -183,7 +183,6 @@ contains
       istat = gmm_get (gmmk_wt1_s ,wt1 )
       istat = gmm_get (gmmk_tt1_s ,tt1 )
       istat = gmm_get (gmmk_zdt1_s,zdt1)
-      istat = gmm_get (gmmk_st1_s ,st1 )
       istat = gmm_get (gmmk_orols_s ,orols )
       istat = gmm_get (gmmk_fis0_s,fis0)
       istat = gmm_get (gmmk_qt1_s ,qt1 )
@@ -197,7 +196,7 @@ contains
            .or. Theo_case_S == 'MTN_PINTYNL' &
            .or. Theo_case_S == 'NOFLOW' ) then
 
-         call mtn_data ( pw_uu_plus, pw_vv_plus, pw_tt_plus, st1, qt1, fis0, orols, orols, &
+         call mtn_data ( pw_uu_plus, pw_vv_plus, pw_tt_plus, qt1, fis0, orols, orols, &
                          l_minx, l_maxx, l_miny, l_maxy, G_nk, Theo_case_S )
          
 !!$omp parallel private (local_np, HLT_start, HLT_end)
@@ -228,7 +227,7 @@ contains
 
          fis0= 0.0 ; orols= 0.0
          pw_uu_plus= 0.0 ; pw_vv_plus= 0.0
-         ut1= 0.0 ; vt1= 0.0 ; st1= 0.
+         ut1= 0.0 ; vt1= 0.0
 
          call bubble_data ( pw_tt_plus, l_minx,l_maxx,l_miny,l_maxy,G_nk )
          do k=1,g_nk+1

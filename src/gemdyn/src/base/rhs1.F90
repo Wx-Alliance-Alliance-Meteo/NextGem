@@ -109,13 +109,17 @@
 
         end do
       end do
+      do j=1, l_nj
+         do i= 1, l_ni
+            rhsc_bdf_t1(i,j,l_nk+1) = w4*qt1(i,j,l_nk+1)
+            rhsc_bdf_t2(i,j,l_nk+1) = w4*qt2(i,j,l_nk+1)
+         end do
+      end do
       
 !$OMP BARRIER
 
-      call HLT_split (1, 6*l_nk, HLT_np, HLT_start, HLT_end)
+      call HLT_split (1, 12*l_nk+2, HLT_np, HLT_start, HLT_end)
       call gem_xch_halo ( rhst_bdf_t1(Adz_lminx,Adz_lminy,HLT_start),&
-                 Adz_lminx,Adz_lmaxx,Adz_lminy,Adz_lmaxy, HLT_np,-1)
-      call gem_xch_halo ( rhst_bdf_t2(Adz_lminx,Adz_lminy,HLT_start),&
                  Adz_lminx,Adz_lmaxx,Adz_lminy,Adz_lmaxy, HLT_np,-1)
 
 !     ---------------------------------------------------------------

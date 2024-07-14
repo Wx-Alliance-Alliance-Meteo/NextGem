@@ -78,7 +78,7 @@ module mem_tstp
                                                       orhsw,orhsf
 
       real, allocatable, target, dimension (:) :: orhs_extended, nl_terms,&
-                                                  rhs_bdf_t1, rhs_bdf_t2
+                                                  rhs_bdf
 
       real, dimension (:,:,:), pointer :: orhsu_ext,orhsv_ext,&
                                   orhst_ext,orhsc_ext,orhsw_ext,orhsf_ext, &

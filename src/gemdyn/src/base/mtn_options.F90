@@ -166,7 +166,7 @@ contains
 !
 !     ---------------------------------------------------------------
 !
-      subroutine mtn_data ( F_u, F_v, F_t, F_s, F_q, F_topo, F_topo_ls, F_orols,&
+      subroutine mtn_data ( F_u, F_v, F_t, F_q, F_topo, F_topo_ls, F_orols,&
                             Mminx,Mmaxx,Mminy,Mmaxy,Nk,F_theocase_S )
       use gmm_vt1
       use gmm_geof
@@ -188,7 +188,6 @@ contains
       real F_u    (Mminx:Mmaxx,Mminy:Mmaxy,Nk), &
            F_v    (Mminx:Mmaxx,Mminy:Mmaxy,Nk), &
            F_t    (Mminx:Mmaxx,Mminy:Mmaxy,Nk), &
-           F_s    (Mminx:Mmaxx,Mminy:Mmaxy   ), &
            F_topo (Mminx:Mmaxx,Mminy:Mmaxy   ), &
            F_topo_ls(Mminx:Mmaxx,Mminy:Mmaxy   ), &
            F_orols(Mminx:Mmaxx,Mminy:Mmaxy   ), &

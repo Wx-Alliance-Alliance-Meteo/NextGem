@@ -85,15 +85,7 @@
 !!$omp end do nowait
       enddo
 
-!$OMP BARRIER
-
-!!$omp do
-      do j=1,l_nj
-      do i=1,l_ni
-        st0(i,j)= st0(i,j)*(1.-nest_weightm(i,j,G_nk+1)) + nest_s(i,j)*nest_weightm(i,j,G_nk+1)
-      enddo
-      enddo
-!!$omp end do
+!!$OMP BARRIER
 
 !
 !----------------------------------------------------------------------

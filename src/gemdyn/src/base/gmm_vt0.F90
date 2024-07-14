@@ -20,7 +20,6 @@ module gmm_vt0
       real, pointer, contiguous, dimension (:,:,:) ::  ut0 => null()
       real, pointer, contiguous, dimension (:,:,:) ::  vt0 => null()
       real, pointer, contiguous, dimension (:,:,:) ::  tt0 => null()
-      real, pointer, contiguous, dimension (:,:)   ::  st0 => null()
       real, pointer, contiguous, dimension (:,:,:) ::  wt0 => null()
       real, pointer, contiguous, dimension (:,:,:) ::  qt0 => null()
       real, pointer, contiguous, dimension (:,:,:) :: zdt0 => null()
@@ -30,7 +29,6 @@ module gmm_vt0
       character(len=MAXNAMELENGTH), parameter:: gmmk_ut0_s   =  'URT0'
       character(len=MAXNAMELENGTH), parameter:: gmmk_vt0_s   =  'VRT0'
       character(len=MAXNAMELENGTH), parameter:: gmmk_tt0_s   =  'TT0'
-      character(len=MAXNAMELENGTH), parameter:: gmmk_st0_s   =  'ST0'
       character(len=MAXNAMELENGTH), parameter:: gmmk_wt0_s   =  'WT0'
       character(len=MAXNAMELENGTH), parameter:: gmmk_qt0_s   =  'QT0'
       character(len=MAXNAMELENGTH), parameter:: gmmk_zdt0_s  =  'ZDT0'

@@ -43,23 +43,9 @@
       nest_w (l_minx:l_maxx,l_miny:l_maxy,1:l_nk  )=> nest_now(dim3d*3+1:)
       nest_zd(l_minx:l_maxx,l_miny:l_maxy,1:l_nk  )=> nest_now(dim3d*4+1:)
       nest_q (l_minx:l_maxx,l_miny:l_maxy,1:l_nk+1)=> nest_now(dim3d*5+1:)
-      nest_s     (l_minx:l_maxx,l_miny:l_maxy     )=> nest_now(dim3d*6+  dimHor+1:)
-      nest_fullme(l_minx:l_maxx,l_miny:l_maxy,1:2 )=> nest_now(dim3d*6+2*dimHor+1:)
+      nest_fullme(l_minx:l_maxx,l_miny:l_maxy,1:2 )=> nest_now(dim3d*6+dimHor+1:)
       nest_tr(l_minx:l_maxx,l_miny:l_maxy,1:Tr3d_ntr*l_nk)=> &
-                                                      nest_now(dim3d*6+4*dimHor+1:)
-
-      !---for departure point. copying above but now for t2---
-      nest_prev_u (l_minx:l_maxx,l_miny:l_maxy,1:l_nk  )=> nest_prev(        1:)
-      nest_prev_v (l_minx:l_maxx,l_miny:l_maxy,1:l_nk  )=> nest_prev(dim3d+  1:)
-      nest_prev_t (l_minx:l_maxx,l_miny:l_maxy,1:l_nk  )=> nest_prev(dim3d*2+1:)
-      nest_prev_w (l_minx:l_maxx,l_miny:l_maxy,1:l_nk  )=> nest_prev(dim3d*3+1:)
-      nest_prev_zd(l_minx:l_maxx,l_miny:l_maxy,1:l_nk  )=> nest_prev(dim3d*4+1:)
-      nest_prev_q (l_minx:l_maxx,l_miny:l_maxy,1:l_nk+1)=> nest_prev(dim3d*5+1:)
-      nest_prev_s     (l_minx:l_maxx,l_miny:l_maxy     )=> nest_prev(dim3d*6+  dimHor+1:)
-      nest_prev_fullme(l_minx:l_maxx,l_miny:l_maxy,1:2 )=> nest_prev(dim3d*6+2*dimHor+1:)
-      nest_prev_tr(l_minx:l_maxx,l_miny:l_maxy,1:Tr3d_ntr*l_nk)=> &
-                                                      nest_prev(dim3d*6+4*dimHor+1:)
-
+                                                      nest_now(dim3d*6+3*dimHor+1:)
 
       if (.not. Lam_ctebcs_L) then
 
@@ -71,20 +57,18 @@
       nest_w_deb (l_minx:l_maxx,l_miny:l_maxy,1:l_nk  )=> nest_deb(dim3d*3+1:)
       nest_zd_deb(l_minx:l_maxx,l_miny:l_maxy,1:l_nk  )=> nest_deb(dim3d*4+1:)
       nest_q_deb (l_minx:l_maxx,l_miny:l_maxy,1:l_nk+1)=> nest_deb(dim3d*5+1:)
-      nest_s_deb     (l_minx:l_maxx,l_miny:l_maxy     )=> nest_deb(dim3d*6+  dimHor+1:)
-      nest_fullme_deb(l_minx:l_maxx,l_miny:l_maxy,1:2)=> nest_deb(dim3d*6+2*dimHor+1:)
+      nest_fullme_deb(l_minx:l_maxx,l_miny:l_maxy,1:2)=> nest_deb(dim3d*6+dimHor+1:)
       nest_tr_deb(l_minx:l_maxx,l_miny:l_maxy,1:Tr3d_ntr*l_nk)=> &
-                                                      nest_deb(dim3d*6+4*dimHor+1:)
+                                                      nest_deb(dim3d*6+3*dimHor+1:)
       nest_u_fin (l_minx:l_maxx,l_miny:l_maxy,1:l_nk  )=> nest_fin(         1:)
       nest_v_fin (l_minx:l_maxx,l_miny:l_maxy,1:l_nk  )=> nest_fin(dim3d+  1:)
       nest_t_fin (l_minx:l_maxx,l_miny:l_maxy,1:l_nk  )=> nest_fin(dim3d*2+1:)
       nest_w_fin (l_minx:l_maxx,l_miny:l_maxy,1:l_nk  )=> nest_fin(dim3d*3+1:)
       nest_zd_fin(l_minx:l_maxx,l_miny:l_maxy,1:l_nk  )=> nest_fin(dim3d*4+1:)
       nest_q_fin (l_minx:l_maxx,l_miny:l_maxy,1:l_nk+1)=> nest_fin(dim3d*5+1:)
-      nest_s_fin (l_minx:l_maxx,l_miny:l_maxy         )=> nest_fin(dim3d*6+  dimHor+1:)
-      nest_fullme_fin(l_minx:l_maxx,l_miny:l_maxy,1:2)=> nest_fin(dim3d*6+2*dimHor+1:)
+      nest_fullme_fin(l_minx:l_maxx,l_miny:l_maxy,1:2)=> nest_fin(dim3d*6+dimHor+1:)
       nest_tr_fin(l_minx:l_maxx,l_miny:l_maxy,1:Tr3d_ntr*l_nk)=> &
-                                                      nest_fin(dim3d*6+4*dimHor+1:)
+                                                      nest_fin(dim3d*6+3*dimHor+1:)
       endif
 
       allocate (nest_weightm(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+1),&

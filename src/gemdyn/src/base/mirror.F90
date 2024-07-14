@@ -60,7 +60,6 @@
             jin = l_nj-pil_n-j+1
             jj  = l_nj-pil_n+j
             do i=1,l_ni
-               st0(i,jj)        = st0(i,jin)
                qt0(i,jj,G_nk+1) = qt0(i,jin,G_nk+1)
             end do
          end do
@@ -104,7 +103,6 @@
             do i=1,pil_e
                iin = l_ni-pil_e-i+1
                ii  = l_ni-pil_e+i
-               st0(ii,j)        = st0(iin,j)
                qt0(ii,j,G_nk+1) = qt0(iin,j,G_nk+1)
             end do
          end do
@@ -144,7 +142,6 @@
             jin = pil_s+j
             jj  = pil_s-j+1
             do i=1,l_ni
-               st0(i,jj)        = st0(i,jin)
                qt0(i,jj,G_nk+1) = qt0(i,jin,G_nk+1)
             end do
          end do
@@ -188,7 +185,6 @@
             do i=1,pil_w
                iin = pil_w+i
                ii  = pil_w-i+1
-               st0(ii,j)        = st0(iin,j)
                qt0(ii,j,G_nk+1) = qt0(iin,j,G_nk+1)
             end do
          end do

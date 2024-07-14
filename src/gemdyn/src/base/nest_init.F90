@@ -39,21 +39,11 @@
          nest_u  = ut1
          nest_v  = vt1
          nest_t  = tt1
-         nest_s  = st1
          nest_w  = wt1
          nest_q  = qt1
          nest_zd = zdt1
          nest_fullme(:,:,1) = fis0 (:,:)
          nest_fullme(:,:,2) = orols(:,:)
-
-         !---for t2 time level
-         !nest_u  = ut2
-         !nest_v  = vt2
-         !nest_t  = tt2
-         !nest_s  = st2
-         !nest_w  = wt2
-         !nest_q  = qt2
-         !nest_zd = zdt2
 
          do n=1,Tr3d_ntr
             deb = (n-1) * l_nk
@@ -65,7 +55,6 @@
          nest_u_fin  = ut1
          nest_v_fin  = vt1
          nest_t_fin  = tt1
-         nest_s_fin  = st1
          nest_w_fin  = wt1
          nest_q_fin  = qt1
          nest_zd_fin = zdt1

@@ -15,7 +15,7 @@
 
 !**s/p calomeg_w - compute vertical velocity in pressure coordinates
 
-      subroutine calomeg_w (F_ww,F_st1,F_sl,F_wt1,F_tt1,F_lnp,Minx,Maxx,Miny,Maxy,Nk)
+      subroutine calomeg_w (F_ww,F_sl,F_wt1,F_tt1,F_lnp,Minx,Maxx,Miny,Maxy,Nk)
       use tdpack
       use glb_ld
       use cstv
@@ -25,7 +25,6 @@
 
       integer, intent(in) :: Minx,Maxx,Miny,Maxy, Nk
       real, dimension(Minx:Maxx,Miny:Maxy,Nk), intent(out) :: F_ww
-      real, dimension(Minx:Maxx,Miny:Maxy),    intent(in)  :: F_st1
       real, dimension(Minx:Maxx,Miny:Maxy,Nk), intent(in)  :: F_wt1, F_tt1, F_lnp
       real, dimension(Minx:Maxx,Miny:Maxy),    intent(in)  :: F_sl
 !object
@@ -41,7 +40,6 @@
 !  Name               Description
 !---------------------------------------------------
 ! F_ww               dpi/dt (Pa/s)
-! F_st1               s at time t1 = exp(PIt1/Zsruf)
 ! F_wt1               real vertical wind
 ! F_tt1               virtual temperature
 !

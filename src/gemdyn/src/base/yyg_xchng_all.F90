@@ -46,8 +46,6 @@
                          G_nk, .false., 'CUBIC', .false.)
       call yyg_xchng_hlt  (qt1, l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
                          G_nk+1, .false., 'CUBIC', .false.)
-      call yyg_xchng_hlt  (st1, l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
-                          1    , .false., 'CUBIC', .false.)
 !
 !----------------------------------------------------------------------
 !

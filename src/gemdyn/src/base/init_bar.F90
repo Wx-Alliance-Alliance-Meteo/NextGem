@@ -47,6 +47,7 @@
       real, dimension (:,:,:), pointer :: hu
       real, dimension (l_minx:l_maxx,l_miny:l_maxy,G_nk) :: gz_t
       real(kind=REAL64) :: FI_8
+      real, dimension(l_minx:l_maxx,l_miny:l_maxy) :: p0
 !
 !-------------------------------------------------------------------
 !
@@ -63,7 +64,7 @@
       !-------------------------------------------------------------------------
       if (Williamson_case==7) then
 
-         call inp_data ( ut1, vt1, wt1, tt1, qt1, zdt1,st1,trt1,&
+         call inp_data ( ut1, vt1, wt1, tt1, qt1, zdt1,p0,trt1,&
                          fis0, orols, .true., Step_runstrt_S   ,&
                          l_minx,l_maxx,l_miny,l_maxy,G_nk,Tr3d_ntr)
 
@@ -71,7 +72,7 @@
          !--------------------------------
          FI_8= grav_8*Ver_z_8%m(1)
          do k=1,G_nk+1
-            qt1(i0:in,j0:jn,k) = st1(i0:in,j0:jn) - FI_8
+            qt1(i0:in,j0:jn,k) = p0(i0:in,j0:jn) - FI_8
          end do
 
       end if
@@ -93,7 +94,7 @@
 
       !Prepare initial conditions (staggered u-v,gz,s,topo) for Williamson cases
       !-------------------------------------------------------------------------
-      call wil_init (ut1,vt1,gz_t,st1,fis0,qt1,l_minx,l_maxx,l_miny,l_maxy,G_nk,.true.)
+      call wil_init (ut1,vt1,gz_t,p0,fis0,qt1,l_minx,l_maxx,l_miny,l_maxy,G_nk,.true.)
 
       !Required for CASE5 LAM version (NESTING)
       !----------------------------------------

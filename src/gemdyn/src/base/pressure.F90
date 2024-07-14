@@ -42,14 +42,11 @@
       integer :: i, j, k, i0,in,j0,jn
       real(kind=REAL64) :: pres_m, pres_t, log_pt
       real, pointer, dimension(:,:,:) :: qt
-      real, pointer, dimension(:,:)   :: st
 !     
 !---------------------------------------------------------------------
 !
       if (F_time==1) qt => qt1
       if (F_time==0) qt => qt0
-      if (F_time==1) st => st1
-      if (F_time==0) st => st0
       i0= 1-G_halox ; in= l_ni+G_halox
       j0= 1-G_haloy ; jn= l_nj+G_haloy
 

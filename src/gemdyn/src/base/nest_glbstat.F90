@@ -49,8 +49,6 @@
                     1,G_ni,1,G_nj,1,l_nk)
       call glbstat (nest_q_deb,'NQD','', l_minx,l_maxx,l_miny,l_maxy,1,l_nk+1,&
                     1,G_ni,1,G_nj,1,l_nk+1)
-      call glbstat (nest_s_deb,'NSD','', l_minx,l_maxx,l_miny,l_maxy,1,1,&
-                    1,G_ni,1,G_nj,1,1)
       do k=1,Tr3d_ntr
          call glbstat (nest_tr_deb(l_minx,l_miny,(k-1)*l_nk+1),'NTRD',Tr3d_name_S(k), &
               l_minx,l_maxx,l_miny,l_maxy,1,l_nk,1,G_ni,1,G_nj,1,l_nk)
@@ -69,8 +67,6 @@
                     1,G_ni,1,G_nj,1,l_nk)
       call glbstat (nest_q_fin,'NQF','', l_minx,l_maxx,l_miny,l_maxy,1,l_nk+1,&
                     1,G_ni,1,G_nj,1,l_nk+1)
-      call glbstat (nest_s_fin,'NSF','', l_minx,l_maxx,l_miny,l_maxy,1,1,&
-                    1,G_ni,1,G_nj,1,1)
       do k=1,Tr3d_ntr
          call glbstat (nest_tr_fin(l_minx,l_miny,(k-1)*l_nk+1),'NTRF',Tr3d_name_S(k), &
               l_minx,l_maxx,l_miny,l_maxy,1,l_nk,1,G_ni,1,G_nj,1,l_nk)
@@ -89,8 +85,6 @@
                     1,G_ni,1,G_nj,1,l_nk)
       call glbstat (nest_q,'NQN','', l_minx,l_maxx,l_miny,l_maxy,1,l_nk+1,&
                     1,G_ni,1,G_nj,1,l_nk+1)
-      call glbstat (nest_s,'NSN','', l_minx,l_maxx,l_miny,l_maxy,1,1,&
-                    1,G_ni,1,G_nj,1,1)
       do k=1,Tr3d_ntr
          call glbstat (nest_tr(l_minx,l_miny,(k-1)*l_nk+1),'NTRN',Tr3d_name_S(k), &
               l_minx,l_maxx,l_miny,l_maxy,1,l_nk,1,G_ni,1,G_nj,1,l_nk)

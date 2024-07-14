@@ -42,7 +42,7 @@
       logical :: synthetic_data_L
       integer :: i,j,k,dimens
       integer :: HLT_start, HLT_end, local_np
-      real, dimension(l_minx:l_maxx,l_miny:l_maxy,G_nk) :: w1,w2
+      real, dimension(l_minx:l_maxx,l_miny:l_maxy) :: p0
 !
 !     ---------------------------------------------------------------
 !
@@ -59,7 +59,7 @@
 
          Inp_src_GZ_L= .false. ; Inp_gtmg= (/82,71/)
          call inp_data (pw_uu_plus,pw_vv_plus,wt1,pw_tt_plus,qt1       ,&
-                        zdt1,st1,trt1,fis0,orols,.false.,Step_runstrt_S,&
+                        zdt1,p0,trt1,fis0,orols,.false.,Step_runstrt_S,&
                         l_minx,l_maxx,l_miny,l_maxy,G_nk,Tr3d_ntr )
          do j=1, l_nj
             do i=1, l_ni
@@ -91,6 +91,8 @@
          call yyg_xchng_hlt (orolsu, l_minx,l_maxx,l_miny,l_maxy, &
                          l_ni,l_nj, 1, .false., 'CUBIC', .true.)
          call yyg_xchng_hlt (orolsv, l_minx,l_maxx,l_miny,l_maxy, &
+                         l_ni,l_nj, 1, .false., 'CUBIC', .true.)
+         if (.not.synthetic_data_L) call yyg_xchng_hlt (p0, l_minx,l_maxx,l_miny,l_maxy, &
                          l_ni,l_nj, 1, .false., 'CUBIC', .true.)
          call yyg_xchng_all()
       else
@@ -135,7 +137,7 @@
                          1-G_halox*west ,l_niu+G_halox*east ,&
                          1-G_haloy*south,l_njv+G_haloy*north, .true. )
 
-         call derivate_data (zdt1,wt1, ut1,vt1,tt1,st1,qt1,fis0,orols,GVM,&
+         call derivate_data (zdt1,wt1, ut1,vt1,tt1,p0,qt1,fis0,orols,GVM,&
                              l_minx,l_maxx,l_miny,l_maxy, G_nk         ,&
                              .not.Inp_zd_L, .not.Inp_w_L, .not.Inp_qt_L )
       endif

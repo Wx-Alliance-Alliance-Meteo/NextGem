@@ -41,7 +41,7 @@
       include 'mpif.h'
       include "tricublin_f90.inc"
       
-      integer i,j,k, n, k0, BCS_BASE, pnz, ext, halom, dim, ierr
+      integer i,j,k, n, k0, BCS_BASE, pnz, ext, halom, dim, ub, ierr
       real(kind=REAL64) :: ra,rb,rc,rd,rx,re
       real(kind=REAL64), parameter :: EPS_8= 2.D-5
       real(kind=REAL64), dimension(:), allocatable :: lat
@@ -319,20 +319,22 @@
          nlt_t2(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>nl_terms(Adz_nij*l_nk*7+1:)
          nlw_t2(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>nl_terms(Adz_nij*l_nk*8+1:)
          nlq_t2(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>nl_terms(Adz_nij*l_nk*9+1:)
-         allocate (rhs_bdf_t1(Adz_nij*6*l_nk)) ; rhs_bdf_t1=0.
-         rhst_bdf_t1(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>rhs_bdf_t1(1:)
-         rhsc_bdf_t1(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>rhs_bdf_t1(Adz_nij*l_nk+1:)
-         rhsf_bdf_t1(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>rhs_bdf_t1(Adz_nij*l_nk*2+1:)
-         rhsu_bdf_t1(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>rhs_bdf_t1(Adz_nij*l_nk*3+1:)
-         rhsv_bdf_t1(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>rhs_bdf_t1(Adz_nij*l_nk*4+1:)
-         rhsw_bdf_t1(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>rhs_bdf_t1(Adz_nij*l_nk*5+1:)
-         allocate (rhs_bdf_t2(Adz_nij*6*l_nk)) ; rhs_bdf_t2=0.
-         rhst_bdf_t2(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>rhs_bdf_t2(1:)
-         rhsc_bdf_t2(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>rhs_bdf_t2(Adz_nij*l_nk+1:)
-         rhsf_bdf_t2(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>rhs_bdf_t2(Adz_nij*l_nk*2+1:)
-         rhsu_bdf_t2(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>rhs_bdf_t2(Adz_nij*l_nk*3+1:)
-         rhsv_bdf_t2(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>rhs_bdf_t2(Adz_nij*l_nk*4+1:)
-         rhsw_bdf_t2(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>rhs_bdf_t2(Adz_nij*l_nk*5+1:)
+
+         ub=0 ; dim= Adz_nij*l_nk
+         allocate (rhs_bdf(dim*12+2*Adz_nij)) ; rhs_bdf=0.
+         rhst_bdf_t1(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>rhs_bdf(ub+1:); ub=ub+dim
+         rhsf_bdf_t1(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>rhs_bdf(ub+1:); ub=ub+dim
+         rhsu_bdf_t1(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>rhs_bdf(ub+1:); ub=ub+dim
+         rhsv_bdf_t1(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>rhs_bdf(ub+1:); ub=ub+dim
+         rhsw_bdf_t1(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>rhs_bdf(ub+1:); ub=ub+dim
+         rhsc_bdf_t1(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk+1)=>rhs_bdf(ub+1:); ub=ub+dim+Adz_nij
+         rhst_bdf_t2(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>rhs_bdf(ub+1:); ub=ub+dim
+         rhsf_bdf_t2(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>rhs_bdf(ub+1:); ub=ub+dim
+         rhsu_bdf_t2(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>rhs_bdf(ub+1:); ub=ub+dim
+         rhsv_bdf_t2(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>rhs_bdf(ub+1:); ub=ub+dim
+         rhsw_bdf_t2(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk)=>rhs_bdf(ub+1:); ub=ub+dim
+         rhsc_bdf_t2(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk+1)=>rhs_bdf(ub+1:); ub=ub+dim+Adz_nij
+         
          allocate (Adz_uvw_d(3,Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,l_nk))
          allocate (Adz_uvw_d_dep(3,Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,l_nk))
       endif

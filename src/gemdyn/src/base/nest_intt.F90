@@ -78,7 +78,7 @@
 
          call nest_indata&
            ( nest_u_fin, nest_v_fin, nest_w_fin, nest_t_fin ,nest_q_fin,&
-            nest_zd_fin, nest_s_fin, nest_tr_fin,nest_fullme_fin       ,&
+            nest_zd_fin, nest_tr_fin,nest_fullme_fin       ,&
             stag_L,previous_S,l_minx,l_maxx,l_miny,l_maxy,G_nk,Tr3d_ntr )
       end if
 !$OMP BARRIER
@@ -94,7 +94,6 @@
          nest_u_deb  = nest_u_fin
          nest_v_deb  = nest_v_fin
          nest_t_deb  = nest_t_fin
-         nest_s_deb  = nest_s_fin
          nest_w_deb  = nest_w_fin
          nest_q_deb  = nest_q_fin
          nest_zd_deb = nest_zd_fin
@@ -104,7 +103,7 @@
 
          call nest_indata_svr&
            ( nest_u_fin, nest_v_fin, nest_w_fin, nest_t_fin ,nest_q_fin,&
-            nest_zd_fin, nest_s_fin, nest_tr_fin,nest_fullme_fin       ,&
+            nest_zd_fin, nest_tr_fin,nest_fullme_fin       ,&
             Lam_current_S,l_minx,l_maxx,l_miny,l_maxy,G_nk,Tr3d_ntr )
 !$OMP BARRIER
 

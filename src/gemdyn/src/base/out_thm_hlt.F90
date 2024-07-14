@@ -296,7 +296,7 @@
       end if
 
       if (pnww /= 0) then
-         call calomeg_w(myomega,st1,orols,wt1,tt1,wlnph_ta,l_minx,l_maxx,l_miny,l_maxy,G_nk)
+         call calomeg_w(myomega,orols,wt1,tt1,wlnph_ta,l_minx,l_maxx,l_miny,l_maxy,G_nk)
       end if
 
       if (pnth /= 0) then

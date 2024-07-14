@@ -24,7 +24,6 @@ module mem_nest
       real, pointer, dimension (:,:,:) :: nest_u_deb  => null()
       real, pointer, dimension (:,:,:) :: nest_v_deb  => null()
       real, pointer, dimension (:,:,:) :: nest_t_deb  => null()
-      real, pointer, dimension (:,:  ) :: nest_s_deb  => null()
       real, pointer, dimension (:,:,:) :: nest_w_deb  => null()
       real, pointer, dimension (:,:,:) :: nest_q_deb  => null()
       real, pointer, dimension (:,:,:) :: nest_zd_deb => null()
@@ -36,29 +35,15 @@ module mem_nest
       real, pointer, dimension (:,:,:) :: nest_u      => null()
       real, pointer, dimension (:,:,:) :: nest_v      => null()
       real, pointer, dimension (:,:,:) :: nest_t      => null()
-      real, pointer, dimension (:,:  ) :: nest_s      => null()
       real, pointer, dimension (:,:,:) :: nest_w      => null()
       real, pointer, dimension (:,:,:) :: nest_q      => null()
       real, pointer, dimension (:,:,:) :: nest_zd     => null()
       real, pointer, dimension (:,:,:) :: nest_tr     => null()
       real, pointer, dimension (:,:,:) :: nest_fullme => null()
 
-      !---for previous, t2 time level---
-      real, pointer, dimension (:,:,:) :: nest_prev_u      => null()
-      real, pointer, dimension (:,:,:) :: nest_prev_v      => null()
-      real, pointer, dimension (:,:,:) :: nest_prev_t      => null()
-      real, pointer, dimension (:,:  ) :: nest_prev_s      => null()
-      real, pointer, dimension (:,:,:) :: nest_prev_w      => null()
-      real, pointer, dimension (:,:,:) :: nest_prev_q      => null()
-      real, pointer, dimension (:,:,:) :: nest_prev_zd     => null()
-      real, pointer, dimension (:,:,:) :: nest_prev_tr     => null()
-      real, pointer, dimension (:,:,:) :: nest_prev_fullme => null()
-      !--------------
-
       real, pointer, dimension (:,:,:) :: nest_u_fin  => null()
       real, pointer, dimension (:,:,:) :: nest_v_fin  => null()
       real, pointer, dimension (:,:,:) :: nest_t_fin  => null()
-      real, pointer, dimension (:,:  ) :: nest_s_fin  => null()
       real, pointer, dimension (:,:,:) :: nest_w_fin  => null()
       real, pointer, dimension (:,:,:) :: nest_q_fin  => null()
       real, pointer, dimension (:,:,:) :: nest_zd_fin => null()
@@ -70,9 +55,8 @@ module mem_nest
       real, pointer, dimension (:,:,:) :: nest_weightu=> null()
       real, pointer, dimension (:,:,:) :: nest_weightv=> null()
 
-      !---adding nest_prev for t2 time level, suppose to be like nest_now
       real, pointer, dimension (:) :: nest_deb, nest_now,&
-                                      nest_fin , nest_prev
+                                      nest_fin, nest_prev
 
       type(Vmetric) :: nest_metric
 end module mem_nest

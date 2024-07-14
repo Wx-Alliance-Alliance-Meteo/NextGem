@@ -82,8 +82,6 @@
             qt0  (1:l_ni ,l_nj-pil_n+1:l_nj ,k) = nest_q  (1:l_ni ,l_nj-pil_n+1:l_nj ,k)
             zdt0 (1:l_ni ,l_nj-pil_n+1:l_nj ,k) = nest_zd (1:l_ni ,l_nj-pil_n+1:l_nj ,k)
             F_rhsv (1+pil_w:l_ni-pil_e,l_nj-pil_n,k) = F_invT * nest_v(1+pil_w:l_ni-pil_e,l_nj-pil_n,k)
-            if (k==1) &
-            st0 (1:l_ni,l_nj-pil_n+1:l_nj) = nest_s (1:l_ni,l_nj-pil_n+1:l_nj)
          endif
          if (l_south) then
             ut0 (1:l_niu,1:pil_s ,k) = nest_u (1:l_niu,1:pil_s ,k)
@@ -93,8 +91,6 @@
             qt0 (1:l_ni ,1:pil_s ,k) = nest_q (1:l_ni ,1:pil_s ,k)
             zdt0 (1:l_ni,1:pil_s ,k) = nest_zd(1:l_ni ,1:pil_s ,k)
             F_rhsv (1+pil_w:l_ni-pil_e,pil_s,k) = F_invT * nest_v(1+pil_w:l_ni-pil_e,pil_s,k)
-            if (k==1) &
-            st0 (1:l_ni ,1:pil_s) = nest_s (1:l_ni,1:pil_s)
          endif
          if (l_east) then
             ut0 (l_ni-pil_e  :l_niu,1:l_nj ,k) = nest_u (l_ni-pil_e  :l_niu,1:l_nj ,k)
@@ -104,8 +100,6 @@
             qt0 (l_ni-pil_e+1:l_ni ,1:l_nj ,k) = nest_q (l_ni-pil_e+1:l_ni ,1:l_nj ,k)
             zdt0(l_ni-pil_e+1:l_ni ,1:l_nj ,k) = nest_zd(l_ni-pil_e+1:l_ni ,1:l_nj ,k)
             F_rhsu (l_ni-pil_e,1+pil_s:l_nj-pil_n,k) = F_invT * nest_u(l_ni-pil_e,1+pil_s:l_nj-pil_n,k)
-            if (k==1) &
-            st0 (l_ni-pil_e+1:l_ni ,1:l_nj) = nest_s (l_ni-pil_e+1:l_ni,1:l_nj)
          endif
          if (l_west) then
             ut0 (1:pil_w, 1:l_nj , k) = nest_u (1:pil_w, 1:l_nj , k)
@@ -115,8 +109,6 @@
             qt0 (1:pil_w, 1:l_nj , k) = nest_q (1:pil_w, 1:l_nj , k)
             zdt0(1:pil_w, 1:l_nj , k) = nest_zd(1:pil_w, 1:l_nj , k)
             F_rhsu (pil_w,1+pil_s:l_nj-pil_n,k) = F_invT * nest_u(pil_w,1+pil_s:l_nj-pil_n,k)
-            if (k==1) &
-            st0 (1:pil_w, 1:l_nj) = nest_s (1:pil_w,1:l_nj)
          endif
       end do
 !!$omp enddo nowait
