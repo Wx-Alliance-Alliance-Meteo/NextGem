@@ -36,7 +36,7 @@
       implicit none
 
       type(gmm_metadata) :: meta
-      integer k,ni,nj,istat
+      integer i,j,k,ni,nj,istat
       integer :: f1,f2,f3,f4, nx1, nx2, ny1, ny2
       real(kind=REAL64) yg_8(G_nj)
 !     __________________________________________________________________
@@ -105,6 +105,7 @@
       if (Ptopo_myrow.eq.Ptopo_npey-2) then
          Sol_jjn = l_nj + min(Sol_ovlpy,ny2)
       endif
+
          
       if (l_west)  Sol_ii0 = 1    + sol_pil_w
       if (l_east)  Sol_iin = l_ni - sol_pil_e
@@ -145,6 +146,27 @@
                  C2(l_minx:l_maxx, l_miny:l_maxy,1:l_nk,1:15),    &
                  C1_bdf(l_minx:l_maxx, l_miny:l_maxy,1:l_nk,1:15),&
                  C2_bdf(l_minx:l_maxx, l_miny:l_maxy,1:l_nk,1:15))!,&
+
+       allocate (matbc_e_8(l_minx:l_maxx, l_miny:l_maxy,1:l_nk),&
+                 matbc_w_8(l_minx:l_maxx, l_miny:l_maxy,1:l_nk),&
+                 matbc_n_8(l_minx:l_maxx, l_miny:l_maxy,1:l_nk),&
+                 matbc_s_8(l_minx:l_maxx, l_miny:l_maxy,1:l_nk))
+
+      !needed for matvec lateral boundary conditions
+      matbc_e_8=1.d0
+      matbc_w_8=1.d0
+      matbc_n_8=1.d0
+      matbc_s_8=1.d0
+      do k=1,l_nk
+        do j=1,l_nj
+         do i=1,l_ni
+            if (l_east .and.i==l_ni-pil_e.and..not.Grd_yinyang_L) matbc_e_8(i,j,k)=0.d0
+            if (l_west .and.i==1+pil_w   .and..not.Grd_yinyang_L) matbc_w_8(i,j,k)=0.d0
+            if (l_south.and.j==1+pil_s   .and..not.Grd_yinyang_L) matbc_s_8(i,j,k)=0.d0
+            if (l_north.and.j==l_nj-pil_n.and..not.Grd_yinyang_L) matbc_n_8(i,j,k)=0.d0
+         enddo
+        enddo
+       enddo
 
        A1=0. ;A2=0. ;B1=0. ;B2=0. ;C1=0. ;C2=0. ;C1_bdf=0. ;C2_bdf=0.
        ni= Sol_iin-Sol_ii0+1
