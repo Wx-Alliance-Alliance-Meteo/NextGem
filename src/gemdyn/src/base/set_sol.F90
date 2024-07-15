@@ -138,15 +138,6 @@
                  thread_s128(1:4,0:OMP_get_max_threads()-1),&
                  thread_s2(1:2,1:sol_im+1,0:OMP_get_max_threads()-1))
          
-       allocate (A1(l_minx:l_maxx, l_miny:l_maxy,1:l_nk,1:15),    &
-                 A2(l_minx:l_maxx, l_miny:l_maxy,1:l_nk,1:15),    &
-                 B1(l_minx:l_maxx, l_miny:l_maxy,1:l_nk,1:15),    &
-                 B2(l_minx:l_maxx, l_miny:l_maxy,1:l_nk,1:15),    &
-                 C1(l_minx:l_maxx, l_miny:l_maxy,1:l_nk,1:15),    &
-                 C2(l_minx:l_maxx, l_miny:l_maxy,1:l_nk,1:15),    &
-                 C1_bdf(l_minx:l_maxx, l_miny:l_maxy,1:l_nk,1:15),&
-                 C2_bdf(l_minx:l_maxx, l_miny:l_maxy,1:l_nk,1:15))!,&
-
        allocate (matbc_e_8(l_minx:l_maxx, l_miny:l_maxy,1:l_nk),&
                  matbc_w_8(l_minx:l_maxx, l_miny:l_maxy,1:l_nk),&
                  matbc_n_8(l_minx:l_maxx, l_miny:l_maxy,1:l_nk),&
@@ -168,7 +159,6 @@
         enddo
        enddo
 
-       A1=0. ;A2=0. ;B1=0. ;B2=0. ;C1=0. ;C2=0. ;C1_bdf=0. ;C2_bdf=0.
        ni= Sol_iin-Sol_ii0+1
        nj= Sol_jjn-Sol_jj0+1
        allocate (fdg(ni,nj,l_nk),w2_8(ni,nj,l_nk),w3_8(ni,nj,l_nk))

@@ -37,8 +37,6 @@
                  HLT_np, HLT_start, HLT_end
       integer :: i, j, k, kn, km, kp, n
       integer :: i0,in,j0,jn
-      real(kind=REAL64)  :: r1, aa1, aa2, aa3, bb1, bb2, bb3, cc1,&
-                 S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15
       real(kind=REAL64), parameter :: half=0.5d0, zero_k_8=0.d0
       integer(kind=8) :: a,b
 !

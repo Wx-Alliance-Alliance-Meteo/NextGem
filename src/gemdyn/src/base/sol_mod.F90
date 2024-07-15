@@ -34,8 +34,6 @@ module sol_mem
    real(kind=REAL64),dimension(:,:,:  ), allocatable :: work_space,thread_s2,fdg,w2_8,w3_8
    real(kind=REAL128),dimension(:,:   ), allocatable :: thread_s128
    real(kind=REAL64),dimension(:,:,:,:), contiguous, pointer :: vv, wint_8
-   real(kind=REAL64),dimension(:,:,:,:), allocatable :: A1,A2,B1,B2,C1,C2
-   real(kind=REAL64),dimension(:,:,:,:), allocatable :: C1_bdf, C2_bdf
    real(kind=REAL64),dimension(:,:,:)  , allocatable :: matbc_e_8, matbc_w_8,&
                                                         matbc_n_8, matbc_s_8, matbc_k_8
    real             ,dimension (:,:,: ), allocatable :: fdg2,ext_q
