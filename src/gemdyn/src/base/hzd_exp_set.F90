@@ -38,6 +38,10 @@
       Hzd_pwr_theta= Hzd_pwr_theta / 2
       Hzd_pwr_theta= min(max(2,Hzd_pwr_theta*2),8)
 
+      Hzd_lnr_wzd= min(max(0.,Hzd_lnr_wzd),0.9999999)
+      Hzd_pwr_wzd= Hzd_pwr_wzd / 2
+      Hzd_pwr_wzd= min(max(2,Hzd_pwr_wzd*2),8)
+
       if (Hzd_lnr_tr < 0.) Hzd_lnr_tr = Hzd_lnr
       if (Hzd_pwr_tr < 0 ) Hzd_pwr_tr = Hzd_pwr
       Hzd_lnr_tr = min(max(0.,Hzd_lnr_tr),0.9999999)
@@ -56,8 +60,6 @@
       end if
 
       call hzd_exp_geom ()
-
-      call hzd_exp5p_set ()
 
  1002 format(/,'INITIALIZATING HIGH ORDER HORIZONTAL DIFFUSION ',  &
                '(S/R HZD_SET)',/,60('='))

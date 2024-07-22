@@ -64,7 +64,7 @@ module adz_mem
       type(ADZ_TYPE_SV_R8) :: Adz_zxabcde_8, Adz_zaxbcde_8, Adz_zbxacde_8, &
                               Adz_zcxabde_8, Adz_zdxabce_8, Adz_zexabcd_8
 
-      type(C_PTR) :: Adz_cpntr_q,Adz_cpntr_t
+      type(C_PTR) :: Adz_cpntr_qp,Adz_cpntr_q,Adz_cpntr_t
 
       type Adz_pntr_stack
          real, dimension(:,:,:), pointer :: src,dst,pil
@@ -87,21 +87,12 @@ module adz_mem
 
       !2. holds departure point, like adz_pxyzm
       real, pointer, dimension (:,:,:,:), contiguous  :: Adz_pxyzd=>null()
-      real, pointer, dimension (:,:,:,:), contiguous  :: Adz_midpt=>null()
 
       !3. holds departure point, like adz_wpxyz
       real(kind=REAL64), pointer, dimension (:,:,:,:) :: Adz_dpxyz=>null()
 
       !4. holds previous mid and departure point; used for stopping criteria
       real(kind=REAL64), pointer, dimension (:,:,:,:) :: Adz_prev_mid=>null()
-      real(kind=REAL64), pointer, dimension (:,:,:,:) :: Adz_prev_dep=>null()
-
-      !5. holds new stopping criteria for mid and departure points
-      real(kind=REAL64), pointer, dimension (:,:,:,:) :: Adz_mid_stop=>null()
-      real(kind=REAL64), pointer, dimension (:,:,:,:) :: Adz_dep_stop=>null()
-
-
-      !-----------------------------
 
       real, allocatable, dimension (:,:,:,:) :: Adz_uvw_dep,   &
                          Adz_pm,Adz_pmu,Adz_pmv,Adz_pt,Adz_pb, &

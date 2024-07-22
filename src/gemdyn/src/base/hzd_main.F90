@@ -16,6 +16,7 @@
 !**s/r hzd_main - Main controler for horizontal diffusion
 
       subroutine hzd_main
+      use dyn_fisl_options
       use glb_ld
       use gmm_vt1
       use ens_gmm_var
@@ -32,8 +33,7 @@
       implicit none
 
       logical switch_on_UVW, switch_on_TR, switch_on_vrtspng, &
-              switch_on_eqspng, switch_on_THETA
-      logical xch_UV,xch_TT,xch_TR,xch_WZD
+              switch_on_eqspng, switch_on_THETA, switch_on_WZD
       integer i,n
 !
 !-------------------------------------------------------------------
@@ -42,13 +42,7 @@
 
       call gtmg_start (60, 'HZD_main', 1 )
 
-      xch_UV = .false.
-      xch_TT = .false.
-      xch_TR = .false.
-      xch_WZD= .false.
       if (ens_conf) then
-          xch_UV = .true.
-          xch_TT = .true.
          ! Save ut1,vt1 for SKEB (ens_markov_main)
          difut1 = ut1
          difvt1 = vt1
@@ -56,6 +50,7 @@
       switch_on_UVW     = Hzd_lnr       > 0.
       switch_on_TR      =(Hzd_lnr_tr    > 0.) .and. any(Tr3d_hzd)
       switch_on_THETA   = Hzd_lnr_theta > 0.
+      switch_on_WZD     = Hzd_lnr_wzd   > 0.
       switch_on_vrtspng =(Vspng_nk      >=1 ) .and. (Vspng_niter>0)
       switch_on_eqspng  = Eq_nlev       > 1
 
@@ -65,7 +60,6 @@
 
       if ( switch_on_THETA ) then
          call gtmg_start (61, 'HZD_theta', 60)
-         xch_TT = .true.
          call hzd_theta ()
          call gtmg_stop (61)
       end if
@@ -76,7 +70,6 @@
 
       if ( switch_on_TR ) then
          call gtmg_start (62, 'HZD_tracers', 60)
-         xch_TR = .true.
          do i=1, Tr3d_ntr
             if (Tr3d_hzd(i)) then
                call hzd_exp_deln (tracers_P(i)%pntr, Hzd_pwr_tr,&
@@ -92,21 +85,19 @@
 
       if ( switch_on_UVW ) then
          call gtmg_start (64, 'HZD_bkgrnd', 60)
-         xch_UV = .true.
-         xch_TT = .true.
-         xch_WZD= .true.
          call hzd_exp_deln ( wt1, Hzd_pwr, Hzd_lnR, WS1,&
                              l_minx,l_maxx,l_miny,l_maxy,4*G_nk)
          call gtmg_stop (64)
       end if
-
+      if ( switch_on_WZD ) then
+         call hzd_exp_deln ( wt1, Hzd_pwr_wzd, Hzd_lnR_wzd, WS1,&
+                             l_minx,l_maxx,l_miny,l_maxy,2*G_nk)
+      endif
+        
 !********************
 !  Vertical sponge  *
 !********************
 
-      xch_UV = xch_UV  .or. switch_on_vrtspng .or. switch_on_eqspng
-      xch_TT = xch_TT  .or. switch_on_vrtspng
-      xch_WZD= xch_WZD .or. switch_on_vrtspng
       if ( switch_on_vrtspng ) then
          call gtmg_start (65, 'V_SPNG', 60)
          call hzd_lid_sponge ()

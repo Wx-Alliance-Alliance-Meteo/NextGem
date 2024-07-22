@@ -18,6 +18,7 @@ module dyn_fisl_options
    public
    save
 
+   logical :: SL_sfc  = .true.
    logical :: EZ_newsol = .false.
    logical :: Euler_step_one = .true.
       

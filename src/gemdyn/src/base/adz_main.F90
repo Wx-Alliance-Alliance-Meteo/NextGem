@@ -25,6 +25,7 @@
       use gem_options
       use adz_mem
       use adz_interp_hlt_mod
+      use SL_interp_mod
       use dynkernel_options
       use mem_tstp
       use gmm_vt1
@@ -61,8 +62,13 @@
 
       stack(1)%src => rhsc_bdf_t1
       stack(1)%dst => rhsc_mid
-      call adz_tricub_hlt ( stack,1,Adz_pm ,Adz_cpntr_q,Adz_num_q,&
-                            Adz_i0,Adz_in,Adz_j0,Adz_jn,Adz_k0 )
+      if (SL_sfc) then
+         call SL_interp ( stack,1, Adz_pm ,Adz_cpntr_q, Adz_num_q,&
+            Adz_i0,Adz_in,Adz_j0,Adz_jn,1,l_nk+1,F_Quint_L=.true. )
+      else
+         call adz_tricub_hlt ( stack,1,Adz_pm ,Adz_cpntr_q,Adz_num_q,&
+                               Adz_i0,Adz_in,Adz_j0,Adz_jn,Adz_k0 )
+      endif
 
       stack(1)%src => rhst_bdf_t1 
       stack(1)%dst => rhst_mid
@@ -87,9 +93,14 @@
 
       stack(1)%src => rhsc_bdf_t2
       stack(1)%dst => rhsc_dep
-      call adz_tricub_hlt ( stack,1,Adz_dep ,Adz_cpntr_q,Adz_num_q,&
-                            Adz_i0,Adz_in,Adz_j0,Adz_jn,Adz_k0 )
-
+      if (SL_sfc) then
+         call SL_interp ( stack,1, Adz_dep ,Adz_cpntr_q, Adz_num_q,&
+              Adz_i0,Adz_in,Adz_j0,Adz_jn,1,l_nk+1,F_Quint_L=.true. )
+      else
+         call adz_tricub_hlt ( stack,1,Adz_dep ,Adz_cpntr_q,Adz_num_q,&
+                              Adz_i0,Adz_in,Adz_j0,Adz_jn,Adz_k0 )
+      endif
+                           
       stack(1)%src => rhst_bdf_t2
       stack(1)%dst => rhst_dep
       stack(2)%src => rhsf_bdf_t2

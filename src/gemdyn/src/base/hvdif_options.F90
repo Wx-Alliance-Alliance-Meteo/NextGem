@@ -35,6 +35,11 @@ module hvdif_options
    real :: Hzd_lnR_tr = -1.
    namelist /hvdif  / Hzd_lnr_tr
    namelist /hvdif_p/ Hzd_lnr_tr
+      
+   !# Vertical motion 2 delta-x removal ratio - range(0.0-1.0)
+   real :: Hzd_lnR_wzd = -1.
+   namelist /hvdif  / Hzd_lnr_wzd
+   namelist /hvdif_p/ Hzd_lnr_wzd
 
    !# Order of the background diffusion operator
    !# 2, 4, 6, 8
@@ -52,6 +57,11 @@ module hvdif_options
    integer :: Hzd_pwr_tr = -1
    namelist /hvdif  / Hzd_pwr_tr
    namelist /hvdif_p/ Hzd_pwr_tr
+
+   !# Order of the background diffusion operator on vertical motion
+   integer :: Hzd_pwr_wzd = -1
+   namelist /hvdif  / Hzd_pwr_wzd
+   namelist /hvdif_p/ Hzd_pwr_wzd
 
    !# Main Smagorinsky control parameter (usual range 0.1-0.3)
    real :: Hzd_smago_param= -1.

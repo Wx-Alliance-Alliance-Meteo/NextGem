@@ -44,25 +44,18 @@
                Adz_prev_mid(i,j,k,1) = 0.d0
                Adz_prev_mid(i,j,k,2) = 0.d0
                Adz_prev_mid(i,j,k,3) = 0.d0
-
-               !initialize previous departure to 0
-               Adz_prev_dep(i,j,k,1) = 0.d0
-               Adz_prev_dep(i,j,k,2) = 0.d0
-               Adz_prev_dep(i,j,k,3) = 0.d0
-
-               !initialize new stopping criteria to 0
-               Adz_mid_stop(i,j,k,1) = 0.d0
-               Adz_mid_stop(i,j,k,2) = 0.d0
-               Adz_mid_stop(i,j,k,3) = 0.d0
-           
-               Adz_dep_stop(i,j,k,1) = 0.d0
-               Adz_dep_stop(i,j,k,2) = 0.d0
-               Adz_dep_stop(i,j,k,3) = 0.d0
-
             end do
          end do
       end do
 !!$omp end do
+      do j = 1, l_nj
+         do i = 1, l_ni
+            Adz_wpxyz(i,j,l_nk+1,1) = i + l_i0 - 1
+            Adz_wpxyz(i,j,l_nk+1,2) = j + l_j0 - 1
+            Adz_wpxyz(i,j,l_nk+1,3) = k
+         end do
+      end do
+      
 !
 !---------------------------------------------------------------------
 !

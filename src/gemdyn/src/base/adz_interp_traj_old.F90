@@ -13,8 +13,7 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
 
-      subroutine adz_interp_traj (F_dtzD_8, F_dtzA_8, F_dt_8)
-      use dyn_fisl_options
+      subroutine adz_interp_traj_old (F_dtzD_8, F_dtzA_8, F_dt_8)
       use adz_mem
       use adz_options
       use glb_ld
@@ -35,11 +34,6 @@
 !
 !---------------------------------------------------------------------
 !
-      if (.not.SL_sfc) then
-         call adz_interp_traj_old (F_dtzD_8, F_dtzA_8, F_dt_8)
-         return
-      endif
-      
       zmin_bound = dble(0)
       zmax_bound = dble(l_nk+1)
       k00=max(Adz_k0t-1,1)
@@ -84,7 +78,7 @@
 !!$omp enddo nowait
 
 !!$omp do collapse(2)
-      do k= max(k00,2), l_nk-1
+      do k= max(k00,2), l_nk-2
          do j= Adz_j0b, Adz_jnb
             do i= Adz_i0b, Adz_inb
                xt = adz_vw1t(k)*Adz_wpxyz(i,j,k-1,1)+ &
@@ -95,11 +89,12 @@
                     adz_vw2t(k)*Adz_wpxyz(i,j,k  ,2)+ &
                     adz_vw3t(k)*Adz_wpxyz(i,j,k+1,2)+ &
                     adz_vw4t(k)*Adz_wpxyz(i,j,k+2,2)
-               wdt= adz_vw1t(k)*Adz_wpxyz(i,j,k-1,3)+ &
-                    adz_vw2t(k)*Adz_wpxyz(i,j,k  ,3)+ &
-                    adz_vw3t(k)*Adz_wpxyz(i,j,k+1,3)+ &
-                    adz_vw4t(k)*Adz_wpxyz(i,j,k+2,3)
-               zt = Ver_z_8%t(k) - wdt
+               wdt= adz_vw1t(k)*Adz_uvw_dep(3,i,j,k-1)+ &
+                    adz_vw2t(k)*Adz_uvw_dep(3,i,j,k  )+ &
+                    adz_vw3t(k)*Adz_uvw_dep(3,i,j,k+1)+ &
+                    adz_vw4t(k)*Adz_uvw_dep(3,i,j,k+2)
+               zt = Ver_z_8%t(k) - F_dtzD_8*  wdt &
+                                 - F_dtzA_8* zdt0(i,j,k)
                Adz_pb(1,i,j,k)= min(max(xt,Adz_iminposx),Adz_imaxposx)
                Adz_pb(2,i,j,k)= min(max(yt,Adz_iminposy),Adz_imaxposy)
                Adz_pb(3,i,j,k)= zindx(zt)
@@ -108,20 +103,23 @@
       end do
 !!$omp enddo nowait
 
-      k= l_nk
+      k= l_nk-1
 !!$omp do
       do j= Adz_j0b, Adz_jnb
          do i= Adz_i0b, Adz_inb
             xt = (Adz_wpxyz(i,j,k,1)+Adz_wpxyz(i,j,k+1,1))*half
             yt = (Adz_wpxyz(i,j,k,2)+Adz_wpxyz(i,j,k+1,2))*half
-            wdt= (Adz_wpxyz(i,j,k,3)+Adz_wpxyz(i,j,k+1,3))*half
-            zt =Ver_z_8%t(k) - wdt
+            wdt= (Adz_uvw_dep(3,i,j,k)+Adz_uvw_dep(3,i,j,k+1))*half
+            zt =Ver_z_8%t(k) - F_dtzD_8*  wdt &
+                             - F_dtzA_8*zdt0(i,j,k)
             Adz_pb(1,i,j,k)= min(max(xt,Adz_iminposx),Adz_imaxposx)
             Adz_pb(2,i,j,k)= min(max(yt,Adz_iminposy),Adz_imaxposy)
             Adz_pb(3,i,j,k)= zindx(zt)
          end do
       end do
-!!$omp enddo
+!!$omp enddo nowait
+
+      k= l_nk
       if (Adz_slt_winds) then
 !!$omp do
          do j= Adz_j0b, Adz_jnb
@@ -134,8 +132,29 @@
                Adz_pb(2,i,j,k)= min(max(yt,Adz_iminposy),Adz_imaxposy)
             end do
          end do
+!!$omp enddo nowait
+      else
+!!$omp do collapse(2)
+         do j= Adz_j0b, Adz_jnb
+            do i= Adz_i0b, Adz_inb
+               xt = wp*Adz_wpxyz(i,j,k,1)+wm*Adz_wpxyz(i,j,k-1,1)
+               yt = wp*Adz_wpxyz(i,j,k,2)+wm*Adz_wpxyz(i,j,k-1,2)
+               Adz_pb(1,i,j,k)= min(max(xt,Adz_iminposx),Adz_imaxposx)
+               Adz_pb(2,i,j,k)= min(max(yt,Adz_iminposy),Adz_imaxposy)
+            end do
+         end do
+!!$omp enddo nowait
+      end if
+!!$omp do
+      do j= Adz_j0b, Adz_jnb
+         do i= Adz_i0b, Adz_inb
+            wdt= (Adz_uvw_dep(3,i,j,k-1)+Adz_uvw_dep(3,i,j,k))*half
+            zt = Ver_z_8%t(k) - ww*(F_dtzD_8*  wdt &
+                                  + F_dtzA_8*zdt0(i,j,k-1))
+            Adz_pb(3,i,j,k)= zindx(zt)
+         end do
+      end do
 !!$omp enddo
-      endif
       
       if (k00==1) then
 !!$omp do
@@ -143,11 +162,9 @@
             do i= Adz_i0b, Adz_inb
                xt = (Adz_wpxyz(i,j,1,1 )+Adz_wpxyz (i,j,2,1))*half
                yt = (Adz_wpxyz(i,j,1,2 )+Adz_wpxyz (i,j,2,2))*half
-               wdt= (Adz_wpxyz(i,j,1,3 )+Adz_wpxyz (i,j,2,3))*half
-!               wdt= (Adz_uvw_dep(3,i,j,1)+Adz_uvw_dep(3,i,j,2))*half
-               zt = Ver_z_8%t(1) - wdt
-!               zt = Ver_z_8%t(1) - F_dtzD_8*wdt &
-!                                 - F_dtzA_8*zdt0(i,j,1)
+               wdt= (Adz_uvw_dep(3,i,j,1)+Adz_uvw_dep(3,i,j,2))*half
+               zt = Ver_z_8%t(1) - F_dtzD_8*wdt &
+                                 - F_dtzA_8*zdt0(i,j,1)
                Adz_pb(1,i,j,1)= min(max(xt,Adz_iminposx),Adz_imaxposx)
                Adz_pb(2,i,j,1)= min(max(yt,Adz_iminposy),Adz_imaxposy)
                Adz_pb(3,i,j,1)= zindx(zt)
@@ -186,5 +203,5 @@ contains
       return
       end function zindx
 
-      end subroutine adz_interp_traj
+      end subroutine adz_interp_traj_old
 

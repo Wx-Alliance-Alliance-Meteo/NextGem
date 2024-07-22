@@ -27,7 +27,7 @@
       cfl_8= 0.d0 ; cfl_i= 0
 
       call adz_courant (Adz_wpxyz, Adz_i0,Adz_in,Adz_j0,Adz_jn, &
-                        -1,l_ni+2,-1,l_nj+2,Adz_k0,l_nk,cfl_i,cfl_8)
+                        -1,l_ni+2,-1,l_nj+2,Adz_k0,ubound(Adz_wpxyz,3),cfl_i,cfl_8)
 
       if (lun_out > 0) write (output_unit,99) 'x,y',cfl_i(1,1),cfl_i(2,1), &
                                           cfl_i(3,1),sngl(cfl_8(1))
@@ -82,7 +82,7 @@
       jmax = 0
       kmax = 0
       max_cfl_8 = 0.D0
-      do k=k0,F_nk
+      do k=k0,F_nk-1
          do j=j0,jn
             do i=i0,in
                  x_cfl= abs(F_xyz(i,j,k,1)-l_i0+1-dble(i))

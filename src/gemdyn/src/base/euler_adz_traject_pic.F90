@@ -32,7 +32,7 @@
       integer, intent(IN) :: itpc
 
       include "tricublin_f90.inc"
-      integer :: iter,i,j,k,kk1,nb,k00
+      integer :: iter,i,j,k,kk1,nb,k00,dim
       integer :: HLT_np, HLT_start, HLT_end
       integer,dimension(l_ni) :: kk
       real(kind=REAL64) :: dtA_8,dtzA_8,dtD_8,dtzD_8,half_dt_8,double_dt_8,pos
@@ -139,13 +139,16 @@
       end do
 !!$omp enddo nowait
 
-      call HLT_split (1, 3*l_nk, HLT_np, HLT_start, HLT_end)
+      dim=3*ubound(Adz_wpxyz,3)
+      call HLT_split (1, dim, HLT_np, HLT_start, HLT_end)
       Cpntr= c_loc( Adz_wpxyz(-1,-1,1,1) )
-      call C_F_POINTER ( Cpntr, xchg, [(l_ni+4)*(l_nj+4),3*l_nk] )
+      call C_F_POINTER ( Cpntr, xchg, [(l_ni+4)*(l_nj+4),dim] )
       call gem_xch_halo_8 ( xchg(1,HLT_start),&
                     -1,l_ni+2,-1,l_nj+2, HLT_np,-1)      
+      dim=3*ubound(Adz_dpxyz,3)
+      call HLT_split (1, dim, HLT_np, HLT_start, HLT_end)
       Cpntr= c_loc( Adz_dpxyz(-1,-1,1,1) )
-      call C_F_POINTER ( Cpntr, xchg, [(l_ni+4)*(l_nj+4),3*l_nk] )
+      call C_F_POINTER ( Cpntr, xchg, [(l_ni+4)*(l_nj+4),dim] )
       call gem_xch_halo_8 ( xchg(1,HLT_start),&
                     -1,l_ni+2,-1,l_nj+2, HLT_np,-1)      
 

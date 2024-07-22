@@ -115,6 +115,8 @@
       Adz_kkmax= l_nk-2
 
       if (ADZ_OD_L) then
+         Adz_cpntr_qp= vsearch_setup_plus(Ver_z_8%m(1:G_nk+1), G_nk+1,&
+                    l_maxx-l_minx+1,l_maxy-l_miny+1,1-l_i0,1-l_j0)
          Adz_cpntr_q= vsearch_setup_plus(Ver_z_8%m(1:G_nk), G_nk,&
                     l_maxx-l_minx+1,l_maxy-l_miny+1,1-l_i0,1-l_j0)
          Adz_cpntr_t= vsearch_setup_plus(Ver_z_8%t(1:G_nk), G_nk,&
@@ -253,6 +255,9 @@
       allocate( Adz_zabcd_8%t(l_nk),Adz_zbacd_8%t(l_nk),Adz_zcabd_8%t(l_nk),Adz_zdabc_8%t(l_nk))
       allocate( Adz_zxabcde_8%t(l_nk),Adz_zaxbcde_8%t(l_nk),Adz_zbxacde_8%t(l_nk),&
                 Adz_zcxabde_8%t(l_nk),Adz_zdxabce_8%t(l_nk),Adz_zexabcd_8%t(l_nk))
+      allocate( Adz_zabcd_8%m(l_nk),Adz_zbacd_8%m(l_nk),Adz_zcabd_8%m(l_nk),Adz_zdabc_8%m(l_nk))
+      allocate( Adz_zxabcde_8%m(l_nk),Adz_zaxbcde_8%m(l_nk),Adz_zbxacde_8%m(l_nk),&
+                Adz_zcxabde_8%m(l_nk),Adz_zdxabce_8%m(l_nk),Adz_zexabcd_8%m(l_nk))
 
       do k=2, l_nk-2
          rx = Ver_z_8%t(k)
@@ -276,6 +281,14 @@
          Adz_zbacd_8%t(k) = 1.0/triprod(rb,ra,rc,rd)
          Adz_zcabd_8%t(k) = 1.0/triprod(rc,ra,rb,rd)
          Adz_zdabc_8%t(k) = 1.0/triprod(rd,ra,rb,rc)
+         ra = Ver_z_8%m(k-1)
+         rb = Ver_z_8%m(k)
+         rc = Ver_z_8%m(k+1)
+         rd = Ver_z_8%m(k+2)
+         Adz_zabcd_8%m(k) = 1.0/triprod(ra,rb,rc,rd)
+         Adz_zbacd_8%m(k) = 1.0/triprod(rb,ra,rc,rd)
+         Adz_zcabd_8%m(k) = 1.0/triprod(rc,ra,rb,rd)
+         Adz_zdabc_8%m(k) = 1.0/triprod(rd,ra,rb,rc)
       end do
 
       do k = 3,l_nk-3
@@ -291,6 +304,18 @@
          Adz_zcxabde_8%t(k) = 1.0/quiprod(rc,rx,ra,rb,rd,re)
          Adz_zdxabce_8%t(k) = 1.0/quiprod(rd,rx,ra,rb,rc,re)
          Adz_zexabcd_8%t(k) = 1.0/quiprod(re,rx,ra,rb,rc,rd)
+         rx = Ver_z_8%m(k-2)
+         ra = Ver_z_8%m(k-1)
+         rb = Ver_z_8%m(k)
+         rc = Ver_z_8%m(k+1)
+         rd = Ver_z_8%m(k+2)
+         re = Ver_z_8%m(k+3)
+         Adz_zxabcde_8%m(k) = 1.0/quiprod(rx,ra,rb,rc,rd,re)
+         Adz_zaxbcde_8%m(k) = 1.0/quiprod(ra,rx,rb,rc,rd,re)
+         Adz_zbxacde_8%m(k) = 1.0/quiprod(rb,rx,ra,rc,rd,re)
+         Adz_zcxabde_8%m(k) = 1.0/quiprod(rc,rx,ra,rb,rd,re)
+         Adz_zdxabce_8%m(k) = 1.0/quiprod(rd,rx,ra,rb,rc,re)
+         Adz_zexabcd_8%m(k) = 1.0/quiprod(re,rx,ra,rb,rc,rd)
       end do
 
       allocate (Adz_uu_arr(l_ni,l_nj,l_nk), Adz_vv_arr   (l_ni,l_nj,l_nk),&
@@ -366,9 +391,6 @@
       Adz_uu_ext(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk) => Adz_winds_ext(1:)
       Adz_vv_ext(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk) => Adz_winds_ext(Adz_nij*l_nk  +1:)
       Adz_ww_ext(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk) => Adz_winds_ext(Adz_nij*l_nk*2+1:)
-   !   Adz_uu_dep_ext(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk) => Adz_winds_ext(Adz_nij*l_nk*3+1:)
-   !   Adz_vv_dep_ext(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk) => Adz_winds_ext(Adz_nij*l_nk*4+1:)
-   !   Adz_ww_dep_ext(Adz_lminx:Adz_lmaxx,Adz_lminy:Adz_lmaxy,1:l_nk) => Adz_winds_ext(Adz_nij*l_nk*5+1:)
 
       call gmm_build_meta4D (meta,  1,3   ,0,0,   3, &
                                     1,l_ni,0,0,l_ni, &
@@ -378,7 +400,15 @@
       mymeta= SET_GMMUSR_FLAG(meta, flag_m_f)
       istat= gmm_create('ADZ_PXYZM',Adz_pxyzm, mymeta, flag_r_n)
       istat= gmm_create('ADZ_PXYZD',Adz_pxyzd, mymeta, flag_r_n) !<--for departure
-      istat= gmm_create('ADZ_MIDPT',Adz_midpt, mymeta, flag_r_n) !<--for implicit midpoint
+      
+      call gmm_build_meta4D (meta,  -1,l_ni+2,0,0,l_ni+4, &
+                                    -1,l_nj+2,0,0,l_nj+4, &
+                                    1,l_nk+1,0,0,l_nk+1, &
+                                    1,3   ,0,0,   3, &
+                                    0,GMM_NULL_FLAGS)
+      mymeta= SET_GMMUSR_FLAG(meta, flag_m_f)
+      istat= gmm_create('ADZ_WPXYZ',Adz_wpxyz, mymeta, flag_r_n)
+
       
       call gmm_build_meta4D (meta,  -1,l_ni+2,0,0,l_ni+4, &
                                     -1,l_nj+2,0,0,l_nj+4, &
@@ -386,9 +416,6 @@
                                     1,3   ,0,0,   3, &
                                     0,GMM_NULL_FLAGS)
       mymeta= SET_GMMUSR_FLAG(meta, flag_m_f)
-      istat= gmm_create('ADZ_WPXYZ',Adz_wpxyz, mymeta, flag_r_n)
-
-      
       !for displacement array in trajectories
       istat= gmm_create('ADZ_DISP',Adz_disp, mymeta, flag_r_n)
 
@@ -397,11 +424,6 @@
 
       !for previous midpoint and departure estimate
       istat= gmm_create('ADZ_PREV_MID',Adz_prev_mid, mymeta, flag_r_n)
-      istat= gmm_create('ADZ_PREV_DEP',Adz_prev_dep, mymeta, flag_r_n)
-
-      !for new stopping criteria
-      istat= gmm_create('ADZ_MID_STOP',Adz_mid_stop, mymeta, flag_r_n)
-      istat= gmm_create('ADZ_DEP_STOP',Adz_dep_stop, mymeta, flag_r_n)
  
       call gmm_build_meta3D (meta,  1,l_ni,0,0,l_ni, &
                                     1,l_nj,0,0,l_nj, &
