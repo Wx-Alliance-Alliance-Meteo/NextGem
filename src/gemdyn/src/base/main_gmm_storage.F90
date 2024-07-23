@@ -103,6 +103,7 @@
       
       allocate (Nuu(l_minx:l_maxx,l_miny:l_maxy,1:l_nk))
       allocate (Nvv(l_minx:l_maxx,l_miny:l_maxy,1:l_nk))
+      Nuu= 0. ; Nvv= 0.
 
       !---for interpolated rhs values at midpoint
       allocate (rhs_mid(6*dim)) ; rhs_mid= 0.

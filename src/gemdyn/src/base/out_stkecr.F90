@@ -66,6 +66,8 @@
       !      allocate (wk_glb(G_ni,G_nj,nz)) ; wk_glb=0. !to short-circuit the collector
             wk(1:nis,1:njs,1:nz) = wk_glb(g_id:g_if,g_jd:g_jf,1:nz)
             deallocate (wk_glb)
+         else
+            allocate (wk(1,1,1))
          end if
 
          allocate (vec1(nis*njs,1),vec2(nis*njs,2))
