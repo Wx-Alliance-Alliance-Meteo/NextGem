@@ -132,7 +132,7 @@
                )&
                !<Dx[q]>^(x)*Dx(ln(Jz))
               +half*GVM%mc_Ix_8(i,j,k)*geomh_invDX_8(j)*( (fdg2(i+1,j,k)-fdg2(i  ,j,k))*matbc_e_8(i,j,k) &
-                                                         -(fdg2(i,j,k)  -fdg2(i-1,j,k))*matbc_w_8(i,j,k) &
+                                                         +(fdg2(i,j,k)  -fdg2(i-1,j,k))*matbc_w_8(i,j,k) &
                )&
                !-<Jx*<Jz^(-1)*Dz[q]>^(xz)>^(x)*Dx(ln(Jz))
               -GVM%mc_Ix_8(i,j,k)*(&
@@ -239,7 +239,7 @@
                )&
                !<Dx[q]>^(x)*Dx(ln(Jz))
               +half*GVM%mc_Ix_8(i,j,k)*geomh_invDX_8(j)*( (fdg2(i+1,j,k)-fdg2(i  ,j,k))*matbc_e_8(i,j,k) &
-                                                         -(fdg2(i,j,k)  -fdg2(i-1,j,k))*matbc_w_8(i,j,k) &
+                                                         +(fdg2(i,j,k)  -fdg2(i-1,j,k))*matbc_w_8(i,j,k) &
                )&
                !-<Jx*<Jz^(-1)*Dz[q]>^(xz)>^(x)*Dx(ln(Jz))
               -GVM%mc_Ix_8(i,j,k)*(&
