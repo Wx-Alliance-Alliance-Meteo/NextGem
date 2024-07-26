@@ -46,11 +46,6 @@
 !
 !     ---------------------------------------------------------------
 !
-!!$      if (EZ_newsol) then
-!!$         call ez_elliptic_rhs ( F_dt_8, k0, k0t )
-!!$         return
-!!$      endif
-      
       i0= 1   +pil_w
       in= l_ni-pil_e
       j0= 1   +pil_s

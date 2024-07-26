@@ -19,7 +19,6 @@ module dyn_fisl_options
    save
 
    logical :: SL_sfc  = .true.
-   logical :: EZ_newsol = .false.
    logical :: Euler_step_one = .true.
       
    !# T* basic state temperature (K)

@@ -128,36 +128,25 @@
 
        allocate (gg(1:sol_im+1),rot_cos(1:sol_im+1), rot_sin(1:sol_im+1), IPIV_arr(1:sol_im+1))
        allocate (v_lcl_sum(1:sol_im+1,1:2),rr(1:sol_im+1,1:sol_im+1),&
-                 tt(1:sol_im+1,1:sol_im+1), hessenberg(1:sol_im+1, 1:sol_im),&
-                 N_mat(1:sol_im+1,1:sol_im+1), M_mat(1:sol_im+1, 1:sol_im+1),&
-                 T_mat1(1:sol_im+1,1:sol_im+1))
+                 tt(1:sol_im+1,1:sol_im+1), hessenberg(1:sol_im+1, 1:sol_im))!,&
+                ! N_mat(1:sol_im+1,1:sol_im+1), M_mat(1:sol_im+1, 1:sol_im+1),&
+                ! T_mat1(1:sol_im+1,1:sol_im+1))
        allocate (work_space(sol_imin:sol_imax,sol_jmin:sol_jmax,1:l_nk)   ,&
                  vv(sol_imin:sol_imax,sol_jmin:sol_jmax,1:l_nk,1:sol_im+1),&
                  wint_8(sol_ii0:sol_iin,sol_jj0:sol_jjn,1:l_nk,1:sol_im+1))
        allocate (thread_s   (1:4,0:OMP_get_max_threads()-1),&
                  thread_s128(1:4,0:OMP_get_max_threads()-1),&
                  thread_s2(1:2,1:sol_im+1,0:OMP_get_max_threads()-1))
-         
-       allocate (matbc_e_8(l_minx:l_maxx, l_miny:l_maxy,1:l_nk),&
-                 matbc_w_8(l_minx:l_maxx, l_miny:l_maxy,1:l_nk),&
-                 matbc_n_8(l_minx:l_maxx, l_miny:l_maxy,1:l_nk),&
-                 matbc_s_8(l_minx:l_maxx, l_miny:l_maxy,1:l_nk))
 
       !needed for matvec lateral boundary conditions
-      matbc_e_8=1.d0
-      matbc_w_8=1.d0
-      matbc_n_8=1.d0
-      matbc_s_8=1.d0
-      do k=1,l_nk
-        do j=1,l_nj
-         do i=1,l_ni
-            if (l_east .and.i==l_ni-pil_e.and..not.Grd_yinyang_L) matbc_e_8(i,j,k)=0.d0
-            if (l_west .and.i==1+pil_w   .and..not.Grd_yinyang_L) matbc_w_8(i,j,k)=0.d0
-            if (l_south.and.j==1+pil_s   .and..not.Grd_yinyang_L) matbc_s_8(i,j,k)=0.d0
-            if (l_north.and.j==l_nj-pil_n.and..not.Grd_yinyang_L) matbc_n_8(i,j,k)=0.d0
-         enddo
-        enddo
-       enddo
+       allocate (m_west(l_ni),m_east(l_ni),m_south(l_nj),m_north(l_nj))
+       m_west=1.d0 ; m_east=1.d0 ; m_south=1.d0 ; m_north=1.d0
+       if (.not.Grd_yinyang_L) then
+          if (l_west ) m_west(1+pil_w    ) = 0.
+          if (l_east ) m_east(l_ni-pil_e ) = 0.
+          if (l_south) m_south(1+pil_s   ) = 0.
+          if (l_north) m_north(l_nj-pil_n) = 0.
+       endif
 
        ni= Sol_iin-Sol_ii0+1
        nj= Sol_jjn-Sol_jj0+1
@@ -165,12 +154,11 @@
        allocate (ext_q(l_minx:l_maxx,l_miny:l_maxy,0:l_nk+1))
                  
        allocate (fdg2(l_minx:l_maxx,l_miny:l_maxy,l_nk+1))
-       allocate (p1(l_minx:l_maxx), p2(l_minx:l_maxx))
-       p1=0. ; p2=0.
+
        work_space= 0.
        wint_8=0.
        vv= 0.
-       fdg2=0.
+       ext_q=0. ; fdg2=0.
        thread_s= 0.
        thread_s2= 0.
 
