@@ -18,9 +18,13 @@ module dyn_fisl_options
    public
    save
 
-   logical :: SL_sfc  = .true.
    logical :: Euler_step_one = .true.
       
+   !# Add souce level l_nk+1 in qt SL interpolation & trajectories
+   logical :: SL_sfc  = .false.
+   namelist /dyn_fisl  / SL_sfc
+   namelist /dyn_fisl_p/ SL_sfc
+
    !# T* basic state temperature (K)
    real(kind=REAL64) :: Cstv_Tstr_8 = 240.0
    namelist /dyn_fisl  / Cstv_Tstr_8
