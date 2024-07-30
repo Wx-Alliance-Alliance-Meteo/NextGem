@@ -43,7 +43,7 @@
       real(kind=REAL64), intent(IN) :: F_dt_8
       
       logical :: print_conv, first_time_L=.true.
-      integer i,j,k,i0, in, j0, jn, k0, k0t, itpc, iter, io,ni,nj
+      integer i,j,k, itpc, iter, ni,nj
       integer :: HLT_np, HLT_start, HLT_end!HLT_start2, lcl2, HLT_start5, lcl5, HLT_end
       real(kind=REAL64), parameter :: zero=0.d0, one=1.d0
       real(kind=REAL64) :: dt_8, invT_m_8
@@ -60,13 +60,6 @@
       ni=ldnh_maxx-ldnh_minx+1
       nj=ldnh_maxy-ldnh_miny+1
       
-      i0= 1   +pil_w
-      in= l_ni-pil_e
-      j0= 1   +pil_s
-      jn= l_nj-pil_n
-      k0= 1+Lam_gbpil_T
-      k0t=k0
-      if (Schm_opentop_L) k0t=k0-1
       print_conv = (Ptopo_couleur == 0  ) .and. (Lun_out > 0)
 
       dt_8 = F_dt_8
@@ -111,7 +104,7 @@
       
       call oro_adj ()
       
-      call elliptic_rhs (dt_8, k0, k0t)
+      call elliptic_rhs (dt_8, ds_k0, ds_k0)
       
       call gtmg_stop (27)
 
@@ -127,7 +120,7 @@
 
 !10.  Back subtitution; same back sub!
       call gtmg_start (30, 'BAC', 20)
-      call bac (dt_8, i0, j0, k0, in, jn, k0t)
+      call bac (dt_8)
       call gtmg_stop (30)
 
       if (Grd_yinyang_L) then

@@ -51,6 +51,8 @@ module mem_tstp
    public
    save
 
+      integer :: ds_i0, ds_in, ds_j0, ds_jn, ds_k0, ds_kn
+      
       real, allocatable, target, dimension (:) :: LT, var_init
  
       real, allocatable, target, dimension (:) :: rhs_mid
@@ -60,37 +62,32 @@ module mem_tstp
       real, dimension (:,:,:), pointer :: Ruu,Rvv,Rww,Rtt,Rzz
       real, dimension (:,:,:), pointer :: Nuu,Nvv
       
-      real, dimension (:,:,:), pointer :: rhsu,rhsv,rhst,rhsc,  &
-                                          rhsw,rhsf,            &
-                                          rhsu_mid, rhsv_mid,   &
-                                          rhst_mid, rhsf_mid,   &
-                                          rhsw_mid, rhsc_mid,   &
-                                          rhsu_dep, rhsv_dep,   &
-                                          rhst_dep, rhsf_dep,   &
-                                          rhsw_dep, rhsc_dep
+      real, dimension (:,:,:), pointer :: &
+         rhsu,rhsv,rhst,rhsc,rhsw,rhsf                             ,&
+         rhsu_mid, rhsv_mid, rhst_mid, rhsf_mid, rhsw_mid, rhsc_mid,&
+         rhsu_dep, rhsv_dep, rhst_dep, rhsf_dep, rhsw_dep, rhsc_dep
 
-      real, dimension (:,:,:), pointer :: sw_f1, sw_f2, sw_f3, &
-                                          sw_f4, sw_f5, sw_f6, &
-                                          sw_f7, sw_f8, sw_f9, &
-                                          sw_f10, sw_f11, sw_f12
+      real, dimension (:,:,:), pointer :: sw_f1,sw_f2,sw_f3,sw_f4,&
+               sw_f5,sw_f6,sw_f7,sw_f8,sw_f9,sw_f10,sw_f11,sw_f12
                                           
-      real, allocatable,  dimension (:,:,:),target :: orhsu,orhsv,orhst,orhsc,&
-                                                      orhsw,orhsf
+      real, allocatable,  dimension (:,:,:),target :: &
+                    orhsu,orhsv,orhst,orhsc,orhsw,orhsf
 
-      real, allocatable, target, dimension (:) :: orhs_extended, nl_terms,&
-                                                  rhs_bdf
+      real, allocatable, target, dimension (:) :: &
+                   orhs_extended, nl_terms, rhs_bdf
 
       real, dimension (:,:,:), pointer :: orhsu_ext,orhsv_ext,&
-                                  orhst_ext,orhsc_ext,orhsw_ext,orhsf_ext, &
-                                  nlu_t1, nlv_t1, nlw_t1, nlt_t1, nlq_t1,  &
-                                  nlu_t2, nlv_t2, nlw_t2, nlt_t2, nlq_t2,  &
-                                  rhsf_bdf_t1, rhst_bdf_t1, rhsc_bdf_t1,   &
-                                  rhsf_bdf_t2, rhst_bdf_t2, rhsc_bdf_t2, &
-                                  rhsu_bdf_t1, rhsv_bdf_t1, &
-                                  rhsu_bdf_t2, rhsv_bdf_t2, &
-                                  rhsw_bdf_t1, rhsw_bdf_t2
-      real, allocatable,  dimension (:,:,:) :: nl_u,nl_v,nl_t,nl_c,nl_w,nl_f
-      real, allocatable,  dimension (:), target :: WS1
+                      orhst_ext,orhsc_ext,orhsw_ext,orhsf_ext, &
+                      nlu_t1, nlv_t1, nlw_t1, nlt_t1, nlq_t1,  &
+                      nlu_t2, nlv_t2, nlw_t2, nlt_t2, nlq_t2,  &
+                      rhsf_bdf_t1, rhst_bdf_t1, rhsc_bdf_t1,   &
+                      rhsf_bdf_t2, rhst_bdf_t2, rhsc_bdf_t2, &
+                      rhsu_bdf_t1, rhsv_bdf_t1, &
+                      rhsu_bdf_t2, rhsv_bdf_t2, &
+                      rhsw_bdf_t1, rhsw_bdf_t2
+      real, allocatable,  dimension (:,:,:) :: &
+                   nl_u,nl_v,nl_t,nl_c,nl_w,nl_f
+      real             , allocatable, dimension (:), target :: WS1
       real(kind=REAL64), allocatable, dimension (:), target :: WS1_8
 
 end module mem_tstp

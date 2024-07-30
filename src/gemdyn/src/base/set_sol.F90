@@ -16,6 +16,7 @@
 !**s/r set_sol
 
       subroutine set_sol
+      use gem_options
       use HORgrid_options
       use glb_pil
       use lam_options
@@ -28,6 +29,7 @@
       use sol_options
       use ldnh
       use ptopo
+      use gmm_vt1
       use gmm_table
       use opr
       use prec
@@ -43,12 +45,17 @@
 !
       ni=ldnh_maxx-ldnh_minx+1
       nj=ldnh_maxy-ldnh_miny+1
-      call gmm_build_meta4D (meta,  1,ni,0,0,ni,&
-                             1,nj,0,0,nj,&
-                             1,l_nk,0,0,l_nk,&
+      call gmm_build_meta4D (meta,&
+                             l_minx,l_maxx,G_halox,G_halox,l_ni, &
+                             l_miny,l_maxy,G_haloy,G_haloy,l_nj, &
+                             0,l_nk+1,0,0,l_nk+2,&
                              0,0,0,0,0,0,GMM_NULL_FLAGS)
       istat= gmm_create('SOL_LHS',Sol_lhs,meta, GMM_FLAG_RSTR+GMM_FLAG_IZER)
       gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)='SOL_LHS' ; GMM_tbl%ara(gmm_cnt)='QQ' ; GMM_tbl%cn(gmm_cnt)='MM' ; GMM_tbl%fst(gmm_cnt)='SOLS'
+      do k=1, l_nk+1
+         Sol_lhs(:,:,k)= qt1(:,:,k)
+      end do
+      
       allocate (Sol_rhs(ni,nj,l_nk)) ; Sol_rhs= 0.
          
       if (Lun_out > 0) write (Lun_out,1002) trim(Sol_krylov3D_S), trim(Sol_precond3D_S)

@@ -13,7 +13,7 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
 
-!** matvec - 3D Matrix-vector product subroutine
+!** matvec - 3D Matrix-vector product
 
       subroutine matvec ( F_vector, F_minx,F_maxx,F_miny,F_maxy,&
                           F_prod  , F_i0,F_in,F_j0,F_jn, F_nk )
@@ -26,19 +26,20 @@
       use metric
       use omp_timing
       use sol_mem
+      use mem_tstp
       use tdpack
       use ver
       use, intrinsic :: iso_fortran_env
       implicit none
 
       integer, intent(in) :: F_minx,F_maxx,F_miny,F_maxy,F_i0,F_in,F_j0,F_jn,F_nk
-      real(kind=REAL64), dimension(F_minx:F_maxx,F_miny:F_maxy,F_nk), intent(inout) :: F_vector
-      real(kind=REAL64), dimension(F_i0:F_in,F_j0:F_jn,F_nk), intent(out) :: F_prod
+      real(kind=REAL64), dimension(F_minx:F_maxx,F_miny:F_maxy,F_nk), intent(IN ) :: F_vector
+      real(kind=REAL64), dimension(F_i0:F_in,F_j0:F_jn        ,F_nk), intent(OUT) :: F_prod
 
       integer :: HLT_j0, HLT_jn, HLT_nj, HLT_nk, &
                  HLT_np, HLT_start, HLT_end
       integer :: i, j, k, k0, k0t, km, kp, n
-      integer :: i0,in,j0,jn
+!      integer :: i0,in,j0,jn
       real(kind=REAL64) :: r1(l_ni), r2(l_ni), r3(l_ni), r4(l_ni)
       real(kind=REAL64) :: w1(l_ni),w2(l_ni),w3(l_ni),w4(l_ni),&
           w5(l_ni),w6(l_ni),w7(l_ni),w8(l_ni),w9(l_ni),w10(l_ni)
@@ -49,23 +50,23 @@
 !     ---------------------------------------------------------------
 !
       call gtmg_start (91, 'MATVEC1', 29 )
-!      if (F_minx/=ldnh_minx) then
-         i0 = 1+pil_w ; in = l_ni-pil_e
-         j0 = 1+pil_s ; jn = l_nj-pil_n
-!      else
-!         i0 = 1 ; in = l_ni
-!         j0 = 1 ; jn = l_nj
-!      endif
+!!$!      if (F_minx/=ldnh_minx) then
+!!$         i0 = 1+pil_w ; in = l_ni-pil_e
+!!$         j0 = 1+pil_s ; jn = l_nj-pil_n
+!!$!      else
+!!$!         i0 = 1 ; in = l_ni
+!!$!         j0 = 1 ; jn = l_nj
+!!$!      endif
 
       do k= 1, l_nk
-         do j= j0, jn
-         do i= i0, in
+         do j= ds_j0, ds_jn
+         do i= ds_i0, ds_in
             ext_q(i,j,k)= F_vector(i,j,k)
          end do
          end do
       end do
-      do j= j0, jn
-      do i= i0, in
+      do j= ds_j0, ds_jn
+      do i= ds_i0, ds_in
          r1(i)=  (GVM%zmom_8(i,j,l_nk+1)-GVM%zmom_8(i,j,l_nk))&
              /(GVM%zmom_8(i,j,l_nk)-GVM%zmom_8(i,j,l_nk-1))
          r2(i)= (GVM%zmom_8(i,j,1)-ver_z_8%m(0))/(GVM%zmom_8(i,j,2)-GVM%zmom_8(i,j,1))
@@ -90,13 +91,13 @@
       call gtmg_stop (91)
       call gtmg_start (92, 'MATVEC2', 29 )
        
-      i0 = 1+pil_w ; in = l_ni-pil_e
-      j0 = 1+pil_s ; jn = l_nj-pil_n
+!!$      i0 = 1+pil_w ; in = l_ni-pil_e
+!!$      j0 = 1+pil_s ; jn = l_nj-pil_n
       
       k=1; km=1 ; kp=2
-      do j= j0, jn
+      do j= ds_j0, ds_jn
 !DIR$ SIMD
-         do i= i0, in
+         do i= ds_i0, ds_in
 
             r1(i)= GVM%mc_iJz_8(i,j,k  )*(ext_q(i,j,kp)-ext_q(i,j,k  )) !dqdz (k)
             r3(i)= half*(ext_q(i,j,k)+ext_q(i,j,kp))                    !qbarz(k)
@@ -129,9 +130,9 @@
       end do
       
       do k= 2, l_nk
-         do j= j0, jn
+         do j= ds_j0, ds_jn
 !DIR$ SIMD
-            do i= i0, in
+            do i= ds_i0, ds_in
 
                r1(i)= GVM%mc_iJz_8(i,j,k  )*(ext_q(i,j,k+1)-ext_q(i,j,k  )) !dqdz(k  )
                r2(i)= GVM%mc_iJz_8(i,j,k-1)*(ext_q(i,j,k  )-ext_q(i,j,k-1)) !dqdz(k-1)

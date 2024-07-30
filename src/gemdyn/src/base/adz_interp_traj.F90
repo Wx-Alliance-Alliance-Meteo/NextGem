@@ -115,7 +115,7 @@
             xt = (Adz_wpxyz(i,j,k,1)+Adz_wpxyz(i,j,k+1,1))*half
             yt = (Adz_wpxyz(i,j,k,2)+Adz_wpxyz(i,j,k+1,2))*half
             wdt= (Adz_wpxyz(i,j,k,3)+Adz_wpxyz(i,j,k+1,3))*half
-            zt =Ver_z_8%t(k) - wdt
+            zt = Ver_z_8%t(k) - wdt
             Adz_pb(1,i,j,k)= min(max(xt,Adz_iminposx),Adz_imaxposx)
             Adz_pb(2,i,j,k)= min(max(yt,Adz_iminposy),Adz_imaxposy)
             Adz_pb(3,i,j,k)= zindx(zt)
@@ -144,10 +144,7 @@
                xt = (Adz_wpxyz(i,j,1,1 )+Adz_wpxyz (i,j,2,1))*half
                yt = (Adz_wpxyz(i,j,1,2 )+Adz_wpxyz (i,j,2,2))*half
                wdt= (Adz_wpxyz(i,j,1,3 )+Adz_wpxyz (i,j,2,3))*half
-!               wdt= (Adz_uvw_dep(3,i,j,1)+Adz_uvw_dep(3,i,j,2))*half
                zt = Ver_z_8%t(1) - wdt
-!               zt = Ver_z_8%t(1) - F_dtzD_8*wdt &
-!                                 - F_dtzA_8*zdt0(i,j,1)
                Adz_pb(1,i,j,1)= min(max(xt,Adz_iminposx),Adz_imaxposx)
                Adz_pb(2,i,j,1)= min(max(yt,Adz_iminposy),Adz_imaxposy)
                Adz_pb(3,i,j,1)= zindx(zt)

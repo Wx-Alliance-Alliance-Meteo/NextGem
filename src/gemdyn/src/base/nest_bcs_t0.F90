@@ -22,6 +22,7 @@
       use mem_nest
       use mem_tracers
       use gmm_vt0
+      use sol_mem
       use glb_ld
       use tr3d
       implicit none
@@ -75,12 +76,13 @@
 !!$omp do
       do k=1, l_nk
          if (l_north) then
-            ut0  (1:l_niu,l_nj-pil_n+1:l_nj ,k) = nest_u  (1:l_niu,l_nj-pil_n+1:l_nj ,k)
-            vt0  (1:l_ni ,l_nj-pil_n  :l_njv,k) = nest_v  (1:l_ni ,l_nj-pil_n  :l_njv,k)
-            wt0  (1:l_ni ,l_nj-pil_n+1:l_nj ,k) = nest_w  (1:l_ni ,l_nj-pil_n+1:l_nj ,k)
-            tt0  (1:l_ni ,l_nj-pil_n+1:l_nj ,k) = nest_t  (1:l_ni ,l_nj-pil_n+1:l_nj ,k)
-            qt0  (1:l_ni ,l_nj-pil_n+1:l_nj ,k) = nest_q  (1:l_ni ,l_nj-pil_n+1:l_nj ,k)
-            zdt0 (1:l_ni ,l_nj-pil_n+1:l_nj ,k) = nest_zd (1:l_ni ,l_nj-pil_n+1:l_nj ,k)
+            ut0  (1:l_niu,l_nj-pil_n+1:l_nj ,k) = nest_u (1:l_niu,l_nj-pil_n+1:l_nj ,k)
+            vt0  (1:l_ni ,l_nj-pil_n  :l_njv,k) = nest_v (1:l_ni ,l_nj-pil_n  :l_njv,k)
+            wt0  (1:l_ni ,l_nj-pil_n+1:l_nj ,k) = nest_w (1:l_ni ,l_nj-pil_n+1:l_nj ,k)
+            tt0  (1:l_ni ,l_nj-pil_n+1:l_nj ,k) = nest_t (1:l_ni ,l_nj-pil_n+1:l_nj ,k)
+            qt0  (1:l_ni ,l_nj-pil_n+1:l_nj ,k) = nest_q (1:l_ni ,l_nj-pil_n+1:l_nj ,k)
+            zdt0 (1:l_ni ,l_nj-pil_n+1:l_nj ,k) = nest_zd(1:l_ni ,l_nj-pil_n+1:l_nj ,k)
+            Sol_lhs(1:l_ni,l_nj-pil_n+1:l_nj,k) =     qt0(1:l_ni ,l_nj-pil_n+1:l_nj ,k)
             F_rhsv (1+pil_w:l_ni-pil_e,l_nj-pil_n,k) = F_invT * nest_v(1+pil_w:l_ni-pil_e,l_nj-pil_n,k)
          endif
          if (l_south) then
@@ -89,7 +91,8 @@
             wt0 (1:l_ni ,1:pil_s ,k) = nest_w (1:l_ni ,1:pil_s ,k)
             tt0 (1:l_ni ,1:pil_s ,k) = nest_t (1:l_ni ,1:pil_s ,k)
             qt0 (1:l_ni ,1:pil_s ,k) = nest_q (1:l_ni ,1:pil_s ,k)
-            zdt0 (1:l_ni,1:pil_s ,k) = nest_zd(1:l_ni ,1:pil_s ,k)
+            zdt0(1:l_ni ,1:pil_s ,k) = nest_zd(1:l_ni ,1:pil_s ,k)
+            Sol_lhs(1:l_ni,1:pil_s,k)=     qt0(1:l_ni ,1:pil_s ,k)
             F_rhsv (1+pil_w:l_ni-pil_e,pil_s,k) = F_invT * nest_v(1+pil_w:l_ni-pil_e,pil_s,k)
          endif
          if (l_east) then
@@ -99,6 +102,7 @@
             wt0 (l_ni-pil_e+1:l_ni ,1:l_nj ,k) = nest_w (l_ni-pil_e+1:l_ni ,1:l_nj ,k)
             qt0 (l_ni-pil_e+1:l_ni ,1:l_nj ,k) = nest_q (l_ni-pil_e+1:l_ni ,1:l_nj ,k)
             zdt0(l_ni-pil_e+1:l_ni ,1:l_nj ,k) = nest_zd(l_ni-pil_e+1:l_ni ,1:l_nj ,k)
+            Sol_lhs(l_ni-pil_e+1:l_ni,1:l_nj,k)=     qt0(l_ni-pil_e+1:l_ni ,1:l_nj ,k)
             F_rhsu (l_ni-pil_e,1+pil_s:l_nj-pil_n,k) = F_invT * nest_u(l_ni-pil_e,1+pil_s:l_nj-pil_n,k)
          endif
          if (l_west) then
@@ -108,28 +112,11 @@
             wt0 (1:pil_w, 1:l_nj , k) = nest_w (1:pil_w, 1:l_nj , k)
             qt0 (1:pil_w, 1:l_nj , k) = nest_q (1:pil_w, 1:l_nj , k)
             zdt0(1:pil_w, 1:l_nj , k) = nest_zd(1:pil_w, 1:l_nj , k)
+            Sol_lhs(1:pil_w,1:l_nj,k) =     qt0(1:pil_w, 1:l_nj , k)
             F_rhsu (pil_w,1+pil_s:l_nj-pil_n,k) = F_invT * nest_u(pil_w,1+pil_s:l_nj-pil_n,k)
          endif
       end do
 !!$omp enddo nowait
-
-      if (Schm_opentop_L) then
-!$OMP BARRIER
-!!$omp do
-         do k=1, Lam_gbpil_t
-            ut0 (1:l_niu,1:l_nj ,k) = nest_u (1:l_niu,1:l_nj ,k)
-            vt0 (1:l_ni ,1:l_njv,k) = nest_v (1:l_ni ,1:l_njv,k)
-            qt0 (1:l_ni,1:l_nj,k)   = nest_q (1:l_ni,1:l_nj,k)
-         end do
-!!$omp enddo nowait
-!!$omp do
-         do k=1, Lam_gbpil_t-1
-            tt0 (1:l_ni ,1:l_nj ,k) = nest_t (1:l_ni ,1:l_nj ,k)
-            wt0 (1:l_ni ,1:l_nj ,k) = nest_w (1:l_ni ,1:l_nj ,k)
-            zdt0(1:l_ni ,1:l_nj ,k) = nest_zd(1:l_ni ,1:l_nj ,k)
-         end do
-!!$omp enddo nowait
-      end if
       
       if (Lam_toptt_L) then
 !        Pilot the temperature for the whole top level

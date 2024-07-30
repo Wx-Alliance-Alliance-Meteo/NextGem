@@ -63,21 +63,12 @@
 !
 !     ---------------------------------------------------------------
 !
-      do k=1, l_nk
-         do j= 1+pil_s,l_nj-pil_n
-            do i= 1+pil_w,l_ni-pil_e
-               Sol_lhs(i,j,k)= qt0(i,j,k)
-            end do
-         end do
-      end do
-
-      k0= 1
-      kn= l_nk
+      k0= ds_k0 ; kn= ds_kn
 
       outiter= 0 ; nbiter= 0 ; conv= 0.d0
 
       ! Residual of the initial iterate
-      call matvec ( Sol_lhs  , ldnh_minx,ldnh_maxx,ldnh_miny,ldnh_maxy, &
+      call matvec ( Sol_lhs(l_minx,l_miny,1), l_minx,l_maxx, l_miny,l_maxy,&!ldnh_minx,ldnh_maxx,ldnh_miny,ldnh_maxy, &
                     work_space, sol_imin,sol_imax,sol_jmin,sol_jmax, l_nk )
 
       !  Compute ||b*b|| to determine the required error for convergence
@@ -85,8 +76,8 @@
       local_dot(1)=0.d0
 
       do k=k0,kn
-         do j=Sol_j0,Sol_jn
-            do i=Sol_i0,Sol_in
+         do j=ds_j0,ds_jn
+            do i=ds_i0,ds_in
                vv(i,j,k,1)  = Sol_rhs(i,j,k) - work_space(i,j,k)
                local_dot(1) = local_dot(1) + (Sol_rhs(i,j,k)*Sol_rhs(i,j,k))
             end do
@@ -96,8 +87,8 @@
       do                        ! MAIN OUTER ITERATION
          local_dot(2)=0.d0
          do k=k0,kn
-            do j=Sol_j0,Sol_jn
-               do i=Sol_i0,Sol_in
+            do j=ds_j0,ds_jn
+               do i=ds_i0,ds_in
                   local_dot(2) = local_dot(2) + (vv(i, j, k, 1) * vv(i, j, k, 1))
                end do
             end do
@@ -121,8 +112,8 @@
          wnu = 1.0d0 / residual
 
          do k=k0,kn
-            do j=Sol_j0,Sol_jn
-               do i=Sol_i0,Sol_in
+            do j=ds_j0,ds_jn
+               do i=ds_i0,ds_in
                   vv(i,j,k,1) = vv(i,j,k,1) * wnu
                end do
             end do
@@ -165,8 +156,8 @@
 
             do it=1,initer+1
                do k=k0,kn
-                  do j=Sol_j0,Sol_jn
-                     do i=Sol_i0,Sol_in
+                  do j=ds_j0,ds_jn
+                     do i=ds_i0,ds_in
                         v_local_prod(it,1) = v_local_prod(it,1) + ( vv(i, j, k, it) * vv(i, j, k, initer  ) )
                         v_local_prod(it,2) = v_local_prod(it,2) + ( vv(i, j, k, it) * vv(i, j, k, initer+1) )
                      end do
@@ -193,8 +184,8 @@
             wro2 = v_prod(initer+1,2)
 
             do k=k0,kn
-               do j=Sol_j0,Sol_jn
-                  do i=Sol_i0,Sol_in
+               do j=ds_j0,ds_jn
+                  do i=ds_i0,ds_in
                      vv(i, j, k, initer)  = vv(i, j, k, initer) / rr(initer,initer)
                   enddo
                enddo
@@ -222,8 +213,8 @@
 
             do it=1,initer
                do k=k0,kn
-                  do j=Sol_j0,Sol_jn
-                     do i=Sol_i0,Sol_in
+                  do j=ds_j0,ds_jn
+                     do i=ds_i0,ds_in
                         vv(i, j, k, initer+1) = vv(i, j, k, initer+1) - vv(i, j, k, it) * rr(it,initer+1)
                      end do
                   end do
@@ -240,8 +231,8 @@
                
                local_dot(1) = 0.d0; lcl_sum=0.d0
                do k=k0,kn
-                  do j=Sol_j0,Sol_jn
-                     do i=Sol_i0,Sol_in
+                  do j=ds_j0,ds_jn
+                     do i=ds_i0,ds_in
                         local_dot(1) = local_dot(1) + (vv(i, j, k, initer+1) * vv(i, j, k, initer+1))
                      end do
                   end do
@@ -259,8 +250,8 @@
             endif
             wnu = 1.d0 / rr(initer+1,initer+1)
             do k=k0,kn
-               do j=Sol_j0,Sol_jn
-                  do i=Sol_i0,Sol_in
+               do j=ds_j0,ds_jn
+                  do i=ds_i0,ds_in
                      vv(i, j, k, initer+1) = vv(i, j, k, initer+1) * wnu
                   end do
                end do
@@ -322,8 +313,8 @@
          do it=1,initer
 
             do k=k0,kn
-               do j=Sol_j0,Sol_jn
-                  do i=Sol_i0,Sol_in
+               do j=ds_j0,ds_jn
+                  do i=ds_i0,ds_in
                      Sol_lhs(i, j, k) = Sol_lhs(i, j, k) + gg(it)* wint_8(i, j, k, it)
                   end do
                end do
@@ -349,8 +340,8 @@
             end if
 
             do k=k0,kn
-               do j=Sol_j0,Sol_jn
-                  do i=Sol_i0,Sol_in
+               do j=ds_j0,ds_jn
+                  do i=ds_i0,ds_in
                      vv(i, j, k, 1) = vv(i, j, k, 1) + t * vv(i, j, k, it)
                   end do
                end do
