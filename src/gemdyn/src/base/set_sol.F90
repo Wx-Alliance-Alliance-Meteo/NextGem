@@ -33,6 +33,7 @@
       use gmm_table
       use opr
       use prec
+      use yyg_param
       use omp_lib
       use, intrinsic :: iso_fortran_env
       implicit none
@@ -40,6 +41,7 @@
       type(gmm_metadata) :: meta
       integer i,j,k,ni,nj,istat
       integer :: f1,f2,f3,f4, nx1, nx2, ny1, ny2
+      integer :: HLT_start, HLT_end, local_np
       real(kind=REAL64) yg_8(G_nj)
 !     __________________________________________________________________
 !
@@ -55,6 +57,14 @@
       do k=1, l_nk+1
          Sol_lhs(:,:,k)= qt1(:,:,k)
       end do
+      if ( Grd_yinyang_L) then
+         call yyg_xchng_8 (Sol_lhs, YYG_HALO_q2q,l_minx,l_maxx,l_miny,l_maxy, &
+                           l_ni,l_nj, l_nk+2, .false., 'CUBIC', .true.)
+      else
+         call HLT_split (0, G_nk+1, local_np, HLT_start, HLT_end)
+         call gem_xch_halo_8 ( Sol_lhs(l_minx,l_miny,HLT_start),l_minx,l_maxx,&
+                               l_miny,l_maxy,local_np,-1 )
+      endif
       
       allocate (Sol_rhs(ni,nj,l_nk)) ; Sol_rhs= 0.
          

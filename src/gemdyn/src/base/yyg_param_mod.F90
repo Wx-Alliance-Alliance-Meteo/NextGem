@@ -757,6 +757,83 @@ contains
       return
       end subroutine yyg_SendRecv_s_hlt
 
+      subroutine yyg_SendRecv_8 ( F_src, F_comm, Minx,Maxx,Miny,Maxy, &
+                                      NK, F_interpo_S, mono_L)
+      use ISO_C_BINDING
+      use, intrinsic :: iso_fortran_env
+      implicit none
+
+      character(len=*), intent(in)  :: F_interpo_S
+      logical, intent(in) :: mono_L
+      integer, intent(in) :: Minx,Maxx,Miny,Maxy, Nk
+      real(kind=REAL64)    , intent(in) :: F_src (Minx:Maxx,Miny:Maxy,Nk)
+      type(YYG_comm_param) , intent(inout) :: F_comm
+
+      include 'mpif.h'
+      include "intrp_bicub_yx.inc"
+
+      integer :: HLT_np, HLT_start, HLT_end
+      integer tag2, ireq, kk, m, mm, kk_proc, adr, ind1, ind2
+      integer status(mpi_status_size,Ptopo_numproc*3),ierr
+      integer request(Ptopo_numproc*3)
+!
+!     ---------------------------------------------------------------
+!
+      call HLT_split (1, Nk, HLT_np, HLT_start, HLT_end)
+      call gem_xch_halo_8 ( F_src(Minx,Miny,HLT_start),&
+                          Minx,Maxx,Miny,Maxy, HLT_np,-1)
+!!$omp single
+
+      tag2=14 ; ireq=0 ; request = 0
+
+! Posting the receive requests
+      do kk= 1, F_comm%recvmaxproc
+
+         kk_proc= yyg_proc(F_comm%recvproc(kk))
+         m= F_comm%recv_len(kk)
+         if (m > 0) then
+            ireq = ireq+1
+            call MPI_IRecv (YYG_uvrecv(1,KK), m*NK          ,&
+                            MPI_REAL, kk_proc,tag2+kk_proc,&
+                            COMM_multigrid,request(ireq),ierr)
+         end if
+
+      end do
+
+! Interpolation and shipping
+      do kk= 1, F_comm%sendmaxproc
+
+         kk_proc= yyg_proc(F_comm%sendproc(kk))
+         mm= F_comm%send_len(kk)
+         if (mm > 0) then
+
+             adr=F_comm%send_adr(kk)
+
+             call yyg_int_cub48 ( YYG_uvsend(1,kk), F_src,&
+                                F_comm%send_ixu(adr+1) ,&
+                                F_comm%send_iyu(adr+1) ,&
+                                geomh_x_8,geomh_y_8    ,&
+                                Minx,Maxx,Miny,Maxy,Nk ,&
+                                F_comm%send_xxr(adr+1) ,&
+                                F_comm%send_yyr(adr+1) ,&
+                                mm,mono_l )
+
+             ireq = ireq+1
+             call MPI_ISend ( YYG_uvsend(1,KK),mm*NK, MPI_REAL,&
+                              kk_proc, tag2+Ptopo_world_myproc  ,&
+                              COMM_multigrid, request(ireq), ierr )
+         end if
+
+      end do
+
+      call MPI_waitall (ireq,request,status,ierr)
+!!$omp end single
+!
+!-------------------------------------------------------------------
+!
+      return
+      end subroutine yyg_SendRecv_8
+
       subroutine yyg_SendRecv_v ( F_u, F_v, F_commU, F_commV, &
                                   Minx,Maxx,Miny,Maxy,NK )
       use ISO_C_BINDING

@@ -28,6 +28,7 @@
       use cstv
       use ver
       use metric
+      use yyg_param
       use ctrl
       use, intrinsic :: iso_fortran_env
       implicit none
@@ -76,6 +77,15 @@
       enddo
 !!$omp end do
 
+      if ( Grd_yinyang_L) then
+         call yyg_xchng_8 (Sol_lhs, YYG_HALO_q2q,l_minx,l_maxx,l_miny,l_maxy, &
+                           l_ni,l_nj, l_nk+2, .false., 'CUBIC', .true.)
+      else
+         call HLT_split (0, G_nk+1, local_np, HLT_start, HLT_end)
+         call gem_xch_halo_8 ( Sol_lhs(l_minx,l_miny,HLT_start),l_minx,l_maxx,&
+                               l_miny,l_maxy,local_np,-1 )
+      endif
+
 !!$omp do collapse(2)
       do k=1, l_nk+1
          do j= ds_j0, ds_jn
@@ -85,13 +95,6 @@
          end do
       end do
 !!$omp enddo
-
-      call HLT_split (1, G_nk+1, local_np, HLT_start, HLT_end)
-      call gem_xch_halo ( qt0(l_minx,l_miny,HLT_start),l_minx,l_maxx,&
-                          l_miny,l_maxy,local_np,-1 )
-      call HLT_split (0, G_nk+1, local_np, HLT_start, HLT_end)
-      call gem_xch_halo_8 ( Sol_lhs(l_minx,l_miny,HLT_start),l_minx,l_maxx,&
-                            l_miny,l_maxy,local_np,-1 )
 
 !!$omp do collapse(2)
       do k=ds_k0, l_nk

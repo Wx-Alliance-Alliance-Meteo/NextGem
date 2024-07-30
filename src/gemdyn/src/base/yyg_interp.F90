@@ -97,89 +97,82 @@
 !!$       return
 !!$       end subroutine yyg_int_cub88
 !!$
-!!$!**s/r yyg_int_cub48 - YY cubic interpolation for scalar
-!!$
-!!$      subroutine yyg_int_cub48 ( F_dest, F_src, Imx,Imy, geomgx,geomgy,&
-!!$                                  Minx,Maxx,Miny,Maxy,Nk,Xi,Yi,NLEN )
-!!$      use glb_ld
-!!$      use, intrinsic :: iso_fortran_env
-!!$      implicit none
-!!$
-!!$      integer, intent(in) :: Nk,NLEN,Minx,Maxx,Miny,Maxy
-!!$      integer, dimension(NLEN), intent(in) :: Imx, Imy
-!!$      real  , dimension(Minx:Maxx,Miny:Maxy,Nk), intent(in) :: F_src
-!!$      real(kind=REAL64), dimension(NLEN*Nk)    , intent(out):: F_dest
-!!$      real(kind=REAL64), dimension(Minx:Maxx), intent(in) :: geomgx
-!!$      real(kind=REAL64), dimension(Miny:Maxy), intent(in) :: geomgy
-!!$      real(kind=REAL64), dimension(NLEN)     , intent(in) :: Xi, Yi
-!!$!
-!!$!author
-!!$!           Abdessamad Qaddouri - October 2009
-!!$!revision
-!!$! v4_60 - Qaddouri A.   - initial version
-!!$!
-!!$       integer k,i,Im, Jm
-!!$       real(kind=REAL64)  W1,W2,W3,W4,X1,XX,X2,X3,X4
-!!$       real(kind=REAL64)  WW1,WW2,WW3,WW4,YY,y1,y2,y3,y4
-!!$       real(kind=REAL64)  fx1,fx2,fx3,fx4
-!!$!
-!!$!----------------------------------------------------------------------
-!!$!
-!!$
-!!$
-!!$
-!!$
-!!$
-!!$   Do i=1,NLEN
-!!$       Im  = iMx(i)
-!!$       Jm  = iMy(i)
-!!$
-!!$       X1  = Geomgx(im)
-!!$       X2  = Geomgx(im+1) - X1
-!!$       X3  = Geomgx(im+2) - X1
-!!$       X4  = Geomgx(im+3) - X1
-!!$       XX  = Xi(i)   - X1
-!!$
-!!$       W1  = (XX-X2)*(XX-X3)*(XX-X4)/(-X2*X3*X4)
-!!$       W2  =  XX    *(XX-X3)*(XX-X4)/(X2*(X2-X3)*(X2-X4))
-!!$       W3  =  XX    *(XX-X2)*(XX-X4)/(X3*(X3-X2)*(X3-X4))
-!!$       W4  =  XX    *(XX-X2)*(XX-X3)/(X4*(X4-X2)*(X4-X3))
-!!$
-!!$       Y1  = Geomgy(Jm)
-!!$       Y2  = Geomgy(Jm+1) - Y1
-!!$       Y3  = Geomgy(Jm+2) - Y1
-!!$       Y4  = Geomgy(Jm+3) - Y1
-!!$       YY  = Yi(i)   - Y1
-!!$
-!!$       WW1  = (yy-y2)*(yy-y3)*(yy-y4)/(-y2*y3*y4)
-!!$       WW2  =  yy    *(yy-y3)*(yy-y4)/(y2*(y2-y3)*(y2-y4))
-!!$       WW3  =  yy    *(yy-y2)*(yy-y4)/(y3*(y3-y2)*(y3-y4))
-!!$       WW4  =  yy    *(yy-y2)*(yy-y3)/(y4*(y4-y2)*(y4-y3))
-!!$
-!!$       Do k=1,Nk
-!!$
-!!$          Fx1 = W1*dble(F_src(Im  ,Jm  ,k)) + W2*dble(F_src(Im+1,Jm  ,k)) &
-!!$               +W3*dble(F_src(Im+2,Jm  ,k)) + W4*dble(F_src(Im+3,jm  ,k))
-!!$
-!!$          Fx2 = W1*dble(F_src(Im  ,Jm+1,k)) + W2*dble(F_src(Im+1,Jm+1,k)) &
-!!$               +W3*dble(F_src(Im+2,Jm+1,k)) + W4*dble(F_src(Im+3,Jm+1,k))
-!!$
-!!$          Fx3 = W1*dble(F_src(Im  ,Jm+2,k)) + W2*dble(F_src(Im+1,Jm+2,k)) &
-!!$               +W3*dble(F_src(Im+2,Jm+2,k)) + W4*dble(F_src(Im+3,Jm+2,k))
-!!$
-!!$          Fx4 = W1*dble(F_src(Im  ,Jm+3,k)) + W2*dble(F_src(Im+1,Jm+3,k)) &
-!!$               +W3*dble(F_src(Im+2,Jm+3,k)) + W4*dble(F_src(Im+3,Jm+3,k))
-!!$
-!!$          F_dest((i-1)*Nk+k)  = WW1*fx1+WW2*fx2+WW3*fx3+WW4*fx4
-!!$       end do
-!!$      end do
-!!$
-!!$
-!!$!
-!!$!----------------------------------------------------------------------
-!!$!
-!!$       return
-!!$       end subroutine yyg_int_cub48
+!**s/r yyg_int_cub48 - YY cubic interpolation for scalar
+
+      subroutine yyg_int_cub48 ( F_dest, F_src, Imx,Imy, geomgx,geomgy,&
+                                  Minx,Maxx,Miny,Maxy,Nk,Xi,Yi,NLEN )
+      use glb_ld
+      use, intrinsic :: iso_fortran_env
+      implicit none
+
+      integer, intent(in) :: Nk,NLEN,Minx,Maxx,Miny,Maxy
+      integer, dimension(NLEN), intent(in) :: Imx, Imy
+      real(kind=REAL64), dimension(Minx:Maxx,Miny:Maxy,Nk), intent(in) :: F_src
+      real             , dimension(NLEN*Nk)    , intent(out):: F_dest
+      real(kind=REAL64), dimension(Minx:Maxx), intent(in) :: geomgx
+      real(kind=REAL64), dimension(Miny:Maxy), intent(in) :: geomgy
+      real(kind=REAL64), dimension(NLEN)     , intent(in) :: Xi, Yi
+!
+!author
+!           Abdessamad Qaddouri - October 2009
+!revision
+! v4_60 - Qaddouri A.   - initial version
+!
+       integer k,i,Im, Jm
+       real(kind=REAL64)  W1,W2,W3,W4,X1,XX,X2,X3,X4
+       real(kind=REAL64)  WW1,WW2,WW3,WW4,YY,y1,y2,y3,y4
+       real(kind=REAL64)  fx1,fx2,fx3,fx4
+!
+!----------------------------------------------------------------------
+!
+   Do i=1,NLEN
+       Im  = iMx(i)
+       Jm  = iMy(i)
+
+       X1  = Geomgx(im)
+       X2  = Geomgx(im+1) - X1
+       X3  = Geomgx(im+2) - X1
+       X4  = Geomgx(im+3) - X1
+       XX  = Xi(i)   - X1
+
+       W1  = (XX-X2)*(XX-X3)*(XX-X4)/(-X2*X3*X4)
+       W2  =  XX    *(XX-X3)*(XX-X4)/(X2*(X2-X3)*(X2-X4))
+       W3  =  XX    *(XX-X2)*(XX-X4)/(X3*(X3-X2)*(X3-X4))
+       W4  =  XX    *(XX-X2)*(XX-X3)/(X4*(X4-X2)*(X4-X3))
+
+       Y1  = Geomgy(Jm)
+       Y2  = Geomgy(Jm+1) - Y1
+       Y3  = Geomgy(Jm+2) - Y1
+       Y4  = Geomgy(Jm+3) - Y1
+       YY  = Yi(i)   - Y1
+
+       WW1  = (yy-y2)*(yy-y3)*(yy-y4)/(-y2*y3*y4)
+       WW2  =  yy    *(yy-y3)*(yy-y4)/(y2*(y2-y3)*(y2-y4))
+       WW3  =  yy    *(yy-y2)*(yy-y4)/(y3*(y3-y2)*(y3-y4))
+       WW4  =  yy    *(yy-y2)*(yy-y3)/(y4*(y4-y2)*(y4-y3))
+
+       Do k=1,Nk
+
+          Fx1 = W1*dble(F_src(Im  ,Jm  ,k)) + W2*dble(F_src(Im+1,Jm  ,k)) &
+               +W3*dble(F_src(Im+2,Jm  ,k)) + W4*dble(F_src(Im+3,jm  ,k))
+
+          Fx2 = W1*dble(F_src(Im  ,Jm+1,k)) + W2*dble(F_src(Im+1,Jm+1,k)) &
+               +W3*dble(F_src(Im+2,Jm+1,k)) + W4*dble(F_src(Im+3,Jm+1,k))
+
+          Fx3 = W1*dble(F_src(Im  ,Jm+2,k)) + W2*dble(F_src(Im+1,Jm+2,k)) &
+               +W3*dble(F_src(Im+2,Jm+2,k)) + W4*dble(F_src(Im+3,Jm+2,k))
+
+          Fx4 = W1*dble(F_src(Im  ,Jm+3,k)) + W2*dble(F_src(Im+1,Jm+3,k)) &
+               +W3*dble(F_src(Im+2,Jm+3,k)) + W4*dble(F_src(Im+3,Jm+3,k))
+
+          F_dest((i-1)*Nk+k)  = WW1*fx1+WW2*fx2+WW3*fx3+WW4*fx4
+       end do
+      end do
+!
+!----------------------------------------------------------------------
+!
+       return
+       end subroutine yyg_int_cub48
 !!$
 !!$!**s/r yyg_int_cub - YY cubic interpolation for scalar
 !!$
