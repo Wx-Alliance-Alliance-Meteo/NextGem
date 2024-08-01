@@ -64,7 +64,7 @@
       stack(1)%dst => rhsc_mid
       if (SL_sfc) then
          call SL_interp ( stack,1, Adz_pm ,Adz_cpntr_q, Adz_num_q,&
-            Adz_i0,Adz_in,Adz_j0,Adz_jn,1,l_nk+1,F_Quint_L=.true. )
+            Adz_i0,Adz_in,Adz_j0,Adz_jn,1,l_nk+1,F_Quint_L=.false. )
       else
          call adz_tricub_hlt ( stack,1,Adz_pm ,Adz_cpntr_q,Adz_num_q,&
                                Adz_i0,Adz_in,Adz_j0,Adz_jn,Adz_k0 )
@@ -95,7 +95,7 @@
       stack(1)%dst => rhsc_dep
       if (SL_sfc) then
          call SL_interp ( stack,1, Adz_dep ,Adz_cpntr_q, Adz_num_q,&
-              Adz_i0,Adz_in,Adz_j0,Adz_jn,1,l_nk+1,F_Quint_L=.true. )
+              Adz_i0,Adz_in,Adz_j0,Adz_jn,1,l_nk+1,F_Quint_L=.false. )
       else
          call adz_tricub_hlt ( stack,1,Adz_dep ,Adz_cpntr_q,Adz_num_q,&
                               Adz_i0,Adz_in,Adz_j0,Adz_jn,Adz_k0 )

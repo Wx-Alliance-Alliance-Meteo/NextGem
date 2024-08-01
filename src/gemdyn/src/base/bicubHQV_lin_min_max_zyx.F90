@@ -13,36 +13,54 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
 
-!**s/r bicubHQV_lin_min_max_zyx - SL Bi-Cubic H interpolation and Quintic V interpolation except 
-!                                 Cubic or Linear V interpolation near vertical boundaries
-!                                 (Based on tricublin_beta.c): Interpolation ZYX 
+!**s/r biquiHQV_lin_min_max_zyx - SL Bi-Cubic H interpolation and Cubic V interpolation except
+!                                 Linear V interpolation near vertical boundaries
+!                                 (Based on tricublin_beta.c): Interpolation ZYX
 
-      subroutine bicubHQV_lin_min_max_zyx (xyz, li, mi, ma, src, cx, cy, qz, lx, ly, lz, & 
-                                           ni, ninj, zqutic_L, zcubic_L)
+! Arguments:
+!	1.  xyz: output, the result of the inteprolation
+!	2.  li: linear interpolation over some box
+!	3.  mi: min value
+!	4.  ma: max value
+!	5.  src: source array for q-values, passed all the way from Adz_main
+!	6.  cx: coefficients for x; px in SL_cubic
+!	7.  cy: coefficients for y; py in SL_cubic
+!	8.  qz: the L_j(x) term in the Lagrange polynomcial for z
+!		    e.g. (x-x1)(x-x2)...(x-x_n-1)/(x3-x1)(x3-x2)...
+!	9.  lx: linear coeff in x
+!	10. ly: linear coeff in y
+!	11. lz: linear coeff in z
+!	12. ni: x dim
+!	13. ninj: x+y dim/ horizontal slice 
+!	14. zcubic_L: flag for cubic interpolation
+!
+      subroutine bicubHQV_lin_min_max_zyx (xyz, li, mi, ma, src, cx, cy, qz, lx, ly, lz, &
+                                           ni, ninj, zcubic_L)
 
       use, intrinsic :: iso_fortran_env
+      use ptopo
       implicit none
 
       integer, intent(in) :: ni, ninj
       real, dimension(0:*), intent(in) :: src
       real(kind=REAL64), dimension(0:3), intent(in) :: cx,cy
-      real(kind=REAL64), dimension(0:5), intent(in) :: qz 
-      real(kind=REAL64), dimension(1:2), intent(in) :: lx,ly,lz 
-      logical :: zqutic_L, zcubic_L 
+      real(kind=REAL64), dimension(0:3), intent(in) :: qz
+      real(kind=REAL64), dimension(1:2), intent(in) :: lx,ly,lz
+      logical :: zcubic_L
       real, intent(out) :: xyz,li,mi,ma
 
-      integer :: i, ni2, ni3, ninj1, ninj2, ninj3, ninj4, ninj5, ninjc, ninjl
-      real(kind=REAL64), dimension(0:3) :: va4, vb4, vc4, vd4
+      integer :: i, ni2, ni3, ni4, ni5, ninj1, ninj2, ninj3, ninj4, ninj5, ninjc, ninjl
+      real(kind=REAL64), dimension(0:3) :: vx4, va4, vb4, vc4, vd4, ve4
       real, dimension(0:3) :: dst,dsl
       real :: mi_,ma_
 !
 !---------------------------------------------------------------------
 !
+
       ninjc = 0
-      if (zqutic_L) ninjc = ninj 
 
       ninjl = 0
-      if (zqutic_L.or.zcubic_L) ninjl = ninj 
+      if (zcubic_L) ninjl = ninj
 
       ninj1 =     0 + ninjc
       ninj2 = ninj1 + ninjl
@@ -51,22 +69,27 @@
       ninj5 = ninj4 + ninjc
       ni2 = ni  + ni
       ni3 = ni2 + ni
+      ni4 = ni3 + ni
+      ni5 = ni4 + ni
 
-      !Bi-Cubic H interpolation and Quintic V interpolation except 
-      !Cubic or Linear V interpolation near vertical boundaries
-      !----------------------------------------------------------- 
+      !Bi-Cubic H interpolation and Cubic V interpolation except
+      !Linear V interpolation near vertical boundaries
+      !-------------------------------------------------------------
       do i = 0,3
 
-         va4(i) = src(i    )*qz(0) + src(i    +ninj1)*qz(1) +  src(i    +ninj2)*qz(2) + src(i    +ninj3)*qz(3) + src(i    +ninj4)*qz(4) + src(i    +ninj5)*qz(5)
-         vb4(i) = src(i+ni )*qz(0) + src(i+ni +ninj1)*qz(1) +  src(i+ni +ninj2)*qz(2) + src(i+ni +ninj3)*qz(3) + src(i+ni +ninj4)*qz(4) + src(i+ni +ninj5)*qz(5)
-         vc4(i) = src(i+ni2)*qz(0) + src(i+ni2+ninj1)*qz(1) +  src(i+ni2+ninj2)*qz(2) + src(i+ni2+ninj3)*qz(3) + src(i+ni2+ninj4)*qz(4) + src(i+ni2+ninj5)*qz(5)
-         vd4(i) = src(i+ni3)*qz(0) + src(i+ni3+ninj1)*qz(1) +  src(i+ni3+ninj2)*qz(2) + src(i+ni3+ninj3)*qz(3) + src(i+ni3+ninj4)*qz(4) + src(i+ni3+ninj5)*qz(5)
+         vx4(i) = src(i    )*qz(0) + src(i    +ninj1)*qz(1) +  src(i    +ninj2)*qz(2) + src(i    +ninj3)*qz(3)
+         va4(i) = src(i+ni )*qz(0) + src(i+ni +ninj1)*qz(1) +  src(i+ni +ninj2)*qz(2) + src(i+ni +ninj3)*qz(3)
+         vb4(i) = src(i+ni2)*qz(0) + src(i+ni2+ninj1)*qz(1) +  src(i+ni2+ninj2)*qz(2) + src(i+ni2+ninj3)*qz(3) 
+         vc4(i) = src(i+ni3)*qz(0) + src(i+ni3+ninj1)*qz(1) +  src(i+ni3+ninj2)*qz(2) + src(i+ni3+ninj3)*qz(3)
+         !vd4(i) = src(i+ni4)*qz(0) + src(i+ni4+ninj1)*qz(1) +  src(i+ni4+ninj2)*qz(2) + src(i+ni4+ninj3)*qz(3)
+         !ve4(i) = src(i+ni5)*qz(0) + src(i+ni5+ninj1)*qz(1) +  src(i+ni5+ninj2)*qz(2) + src(i+ni5+ninj3)*qz(3) 
 
-         dst(i) = va4(i)*cy(0) + vb4(i)*cy(1) + vc4(i)*cy(2) + vd4(i)*cy(3)
+         dst(i) = vx4(i)*cy(0) + va4(i)*cy(1) + vb4(i)*cy(2) + vc4(i)*cy(3) !+ vd4(i)*cy(4) + ve4(i)*cy(5)
 
       end do
 
-      xyz = dst(0)*cx(0) + dst(1)*cx(1) + dst(2)*cx(2) + dst(3)*cx(3)
+      xyz = dst(0)*cx(0) + dst(1)*cx(1) + dst(2)*cx(2) + dst(3)*cx(3) 
+      !   print*,'xyz ',cx(0) ,cx(1) ,cx(2) ,cx(3) ,cx(4) ,cx(5)
 
       !Linear interpolation over 2x2x2 inner box
       !-----------------------------------------
@@ -82,7 +105,7 @@
       li = dsl(1)*lx(1) + dsl(2)*lx(2)
 
       !MIN/MAX over 2x2x2 inner box
-      !---------------------------- 
+      !----------------------------
       ma_ = src(1+ni +ninj2); mi_ = ma_
 
       do i = 1,2
