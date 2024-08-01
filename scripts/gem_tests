@@ -8,23 +8,8 @@ eval `cclargs_lite $0 \
   -mail  ""   "1"       "[]" \
   ++ $arguments`
 
-if [ ! -f .ssmuse_gem -a ! -f .eccc_setup ] ; then
-   printf "\n   This $0 script must be launch from a gem experiment working directory -- ABORT\n\n"
-   exit 1
-else
-   GOAS=1
-   if [ -f .ssmuse_gem ] ; then GOAS=0 ; fi
-fi
-
-if [ $GOAS -gt 0 ] ; then
-   if [ -z "${gem_DIR}" ] ; then
-      printf  "\n  GOAS-GEM environment NOT initialized - dot file .eccc_setup - Abort\n\n"
-   fi
-else
-   if [ -z "${ATM_MODEL_BNDL}" ] ; then
-      printf  "\n  RDE-GEM environment NOT initialized - dot file .ssmuse_gem - Abort\n\n"
-      exit 1
-   fi
+if [ -z "${gem_DIR}" ] ; then
+   printf  "\n  GEM environment NOT initialized - dot file .eccc_setup - Abort\n\n"
 fi
 
 if [ -f ${HOME}/.gem_tests_rc ] ; then
@@ -40,16 +25,11 @@ EXP=${exp:-NONAME}
 ici=${PWD}
 REP_gemtest=TESTS_GEM
 
-if [ $GOAS -gt 0 ] ; then
-   SRC_TESTS=${gem_DIR}/share/configurations
-   GT_scripts=${gem_DIR}/scripts
-   mkdir -p ${REP_gemtest}
-   cd ${REP_gemtest}
-   ln -sf ${ici}/bin .
-else
-   echo RDE ????
-   exit 1
-fi
+SRC_TESTS=${gem_DIR}/share/configurations
+GT_scripts=${gem_DIR}/scripts
+mkdir -p ${REP_gemtest}
+cd ${REP_gemtest}
+ln -sf ${ici}/bin .
 
 if [ -n "${ctrl}" ] ; then
    if [ -d ${ctrl} ] ; then
