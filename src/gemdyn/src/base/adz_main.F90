@@ -52,19 +52,26 @@
 !---midpoint---
       stack(1)%src => rhsu_bdf_t1
       stack(1)%dst => rhsu_mid
-      call adz_tricub_hlt ( stack,1,Adz_pmu,Adz_cpntr_q,Adz_num_u,&
-                            Adz_i0u,Adz_inu,Adz_j0,Adz_jn,Adz_k0 )
+      !call adz_tricub_hlt ( stack,1,Adz_pmu,Adz_cpntr_q,Adz_num_u,&
+      !                      Adz_i0u,Adz_inu,Adz_j0,Adz_jn,Adz_k0 )
+
+      call SL_interp ( stack,1, Adz_pmu ,Adz_cpntr_q, Adz_num_u,&
+                       Adz_i0u,Adz_inu,Adz_j0,Adz_jn,Adz_k0,l_nk )
 
       stack(1)%src => rhsv_bdf_t1
       stack(1)%dst => rhsv_mid
-      call adz_tricub_hlt ( stack,1,Adz_pmv,Adz_cpntr_q,Adz_num_v,&
-                            Adz_i0,Adz_in,Adz_j0v,Adz_jnv,Adz_k0 )
+      !call adz_tricub_hlt ( stack,1,Adz_pmv,Adz_cpntr_q,Adz_num_v,&
+      !                      Adz_i0,Adz_in,Adz_j0v,Adz_jnv,Adz_k0 )
+
+      call SL_interp ( stack,1, Adz_pmv ,Adz_cpntr_q, Adz_num_v,&
+                       Adz_i0,Adz_in,Adz_j0v,Adz_jnv,Adz_k0,l_nk )
+
 
       stack(1)%src => rhsc_bdf_t1
       stack(1)%dst => rhsc_mid
       if (SL_sfc) then
          call SL_interp ( stack,1, Adz_pm ,Adz_cpntr_q, Adz_num_q,&
-            Adz_i0,Adz_in,Adz_j0,Adz_jn,1,l_nk+1,F_Quint_L=.false. )
+            Adz_i0,Adz_in,Adz_j0,Adz_jn,1,l_nk+1 )
       else
          call adz_tricub_hlt ( stack,1,Adz_pm ,Adz_cpntr_q,Adz_num_q,&
                                Adz_i0,Adz_in,Adz_j0,Adz_jn,Adz_k0 )
@@ -80,22 +87,36 @@
       call adz_tricub_hlt ( stack,3,Adz_pt ,Adz_cpntr_t,Adz_num_t,&
                             Adz_i0,Adz_in,Adz_j0,Adz_jn,Adz_k0t )
 
+      !call SL_interp ( stack,3, Adz_pt ,Adz_cpntr_t, Adz_num_t,&
+      !                 Adz_i0,Adz_in,Adz_j0,Adz_jn,Adz_k0t,l_nk )
+
+
 !---departure---
       stack(1)%src => rhsu_bdf_t2
       stack(1)%dst => rhsu_dep
-      call adz_tricub_hlt ( stack,1,Adz_pdu,Adz_cpntr_q,Adz_num_u,&
-                            Adz_i0u,Adz_inu,Adz_j0,Adz_jn,Adz_k0 )
+      !call adz_tricub_hlt ( stack,1,Adz_pdu,Adz_cpntr_q,Adz_num_u,&
+      !                      Adz_i0u,Adz_inu,Adz_j0,Adz_jn,Adz_k0 )
+
+      call SL_interp ( stack,1, Adz_pdu ,Adz_cpntr_q, Adz_num_u,&
+                       Adz_i0u,Adz_inu,Adz_j0,Adz_jn,Adz_k0,l_nk )
+
+
 
       stack(1)%src => rhsv_bdf_t2
       stack(1)%dst => rhsv_dep
-      call adz_tricub_hlt ( stack,1,Adz_pdv,Adz_cpntr_q,Adz_num_v,&
-                            Adz_i0,Adz_in,Adz_j0v,Adz_jnv,Adz_k0 )
+      !call adz_tricub_hlt ( stack,1,Adz_pdv,Adz_cpntr_q,Adz_num_v,&
+      !                      Adz_i0,Adz_in,Adz_j0v,Adz_jnv,Adz_k0 )
+
+      call SL_interp ( stack,1, Adz_pdv ,Adz_cpntr_q, Adz_num_v,&
+                       Adz_i0,Adz_in,Adz_j0v,Adz_jnv,Adz_k0,l_nk )
+
 
       stack(1)%src => rhsc_bdf_t2
       stack(1)%dst => rhsc_dep
+
       if (SL_sfc) then
          call SL_interp ( stack,1, Adz_dep ,Adz_cpntr_q, Adz_num_q,&
-              Adz_i0,Adz_in,Adz_j0,Adz_jn,1,l_nk+1,F_Quint_L=.false. )
+              Adz_i0,Adz_in,Adz_j0,Adz_jn,1,l_nk+1 )
       else
          call adz_tricub_hlt ( stack,1,Adz_dep ,Adz_cpntr_q,Adz_num_q,&
                               Adz_i0,Adz_in,Adz_j0,Adz_jn,Adz_k0 )
@@ -109,6 +130,11 @@
       stack(3)%dst => rhsw_dep
       call adz_tricub_hlt ( stack,3,Adz_pt2 ,Adz_cpntr_t,Adz_num_t,&
                             Adz_i0,Adz_in,Adz_j0,Adz_jn,Adz_k0t )
+
+      !call SL_interp ( stack,3, Adz_pt2 ,Adz_cpntr_t, Adz_num_t,&
+      !                 Adz_i0,Adz_in,Adz_j0,Adz_jn,Adz_k0t,l_nk )
+
+
 
 !$OMP BARRIER
 
