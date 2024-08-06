@@ -57,11 +57,21 @@ module dyn_fisl_options
    namelist /dyn_fisl  / Schm_hzdadw_L
    namelist /dyn_fisl_p/ Schm_hzdadw_L
 
-   !# Number of Picard iterations to solve non-linear Helmholtz problem
-   integer :: Schm_itpc  = 2
+   !# Maximum Picard iterations to solve non-linear Helmholtz problem
+   integer :: Schm_itpc  = 10
    namelist /dyn_fisl  / Schm_itpc
    namelist /dyn_fisl_p/ Schm_itpc
 
+   !# Picard position stopping criteria
+   real :: Schm_tolpic  = 1e-6
+   namelist /dyn_fisl  / Schm_tolpic
+   namelist /dyn_fisl_p/ Schm_tolpic
+      
+   !# Picard convergence rate stopping criteria
+   real :: Schm_ratepic  = .1
+   namelist /dyn_fisl  / Schm_ratepic
+   namelist /dyn_fisl_p/ Schm_ratepic
+      
    !# *  -1: no blending between Yin and Yang
    !# *   0: blending at init only
    !# * > 0: blending at every nblendyy timestep
