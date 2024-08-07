@@ -56,9 +56,9 @@
       real(kind=REAL64), parameter :: cp167 = 1.0/6.0, cm167 = -1.0/6.0, cp5 = 0.5, cm5 = -0.5
       real(kind=REAL64), dimension(:), pointer ::&
                          p_zabcd_8, p_zbacd_8,&
-                         p_zcabd_8, p_zdabc_8, posz, dz, odz,&
-                         p_zxabcde_8, p_zaxbcde_8, p_zbxacde_8,&
-                         p_zcxabde_8, p_zdxabce_8, p_zexabcd_8
+                         p_zcabd_8, p_zdabc_8, posz, dz, odz!,&
+                       !  p_zxabcde_8, p_zaxbcde_8, p_zbxacde_8,&
+                       !  p_zcxabde_8, p_zdxabce_8, p_zexabcd_8
       real(kind=REAL64) :: px(0:3),py(0:3),qz(4),del,del123,del210,&
                            ra,rb,rc,rd,rx,re,lx(2),ly(2),lz(2),zt
 !
@@ -74,12 +74,12 @@
       p_zcabd_8 => Adz_zcabd_8%m
       p_zdabc_8 => Adz_zdabc_8%m
 
-      p_zxabcde_8 => Adz_zxabcde_8%m
-      p_zaxbcde_8 => Adz_zaxbcde_8%m
-      p_zbxacde_8 => Adz_zbxacde_8%m
-      p_zcxabde_8 => Adz_zcxabde_8%m
-      p_zdxabce_8 => Adz_zdxabce_8%m
-      p_zexabcd_8 => Adz_zexabcd_8%m
+!!$      p_zxabcde_8 => Adz_zxabcde_8%m
+!!$      p_zaxbcde_8 => Adz_zaxbcde_8%m
+!!$      p_zbxacde_8 => Adz_zbxacde_8%m
+!!$      p_zcxabde_8 => Adz_zcxabde_8%m
+!!$      p_zdxabce_8 => Adz_zdxabce_8%m
+!!$      p_zexabcd_8 => Adz_zexabcd_8%m
       endif
       if (F_lev == 't') then
       posz => Ver_z_8%t
@@ -91,12 +91,12 @@
       p_zcabd_8 => Adz_zcabd_8%t
       p_zdabc_8 => Adz_zdabc_8%t
 
-      p_zxabcde_8 => Adz_zxabcde_8%t
-      p_zaxbcde_8 => Adz_zaxbcde_8%t
-      p_zbxacde_8 => Adz_zbxacde_8%t
-      p_zcxabde_8 => Adz_zcxabde_8%t
-      p_zdxabce_8 => Adz_zdxabce_8%t
-      p_zexabcd_8 => Adz_zexabcd_8%t
+!!$      p_zxabcde_8 => Adz_zxabcde_8%t
+!!$      p_zaxbcde_8 => Adz_zaxbcde_8%t
+!!$      p_zbxacde_8 => Adz_zbxacde_8%t
+!!$      p_zcxabde_8 => Adz_zcxabde_8%t
+!!$      p_zdxabce_8 => Adz_zdxabce_8%t
+!!$      p_zexabcd_8 => Adz_zexabcd_8%t
       endif
       
       nit = (F_maxx - F_minx + 1)
