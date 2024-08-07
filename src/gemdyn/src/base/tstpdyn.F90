@@ -77,27 +77,11 @@
                   l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
 
          call gtmg_start (25, 'ADVECTION', 20)
-         call adz_main (dt_8, iter, first_time_L)
-         call gtmg_stop (25)
-
-         call gtmg_start (25, 'ADVECTION', 20)
-         call adz_main (dt_8, iter, first_time_L, 'TURBO')
+         call adz_main (dt_8, iter, first_time_L, Schm_advec_type_S)
          call gtmg_stop (25)
 
          call gtmg_start (27, 'PRE', 20)
          
-         call oro_adj ()
-         
-         call elliptic_rhs (dt_8, ds_k0, ds_k0)
-         
-         call gtmg_stop (27)
-
-         if (.not.ctrl_testcases_adv_L) then
-            call gtmg_start (29, 'SOL', 20)
-!call statf_dm (Sol_rhs, 'RHS', 1, 'TSTP', 1,ni,1,nj,1,l_nk,1+Glb_pil_w,1+Glb_pil_s,1,G_ni-Glb_pil_e,G_nj-Glb_pil_n,l_nk,8)
-
-            call sol_fgmres (print_conv)
-            
          call oro_adj ()
          
          call elliptic_rhs (dt_8, ds_k0, ds_k0)

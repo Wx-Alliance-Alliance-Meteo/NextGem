@@ -21,15 +21,10 @@ module dyn_fisl_options
    logical :: Euler_step_one = .true.
       
    !# Add souce level l_nk+1 in qt SL interpolation & trajectories
-   logical :: SL_sfc  = .true.
+   logical :: SL_sfc  = .false.
    namelist /dyn_fisl  / SL_sfc
    namelist /dyn_fisl_p/ SL_sfc
 
-   !# Interpolation order
-   integer :: Schm_advec_order = 3
-   namelist /dyn_fisl  / Schm_advec_order
-   namelist /dyn_fisl_p/ Schm_advec_order
-   
    !# T* basic state temperature (K)
    real(kind=REAL64) :: Cstv_Tstr_8 = 240.0
    namelist /dyn_fisl  / Cstv_Tstr_8
@@ -120,6 +115,11 @@ module dyn_fisl_options
    namelist /dyn_fisl  / Schm_Topo_L
    namelist /dyn_fisl_p/ Schm_Topo_L
 
+   !# Interpolation type: TURBO(cubic), 3(cubic), 5(quintic)
+   character(len=16) :: Schm_advec_type_S = 'TURBO'
+   namelist /dyn_fisl  / Schm_advec_type_S
+   namelist /dyn_fisl_p/ Schm_advec_type_S
+   
    !# * 0   ->          NO advection
    !# * 1   -> traditional advection
    !# * 2   -> consistent advection with respect to off-centering
