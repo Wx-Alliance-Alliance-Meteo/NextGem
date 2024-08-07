@@ -97,7 +97,7 @@
                  l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
 
       call gtmg_start (25, 'ADVECTION', 20)
-      call adz_main (dt_8, iter, first_time_L)
+      call adz_main (dt_8, iter, first_time_L, 'TURBO')
       call gtmg_stop (25)
 
       call gtmg_start (27, 'PRE', 20)
