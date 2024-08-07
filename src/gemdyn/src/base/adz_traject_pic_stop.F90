@@ -153,16 +153,13 @@
             end do
             do i= 1, l_ni
                Adz_dpxyz(i,j,k,1) = xm(i)
-               Adz_pxyzd(1,i,j,k) = min(max(xm(i),Adz_iminposx),&
-               Adz_imaxposx)
+               Adz_pxyzd(1,i,j,k) = min(max(xm(i),Adz_iminposx),Adz_imaxposx)
                Adz_dpxyz(i,j,k,2) = ym(i)
-               Adz_pxyzd(2,i,j,k) = min(max(ym(i),Adz_iminposy),&
-               Adz_imaxposy)
+               Adz_pxyzd(2,i,j,k) = min(max(ym(i),Adz_iminposy),Adz_imaxposy)
                kk1 = min(l_nk+1,max(0,kk(i)))
                nb  = max(min(kk1,G_nk-1),1)
                Adz_dpz(i,j,k) =zm(i)
-               Adz_dpxyz(i,j,k,3) = (zm(i)-ver_z_8%m(nb))&
-               *Adz_odelz_m(nb) + dble(nb)
+               Adz_dpxyz(i,j,k,3) = (zm(i)-ver_z_8%m(nb))*Adz_odelz_m(nb) + dble(nb)
                Adz_pxyzd(3,i,j,k) = Adz_dpxyz(i,j,k,3)
             end do
          end do
