@@ -384,7 +384,7 @@
                Adz_dep(3,Adz_i0 :Adz_in , Adz_j0 :Adz_jn ,Adz_k0 :l_nk),&
                Adz_pdu(3,Adz_i0u:Adz_inu, Adz_j0 :Adz_jn ,Adz_k0 :l_nk),&
                Adz_pdv(3,Adz_i0 :Adz_in , Adz_j0v:Adz_jnv,Adz_k0 :l_nk),&
-               Adz_pt2(3,Adz_i0 :Adz_in , Adz_j0 :Adz_jn ,Adz_k0t:l_nk),&
+               Adz_pdt(3,Adz_i0 :Adz_in , Adz_j0 :Adz_jn ,Adz_k0t:l_nk),&
                Adz_pb2(3,Adz_i0b:Adz_inb, Adz_j0b:Adz_jnb,      1:l_nk) ) !<--for departure point
 
 !for Adz_BC_LAM_Aranami_hlt
@@ -420,8 +420,9 @@
                                     0,GMM_NULL_FLAGS)
       mymeta= SET_GMMUSR_FLAG(meta, flag_m_f)
       istat= gmm_create('ADZ_WPXYZ',Adz_wpxyz, mymeta, flag_r_n)
+      !for departure point
+      istat= gmm_create('ADZ_DPXYZ',Adz_dpxyz, mymeta, flag_r_n)
 
-      
       call gmm_build_meta4D (meta,  -1,l_ni+2,0,0,l_ni+4, &
                                     -1,l_nj+2,0,0,l_nj+4, &
                                     1,l_nk,0,0,l_nk, &
@@ -431,12 +432,6 @@
       !for displacement array in trajectories
       istat= gmm_create('ADZ_DISP',Adz_disp, mymeta, flag_r_n)
 
-      !for departure point
-      istat= gmm_create('ADZ_DPXYZ',Adz_dpxyz, mymeta, flag_r_n)
-
-      !for previous midpoint and departure estimate
-      istat= gmm_create('ADZ_PREV_MID',Adz_prev_mid, mymeta, flag_r_n)
- 
       call gmm_build_meta3D (meta,  1,l_ni,0,0,l_ni, &
                                     1,l_nj,0,0,l_nj, &
                                     1,l_nk,0,0,l_nk, &

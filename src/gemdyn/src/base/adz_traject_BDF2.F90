@@ -207,10 +207,9 @@
       call gem_xch_halo_8 ( xchg(1,HLT_start),&
                     -1,l_ni+2,-1,l_nj+2, HLT_np,-1)
 
-      call adz_int_traj (Adz_wpxyz,Adz_pmu,Adz_pmv,Adz_pt,F_dt_8)
-      call adz_int_traj (Adz_dpxyz,Adz_pdu,Adz_pdv,Adz_pt2,F_dt_8)
-      call BDF_interp_traj (F_dt_8)
-
+      call adz_int_traj (Adz_wpxyz,Adz_wpz,Adz_pmu,Adz_pmv,Adz_pt ,F_dt_8)
+      call adz_int_traj (Adz_dpxyz,Adz_dpz,Adz_pdu,Adz_pdv,Adz_pdt,F_dt_8)
+!
 !     ---------------------------------------------------------------
 !
       return

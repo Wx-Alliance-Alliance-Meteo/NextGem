@@ -82,15 +82,15 @@
                            
       stack(1)%src => rhst_bdf_t2
       stack(1)%dst => rhst_dep
-      call SL_interp ( stack,1, Adz_pt2 ,Adz_cpntr_t, Adz_num_t,&
+      call SL_interp ( stack,1, Adz_pdt ,Adz_cpntr_t, Adz_num_t,&
                        Adz_i0,Adz_in,Adz_j0,Adz_jn,1,l_nk,F_order,'t')
       stack(1)%src => rhsf_bdf_t2
       stack(1)%dst => rhsf_dep
-      call SL_interp ( stack,1, Adz_pt2 ,Adz_cpntr_t, Adz_num_t,&
+      call SL_interp ( stack,1, Adz_pdt ,Adz_cpntr_t, Adz_num_t,&
                        Adz_i0,Adz_in,Adz_j0,Adz_jn,1,l_nk,F_order,'t')
       stack(1)%src => rhsw_bdf_t2
       stack(1)%dst => rhsw_dep
-      call SL_interp ( stack,1, Adz_pt2 ,Adz_cpntr_t, Adz_num_t,&
+      call SL_interp ( stack,1, Adz_pdt ,Adz_cpntr_t, Adz_num_t,&
                        Adz_i0,Adz_in,Adz_j0,Adz_jn,1,l_nk,F_order,'t')
 !
 !     ---------------------------------------------------------------

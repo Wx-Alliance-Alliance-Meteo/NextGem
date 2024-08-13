@@ -14,7 +14,7 @@
 !---------------------------------- LICENCE END ---------------------------------
 !------------------------------------------------------------------------------
 
-      subroutine adz_int_traj (F_wpxyz,F_pmu,F_pmv,F_pt,F_dt_8)
+      subroutine adz_int_traj (F_wpxyz,F_wpz,F_pmu,F_pmv,F_pt,F_dt_8)
       use adz_mem
       use adz_options
       use glb_ld
@@ -25,7 +25,8 @@
       use, intrinsic :: iso_fortran_env
       implicit none
 
-      real(kind=REAL64), intent(IN) :: F_wpxyz(-1:l_ni+2,-1:l_nj+2,l_nk+1,3), F_dt_8
+      real(kind=REAL64), intent(IN) :: F_wpxyz(-1:l_ni+2,-1:l_nj+2,l_nk+1,3),&
+                                       F_wpz(l_ni,l_nj,l_nk),F_dt_8
       real, intent(OUT) :: F_pt (3,Adz_i0 :Adz_in , Adz_j0 :Adz_jn ,Adz_k0 :l_nk),&
                            F_pmu(3,Adz_i0u:Adz_inu, Adz_j0 :Adz_jn ,Adz_k0 :l_nk),&
                            F_pmv(3,Adz_i0 :Adz_in , Adz_j0v:Adz_jnv,Adz_k0 :l_nk)
@@ -90,10 +91,10 @@
                     adz_vw2t(k)*F_wpxyz(i,j,k  ,2)+ &
                     adz_vw3t(k)*F_wpxyz(i,j,k+1,2)+ &
                     adz_vw4t(k)*F_wpxyz(i,j,k+2,2)
-               zt = adz_vw1t(k)*Adz_wpz(i,j,k-1)+ &
-                    adz_vw2t(k)*Adz_wpz(i,j,k  )+ &
-                    adz_vw3t(k)*Adz_wpz(i,j,k+1)+ &
-                    adz_vw4t(k)*Adz_wpz(i,j,k+2)
+               zt = adz_vw1t(k)*F_wpz(i,j,k-1)+ &
+                    adz_vw2t(k)*F_wpz(i,j,k  )+ &
+                    adz_vw3t(k)*F_wpz(i,j,k+1)+ &
+                    adz_vw4t(k)*F_wpz(i,j,k+2)
                F_pt(1,i,j,k)= min(max(xt,Adz_iminposx),Adz_imaxposx)
                F_pt(2,i,j,k)= min(max(yt,Adz_iminposy),Adz_imaxposy)
                F_pt(3,i,j,k)=zindx(zt) 
@@ -106,7 +107,7 @@
          do i= Adz_i0, Adz_in
             xt = (F_wpxyz(i,j,k,1)+F_wpxyz(i,j,k+1,1))*half
             yt = (F_wpxyz(i,j,k,2)+F_wpxyz(i,j,k+1,2))*half
-            zt = (Adz_wpz(i,j,k)+Adz_wpz(i,j,k+1))*half
+            zt = (F_wpz(i,j,k)+F_wpz(i,j,k+1))*half
             F_pt(1,i,j,k)= min(max(xt,Adz_iminposx),Adz_imaxposx)
             F_pt(2,i,j,k)= min(max(yt,Adz_iminposy),Adz_imaxposy)
             F_pt(3,i,j,k)= zindx(zt)
@@ -138,7 +139,7 @@
 
       do j= Adz_j0, Adz_jn
          do i= Adz_i0, Adz_in
-            zt = wp*Adz_wpz(i,j,k)+wm*Adz_wpz(i,j,k-1)
+            zt = wp*F_wpz(i,j,k)+wm*F_wpz(i,j,k-1)
             F_pt(3,i,j,k)= zindx(zt)
          end do
       end do
@@ -148,7 +149,7 @@
             do i= Adz_i0, Adz_in
                xt = (F_wpxyz(i,j,1,1 )+F_wpxyz (i,j,2,1))*half
                yt = (F_wpxyz(i,j,1,2 )+F_wpxyz (i,j,2,2))*half
-               zt = (Adz_wpz(i,j,1 )+Adz_wpz (i,j,2))*half
+               zt = (F_wpz(i,j,1 )+F_wpz (i,j,2))*half
                F_pt(1,i,j,1)= min(max(xt,Adz_iminposx),Adz_imaxposx)
                F_pt(2,i,j,1)= min(max(yt,Adz_iminposy),Adz_imaxposy)
                F_pt(3,i,j,1)= zindx(zt)

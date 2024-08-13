@@ -83,7 +83,7 @@
       stack(2)%dst => rhsf_dep
       stack(3)%src => rhsw_bdf_t2
       stack(3)%dst => rhsw_dep
-      call adz_tricub_hlt ( stack,3,Adz_pt2 ,Adz_cpntr_t,Adz_num_t,&
+      call adz_tricub_hlt ( stack,3,Adz_pdt ,Adz_cpntr_t,Adz_num_t,&
                             Adz_i0,Adz_in,Adz_j0,Adz_jn,Adz_k0t )
 !
 !     ---------------------------------------------------------------

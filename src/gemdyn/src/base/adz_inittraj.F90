@@ -36,14 +36,7 @@
                Adz_pxyzm(3,i,j,k) = k
                Adz_wpxyz(i,j,k,3) = Adz_pxyzm(3,i,j,k)
                Adz_wpz(i,j,k)     = k
-
-               !initialize displacement to 0.
-               Adz_disp(i,j,k,:) = 0.d0
-
-               !initialize previous midpoint to 0
-               Adz_prev_mid(i,j,k,1) = 0.d0
-               Adz_prev_mid(i,j,k,2) = 0.d0
-               Adz_prev_mid(i,j,k,3) = 0.d0
+               Adz_disp(i,j,k,:)  = 0.d0
             end do
          end do
       end do
@@ -53,6 +46,9 @@
             Adz_wpxyz(i,j,l_nk+1,1) = i + l_i0 - 1
             Adz_wpxyz(i,j,l_nk+1,2) = j + l_j0 - 1
             Adz_wpxyz(i,j,l_nk+1,3) = k
+            Adz_dpxyz(i,j,l_nk+1,1) = i + l_i0 - 1
+            Adz_dpxyz(i,j,l_nk+1,2) = j + l_j0 - 1
+            Adz_dpxyz(i,j,l_nk+1,3) = k
          end do
       end do
       

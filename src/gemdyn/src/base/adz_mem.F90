@@ -92,13 +92,10 @@ module adz_mem
       !3. holds departure point, like adz_wpxyz
       real(kind=REAL64), pointer, dimension (:,:,:,:) :: Adz_dpxyz=>null()
 
-      !4. holds previous mid and departure point; used for stopping criteria
-      real(kind=REAL64), pointer, dimension (:,:,:,:) :: Adz_prev_mid=>null()
-
       real, allocatable, dimension (:,:,:,:) :: Adz_uvw_dep,   &
                          Adz_pm,Adz_pmu,Adz_pmv,Adz_pt,Adz_pb, &
                          Adz_uvw_lastl, Adz_dep, Adz_pdu,      &
-                         Adz_pdv, Adz_pt2, Adz_pb2
+                         Adz_pdv, Adz_pdt, Adz_pb2
 
       real, allocatable, dimension (:,:,:  ) ::       &
                      Adz_uu_arr,Adz_vv_arr,Adz_ww_arr

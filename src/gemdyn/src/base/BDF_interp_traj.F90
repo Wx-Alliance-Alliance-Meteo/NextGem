@@ -264,7 +264,7 @@
          end do
 !!$omp enddo
       endif
-
+!return
 !---midpoint code---  
 !!$omp do
       do k= Adz_k0t, l_nk
@@ -276,11 +276,12 @@
 !---departure code---  
 !!$omp do
       do k= Adz_k0t, l_nk
-         Adz_pt2  (:,Adz_i0:Adz_in, Adz_j0:Adz_jn, k)=&
+         Adz_pdt  (:,Adz_i0:Adz_in, Adz_j0:Adz_jn, k)=&
          Adz_pb2  (:,Adz_i0:Adz_in, Adz_j0:Adz_jn, k)
       end do
 !!$omp enddo
 !
+      
 !---------------------------------------------------------------------
 !
       return
