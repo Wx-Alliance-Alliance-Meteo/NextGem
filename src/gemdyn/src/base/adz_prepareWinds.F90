@@ -13,7 +13,7 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
 
-      subroutine adz_prepareWinds ()
+      subroutine adz_prepareWinds (F_itpc)
       use adz_mem
       use dcst
       use glb_ld
@@ -22,25 +22,14 @@
       use, intrinsic :: iso_fortran_env
       implicit none
 
+      integer, intent(IN) :: F_itpc
+
       integer :: i,j,k
-      real(kind=REAL64) :: ra,rb,rc,rd,rx,r1,r2,r3,r4
       real(kind=REAL64), parameter :: alpha1= -1.d0/16.d0, &
                                       alpha2=  9.d0/16.d0
 !
 !     ---------------------------------------------------------------
 !
-!!$omp do collapse(2)
-      do k= 1, l_nk
-         do j= 1-Adz_haloy, l_nj+Adz_haloy
-            do i= 1-Adz_halox, l_ni+Adz_halox
-               Adz_uvw_d(1,i,j,k)= Dcst_inv_rayt_8 * Adz_uu_ext(i,j,k) &
-                                                   * Adz_cy_8(j)
-               Adz_uvw_d(2,i,j,k)= Dcst_inv_rayt_8 * Adz_vv_ext(i,j,k)
-            end do
-         end do
-      end do
-!!$omp enddo nowait
-!!$omp do collapse(2)
       do k= 1, l_nk
          do j= 1, l_nj
             do i= 1, l_ni
@@ -53,117 +42,64 @@
             end do
          end do
       end do
-!!$omp enddo nowait
-!!$omp do
-      do j= 1-Adz_haloy, l_nj+Adz_haloy
-         do i= 1-Adz_halox, l_ni+Adz_halox
-            Adz_uvw_d(3,i,j,   1) = Adz_vw5 * Adz_ww_ext(i,j,     1)
-         end do
-      end do
-!!$omp enddo nowait
-!!$omp do
       do j= 1, l_nj
          do i= 1, l_ni
-            Adz_ww_arr(i,j,   1)= Adz_vw5 * zdt0(i,j,     1)
+            Adz_ww_arr(i,j,1)= Adz_vw5 * zdt0(i,j,1)
+            Adz_ww_arr(i,j,2) = adz_vwt2m(2,2) * zdt0(i,j,1) + &
+                                adz_vwt2m(3,2) * zdt0(i,j,2) + &
+                                adz_vwt2m(4,2) * zdt0(i,j,3)
+            Adz_ww_arr(i,j,l_nk) = adz_vwt2m(1,l_nk) * zdt0(i,j,l_nk-2) + &
+                                   adz_vwt2m(2,l_nk) * zdt0(i,j,l_nk-1) + &
+                                   adz_vwt2m(3,l_nk) * zdt0(i,j,l_nk  )
          end do
       end do
-!!$omp enddo nowait
-!!$omp do collapse(2)
+
       do k= 3, l_nk-1
-         rx = Ver_z_8%m(k)
-         ra = Ver_z_8%t(k-2)
-         rb = Ver_z_8%t(k-1)
-         rc = Ver_z_8%t(k)
-         rd = Ver_z_8%t(k+1)
-         r1 = lag3(rx, ra, rb, rc, rd)
-         r2 = lag3(rx, rb, ra, rc, rd)
-         r3 = lag3(rx, rc, ra, rb, rd)
-         r4 = lag3(rx, rd, ra, rb, rc)         
          do j = 1,l_nj
             do i = 1,l_ni
-               Adz_ww_arr(i,j,k) = r1 * zdt0(i,j,k-2) + &
-                                   r2 * zdt0(i,j,k-1) + &
-                                   r3 * zdt0(i,j,k  ) + &
-                                   r4 * zdt0(i,j,k+1)
+               Adz_ww_arr(i,j,k) = adz_vwt2m(1,k) * zdt0(i,j,k-2) + &
+                                   adz_vwt2m(2,k) * zdt0(i,j,k-1) + &
+                                   adz_vwt2m(3,k) * zdt0(i,j,k  ) + &
+                                   adz_vwt2m(4,k) * zdt0(i,j,k+1)
             end do
          end do
-         do j =1-Adz_haloy, l_nj+Adz_haloy
+      end do
+
+      if (F_itpc == 1) then
+         do k= 1, l_nk
+            do j= 1-Adz_haloy, l_nj+Adz_haloy
+            do i= 1-Adz_halox, l_ni+Adz_halox
+               Adz_uvw_d(1,i,j,k)= Dcst_inv_rayt_8 * Adz_uu_ext(i,j,k) &
+                                                   * Adz_cy_8(j)
+               Adz_uvw_d(2,i,j,k)= Dcst_inv_rayt_8 * Adz_vv_ext(i,j,k)
+            end do
+            end do
+         end do
+         do j= 1-Adz_haloy, l_nj+Adz_haloy
+         do i= 1-Adz_halox, l_ni+Adz_halox
+            Adz_uvw_d(3,i,j,1) = Adz_vw5 * Adz_ww_ext(i,j,1)
+            Adz_uvw_d(3,i,j,2)= adz_vwt2m(2,2) * Adz_ww_ext(i,j,2-1) + &
+                                adz_vwt2m(3,2) * Adz_ww_ext(i,j,2  ) + &
+                                adz_vwt2m(4,2) * Adz_ww_ext(i,j,2+1)
+            Adz_uvw_d(3,i,j,l_nk)= adz_vwt2m(1,l_nk) * Adz_ww_ext(i,j,l_nk-2) + &
+                                   adz_vwt2m(2,l_nk) * Adz_ww_ext(i,j,l_nk-1) + &
+                                   adz_vwt2m(3,l_nk) * Adz_ww_ext(i,j,l_nk  )
+         end do
+         end do      
+         do k= 3, l_nk-1
+            do j =1-Adz_haloy, l_nj+Adz_haloy
             do i =1-Adz_halox, l_ni+Adz_halox
-               Adz_uvw_d(3,i,j,k)= r1 * Adz_ww_ext(i,j,k-2) + &
-                                   r2 * Adz_ww_ext(i,j,k-1) + &
-                                   r3 * Adz_ww_ext(i,j,k  ) + &
-                                   r4 * Adz_ww_ext(i,j,k+1)
+               Adz_uvw_d(3,i,j,k)= adz_vwt2m(1,k) * Adz_ww_ext(i,j,k-2) + &
+                                   adz_vwt2m(2,k) * Adz_ww_ext(i,j,k-1) + &
+                                   adz_vwt2m(3,k) * Adz_ww_ext(i,j,k  ) + &
+                                   adz_vwt2m(4,k) * Adz_ww_ext(i,j,k+1)
+            end do
             end do
          end do
-      end do
-!!$omp enddo nowait
-      k=2
-      rx = Ver_z_8%m(k)
-      ra = Ver_z_8%t(k-2)
-      rb = Ver_z_8%t(k-1)
-      rc = Ver_z_8%t(k)
-      rd = Ver_z_8%t(k+1)
-      r2 = lag3(rx, rb, ra, rc, rd)
-      r3 = lag3(rx, rc, ra, rb, rd)
-      r4 = lag3(rx, rd, ra, rb, rc)
-!!$omp do
-      do j = 1,l_nj
-         do i = 1,l_ni
-            Adz_ww_arr(i,j,k) = r2 * zdt0(i,j,k-1) + &
-                                r3 * zdt0(i,j,k  ) + &
-                                r4 * zdt0(i,j,k+1)
-         end do
-      end do
-!!$omp enddo nowait
-!!$omp do
-      do j =1-Adz_haloy, l_nj+Adz_haloy
-         do i =1-Adz_halox, l_ni+Adz_halox
-            Adz_uvw_d(3,i,j,k)= r2 * Adz_ww_ext(i,j,k-1) + &
-                                r3 * Adz_ww_ext(i,j,k  ) + &
-                                r4 * Adz_ww_ext(i,j,k+1)
-         end do
-      end do
-!!$omp enddo nowait
-      
-      k=l_nk
-      rx = Ver_z_8%m(k)
-      ra = Ver_z_8%t(k-2)
-      rb = Ver_z_8%t(k-1)
-      rc = Ver_z_8%t(k)
-      rd = Ver_z_8%t(k+1)
-      r1 = lag3(rx, ra, rb, rc, rd)
-      r2 = lag3(rx, rb, ra, rc, rd)
-      r3 = lag3(rx, rc, ra, rb, rd)
-      r4 = lag3(rx, rd, ra, rb, rc)         
-!!$omp do
-      do j = 1,l_nj
-         do i = 1,l_ni
-            Adz_ww_arr(i,j,k) = r1 * zdt0(i,j,k-2) + &
-                                r2 * zdt0(i,j,k-1) + &
-                                r3 * zdt0(i,j,k  )
-         end do
-      end do
-!!$omp enddo nowait
-!!$omp do
-      do j =1-Adz_haloy, l_nj+Adz_haloy
-         do i =1-Adz_halox, l_ni+Adz_halox
-            Adz_uvw_d(3,i,j,k)= r1 * Adz_ww_ext(i,j,k-2) + &
-                                r2 * Adz_ww_ext(i,j,k-1) + &
-                                r3 * Adz_ww_ext(i,j,k  )
-         end do
-      end do
-!!$omp enddo
+      endif
 !
 !     ---------------------------------------------------------------
 !
       return
-contains
-      real(kind=REAL64) function lag3(zz, z1, z2, z3, z4)
-      implicit none
-      real(kind=REAL64), intent(in)  :: zz, z1, z2, z3, z4
-      
-      lag3 = ( ((zz - z2) * (zz - z3) * (zz - z4) ) / &
-               ((z1 - z2) * (z1 - z3) * (z1 - z4) ) )
-      end function lag3
 
       end subroutine adz_prepareWinds

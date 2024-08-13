@@ -52,6 +52,22 @@ module dyn_fisl_options
    namelist /dyn_fisl  / Schm_hzdadw_L
    namelist /dyn_fisl_p/ Schm_hzdadw_L
 
+   !# Maximum iterations to solve trajectories
+   integer :: Schm_itSL  = 6
+   namelist /dyn_fisl  / Schm_itSL
+   namelist /dyn_fisl_p/ Schm_itSL
+
+   !# Trajectory precicion stopping criteria
+   !# set to -1. constant number of iterations required(Schm_itSL above)
+   real :: Schm_tolSL  = 1e-6
+   namelist /dyn_fisl  / Schm_tolSL
+   namelist /dyn_fisl_p/ Schm_tolSL
+      
+   !# Trajectory convergence rate stopping criteria
+   real :: Schm_rateSL  = .1
+   namelist /dyn_fisl  / Schm_rateSL
+   namelist /dyn_fisl_p/ Schm_rateSL
+      
    !# Maximum Picard iterations to solve non-linear Helmholtz problem
    integer :: Schm_itpc  = 10
    namelist /dyn_fisl  / Schm_itpc

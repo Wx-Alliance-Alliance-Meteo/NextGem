@@ -61,7 +61,7 @@
          dtzD_8 = 0.d0
       end if
 
-      call adz_prepareWinds ()
+      call adz_prepareWinds (1)
 
       k00=Adz_k0m
       if (Adz_k0>1) k00=1

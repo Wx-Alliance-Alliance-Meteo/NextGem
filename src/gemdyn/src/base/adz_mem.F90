@@ -48,6 +48,7 @@ module adz_mem
       real(kind=REAL64) :: Adz_yyminposx,Adz_yymaxposx,Adz_yyminposy,Adz_yymaxposy
       real(kind=REAL64) :: adz_ovdzm_8, adz_ovdzt_8, adz_vw5
       real(kind=REAL64), dimension(:), allocatable :: adz_vw1t, adz_vw2t, adz_vw3t, adz_vw4t
+      real(kind=REAL64), dimension(:,:), allocatable :: adz_vwt2m
 
       real(kind=REAL64), dimension(:), pointer :: Adz_cy_8, &
               Adz_delz_m, Adz_delz_t, Adz_odelz_m, Adz_odelz_t
@@ -96,7 +97,7 @@ module adz_mem
 
       real, allocatable, dimension (:,:,:,:) :: Adz_uvw_dep,   &
                          Adz_pm,Adz_pmu,Adz_pmv,Adz_pt,Adz_pb, &
-                         Adz_uvw_lastl, Adz_dep, Adz_pdu,      & !<--- for departure pts
+                         Adz_uvw_lastl, Adz_dep, Adz_pdu,      &
                          Adz_pdv, Adz_pt2, Adz_pb2
 
       real, allocatable, dimension (:,:,:  ) ::       &

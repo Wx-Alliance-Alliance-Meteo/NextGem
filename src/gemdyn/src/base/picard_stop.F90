@@ -133,7 +133,7 @@
       rate=1.d0
       if (F_iter > 1) rate= (sucsv_err(F_iter-1)-sucsv_err(F_iter))/sucsv_err(F_iter-1)
       if ((err2nrm < Schm_tolpic).or.(rate<Schm_ratepic)) picard_stop= .true.
-      if (print_conv) write(Lun_out,'(" PICARD ",i1,": DIFF_MAX,L_2,rate: ",2(1pe11.4),1pe9.2)')&
+      if (print_conv) write(Lun_out,'(" PICARD",i3,": DIFF_MAX,L_2,rate: ",2(1pe11.4),1pe10.2)')&
                       F_iter,err,err2nrm,rate
 !
 !     ---------------------------------------------------------------

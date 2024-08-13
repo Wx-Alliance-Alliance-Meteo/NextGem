@@ -251,6 +251,7 @@
 
       end if
 
+      allocate (adz_vwt2m(4,l_nk))
       allocate (adz_vw1t(l_nk),adz_vw2t(l_nk),adz_vw3t(l_nk),adz_vw4t(l_nk))
       allocate( Adz_zabcd_8%t(l_nk),Adz_zbacd_8%t(l_nk),Adz_zcabd_8%t(l_nk),Adz_zdabc_8%t(l_nk))
       allocate( Adz_zxabcde_8%t(l_nk),Adz_zaxbcde_8%t(l_nk),Adz_zbxacde_8%t(l_nk),&
@@ -317,7 +318,18 @@
          Adz_zdxabce_8%m(k) = 1.0/quiprod(rd,rx,ra,rb,rc,re)
          Adz_zexabcd_8%m(k) = 1.0/quiprod(re,rx,ra,rb,rc,rd)
       end do
-
+      do k= 2, l_nk
+         rx = Ver_z_8%m(k)
+         ra = Ver_z_8%t(k-2)
+         rb = Ver_z_8%t(k-1)
+         rc = Ver_z_8%t(k)
+         rd = Ver_z_8%t(k+1)
+         adz_vwt2m(1,k) = lag3(rx, ra, rb, rc, rd)
+         adz_vwt2m(2,k) = lag3(rx, rb, ra, rc, rd)
+         adz_vwt2m(3,k) = lag3(rx, rc, ra, rb, rd)
+         adz_vwt2m(4,k) = lag3(rx, rd, ra, rb, rc)
+      end do
+      
       allocate (Adz_uu_arr(l_ni,l_nj,l_nk), Adz_vv_arr   (l_ni,l_nj,l_nk),&
                 Adz_ww_arr(l_ni,l_nj,l_nk), Adz_uvw_dep(3,l_ni,l_nj,Adz_k0m:l_nk), &
                 Adz_uvw_lastl(3,l_ni,l_nj,Adz_k0m:l_nk))

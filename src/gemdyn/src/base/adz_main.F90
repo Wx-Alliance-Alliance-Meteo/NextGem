@@ -27,11 +27,7 @@
 !
 !     ---------------------------------------------------------------
 !
-      if (F_euler_L) then
-         call euler_adz_trapezoid_pic_stop (F_dt_8)
-      else
-         call adz_traject_pic_stop (F_dt_8,itpc) 
-      endif
+      call adz_traject_BDF2 (F_dt_8,itpc,F_euler_L)
 
       if ( F_type_S == 'TURBO' ) then
          call adz_SL_turbo ()

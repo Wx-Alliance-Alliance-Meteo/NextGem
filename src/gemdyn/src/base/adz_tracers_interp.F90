@@ -28,14 +28,13 @@
       call gtmg_start (33, 'ADV_tracers', 10)
 
       if (Step_kount.eq.1) then
- 
         do i=1,Tr3d_ntr
           tracers_P(i)%pntr(l_minx:l_maxx,l_miny:l_maxy,1:l_nk) = tracers_t2(i)%pntr(l_minx:l_maxx,l_miny:l_maxy,1:l_nk)
         end do
- 
       endif
 
-      if (Adz_verbose>0) call stat_mass_tracers_hlt (1,"BEFORE ADVECTION")
+      if (Adz_verbose>0) &
+      call stat_mass_tracers_hlt (1,"BEFORE ADVECTION")
 
       if (Tr3d_ntrTRICUB_NT>0) then
          call gtmg_start (34, 'TRICUB_NT', 33)

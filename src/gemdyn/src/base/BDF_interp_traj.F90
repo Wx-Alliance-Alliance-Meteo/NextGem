@@ -12,22 +12,9 @@
 ! along with this library; if not, write to the Free Software Foundation, Inc.,
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
-!
-!	New arrays:
-!	 1. Adz_pdu
-!	 2. Adz_pdv
-!	 3. Adz_pt2
-!	 4. Adz_pb2
-!
-!	The arrays above are like their original counterparts, Adz_pu, Adz_pv,etc
-!	but now for the departure time level at t - dt
-!
-!	New variables in code:
-!	 1. xd, yd, zd: like xt, yt and zt but for departure
-!
 !------------------------------------------------------------------------------
 
-      subroutine BDF_interp_traj (F_dtzD_8, F_dtzA_8, F_dt_8)
+      subroutine BDF_interp_traj (F_dt_8)
       use adz_mem
       use adz_options
       use glb_ld
@@ -38,7 +25,7 @@
       use, intrinsic :: iso_fortran_env
       implicit none
 
-      real(kind=REAL64), intent(IN) :: F_dtzD_8, F_dtzA_8, F_dt_8
+      real(kind=REAL64), intent(IN) :: F_dt_8
 
       integer :: i,j,k,k00
       real(kind=REAL64) :: xt,yt,zt, wdt,ww,wp,wm
@@ -277,7 +264,7 @@
          end do
 !!$omp enddo
       endif
-    
+
 !---midpoint code---  
 !!$omp do
       do k= Adz_k0t, l_nk
@@ -293,9 +280,6 @@
          Adz_pb2  (:,Adz_i0:Adz_in, Adz_j0:Adz_jn, k)
       end do
 !!$omp enddo
-
-
-
 !
 !---------------------------------------------------------------------
 !

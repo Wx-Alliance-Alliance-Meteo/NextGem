@@ -13,91 +13,76 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
 
-      subroutine adz_traject_pic_stop (F_dt_8, itpc)
+      subroutine adz_traject_BDF2 (F_dt_8, itpc, F_euler_L)
       use ISO_C_BINDING
-      use glb_ld
       use cstv
       use geomh
-      use gmm_vt0
-      use gmm_vt1
+      use glb_ld
+      use glb_pil
       use ver
       use dyn_fisl_options
-      use HORgrid_options
       use adz_options
       use adz_mem
-      use, intrinsic :: iso_fortran_env
-      use omp_lib
-      use omp_timing
+      use lun
       use ptopo
-      use stat_mpi, only:statf_dm
+      use, intrinsic :: iso_fortran_env
       implicit none
-
-      include 'mpif.h'
       
-      real(kind=REAL64), intent(IN) :: F_dt_8
+      logical, intent(IN) :: F_euler_L
       integer, intent(IN) :: itpc
+      real(kind=REAL64), intent(IN) :: F_dt_8
 
       include "tricublin_f90.inc"
-      integer :: iter,i,j,k,kk1,nb,k00, ierr, ierr2,dim
+      include 'mpif.h'
+      
+      integer :: iter,i,j,k,kk1,nb,k00,dim,ierr
       integer :: HLT_np, HLT_start, HLT_end
       integer,dimension(l_ni) :: kk
-      real(kind=REAL64) :: dtA_8,dtzA_8,dtD_8,dtzD_8,half_dt_8,double_dt_8,pos
+      real :: rate
+      real(kind=REAL64) :: pos,N,err2nrm
+      real(kind=REAL64) :: tau,double_dt_8,half_dt_8,quarter_dt_8
       real(kind=REAL64), dimension(l_ni) :: xm,ym,zm
       real(kind=REAL64), dimension(:,:), pointer :: xchg
-      real(kind=REAL64), parameter :: bdf1=0.75d0, bdf2=0.25d0, bdf3=-3.d0, bdf4=4.d0
       type(C_PTR) :: Cpntr
-      !---------------for stopping criteria-----------------
-      real(kind=REAL64), parameter :: max_iter = 3, tol=1e-6 
-      real(kind=REAL64) :: max_x, max_y, max_z, tmp, local_max, x_sum, y_sum, z_sum, local_sum, e2, einf
-      real(kind=REAL64), dimension(11) :: err, err2nrm, sucsv_err, sucsv_err2nrm
-      real(kind=REAL64), dimension(l_ni) :: xerr, yerr, zerr
-      real(kind=REAL64) :: inv_dt_8, N, glb_dot_pic, glb_max_pic, l_avg_8_pic, l_max_8_pic
-      real(kind=REAL64), dimension(:,:), allocatable :: thread_sum_pic, thread_max_pic
+      real(kind=REAL64), dimension(l_nk) :: total_sum,err,glb
+      real(kind=REAL64), dimension(Adz_i0:Adz_in) :: lenght
+      real(kind=REAL64), dimension(500), save :: sucsv_err
 !
 !     ---------------------------------------------------------------
 !
-      allocate (thread_sum_pic(1,0:OMP_get_max_threads()-1), &
-                thread_max_pic(1,0:OMP_get_max_threads()-1))
-      thread_sum_pic = 0.d0; thread_max_pic = 0.d0
-
       if (Schm_advec == 0) then ! no advection
-           half_dt_8 = 0.d0
+         half_dt_8   = 0.d0
          double_dt_8 = 0.d0
+         quarter_dt_8= 0.d0
       else
-           half_dt_8 = 0.5*F_dt_8
-         double_dt_8 = 2.d0*F_dt_8
-            inv_dt_8 = 1.0/F_dt_8
+            half_dt_8= 0.5    *F_dt_8
+          double_dt_8= 2.d0   *F_dt_8
+         quarter_dt_8= 0.25d0 *Cstv_dt_8
       end if
-
-      call adz_prepareWinds ()
+      tau= half_dt_8
+      if (F_euler_L) tau= quarter_dt_8
+      
+      call adz_prepareWinds (itpc)
 
       k00=Adz_k0m
       if (Adz_k0>1) k00=1
+      N = ((G_ni-Glb_pil_e)-(1+Glb_pil_w)+1)*((G_nj-Glb_pil_n)-(1+Glb_pil_s)+1)
 
-      if(itpc.eq.1) then
-
-!!$omp do
-      !0a.Interpolate velocity V(t) at current time to estimated midpoints x^{n}: V^{n}
+      do iter = 1, Schm_itSL
+         
+         total_sum= 0.d0 ; err = -huge(1.) 
          do k= k00, l_nk
-            call tricublin_zyx3_n &
-                          (Adz_uvw_dep(1,1,1,k),Adz_uvw_d(1,1,1,1),&
-                           Adz_pxyzm(1:3,:,:,k),Adz_cpntr_q,Adz_2dnh)
-      end do
-!!$omp end do
+            call tricublin_zyx3_n (Adz_uvw_dep(1,1,1,k),Adz_uvw_d(1,1,1,1),&
+                                Adz_pxyzm(1:3,:,:,k),Adz_cpntr_q,Adz_2dnh)
+         end do
 
-      endif !itpc=1
-
-      N = G_ni * G_nj * l_nk
-
-      do iter = 1, max_iter !iterate at most up to 10
-!!$omp do
-      !1.Solve x^{n-1} = x^{n+1} - 0.5*dt*(V^{n} + V^{+})
+         !1.Solve x^{n-1} = x^{n+1} - 0.5*dt*(V^{n} + V^{+})
          do k= k00, l_nk
              do j= 1, l_nj
                 do i= 1, l_ni
-                  xm(i) = dble(i+l_i0-1) - half_dt_8*(Adz_uvw_dep(1,i,j,k) +  Adz_uu_arr(i,j,k))*geomh_inv_hx_8
-                  ym(i) = dble(j+l_j0-1) - half_dt_8*(Adz_uvw_dep(2,i,j,k) +  Adz_vv_arr(i,j,k))*geomh_inv_hy_8
-                  pos   = Ver_z_8%m(k)   - half_dt_8*(Adz_uvw_dep(3,i,j,k) +  Adz_ww_arr(i,j,k))
+                  xm(i) = dble(i+l_i0-1) - tau*(Adz_uvw_dep(1,i,j,k) +  Adz_uu_arr(i,j,k))*geomh_inv_hx_8
+                  ym(i) = dble(j+l_j0-1) - tau*(Adz_uvw_dep(2,i,j,k) +  Adz_vv_arr(i,j,k))*geomh_inv_hy_8
+                  pos   = Ver_z_8%m(k)   - tau*(Adz_uvw_dep(3,i,j,k) +  Adz_ww_arr(i,j,k))
                   zm(i) = min(max(pos,Ver_zmin_8),Ver_zmax_8)
 
                   kk1 = (zm(i) - ver_z_8%m(0)  ) * adz_ovdzm_8 + 1.d0
@@ -122,20 +107,57 @@
                   Adz_pxyzm(3,i,j,k) = Adz_wpxyz(i,j,k,3)
                end do
             end do
+            do j= Adz_j0, Adz_jn
+               do i= Adz_i0, Adz_in
+                  lenght(i)= sqrt((Adz_pxyzm(1,i,j,k) - Adz_pm(1,i,j,k))**2. &
+                                + (Adz_pxyzm(2,i,j,k) - Adz_pm(2,i,j,k))**2. &
+                                + (Adz_pxyzm(3,i,j,k) - Adz_pm(3,i,j,k))**2.)
+                  Adz_pm(:,i,j,k) = Adz_pxyzm(:,i,j,k)
+               end do
+               total_sum(k)= total_sum(k) + sum(lenght)
+               err(k) = max(err(k),maxval(lenght))
+            end do
          enddo
-!!$omp enddo
-
-!!$omp do
-      !0a.Interpolate velocity V(t) at current time to estimated midpoints x^{n}: V^{n}
-         do k= k00, l_nk
-            call tricublin_zyx3_n ( Adz_uvw_dep(1,1,1,k),Adz_uvw_d(1,1,1,1), &
-                                    Adz_pxyzm(1:3,:,:,k),Adz_cpntr_q,Adz_2dnh)
-         end do
-!!$omp end do
-      end do
+         if (Schm_tolSL>0.) then
+         call MPI_allreduce (err      ,glb,l_nk,MPI_DOUBLE_PRECISION,MPI_MAX,COMM_MULTIGRID,ierr)
+         err= glb
+         call MPI_allreduce (total_sum,glb,l_nk,MPI_DOUBLE_PRECISION,MPI_SUM,COMM_MULTIGRID,ierr)
+         err2nrm = maxval(glb)/N
+         sucsv_err(iter)= err2nrm
+         rate=1.d0
+         if (iter > 1) rate= (sucsv_err(iter-1)-sucsv_err(iter))/sucsv_err(iter-1)
+         if (Lun_out>0) write(Lun_out,'("   TRAJ convergence",i3,&
+                    ": DIFF_MAX,L_2,rate: ",2(1pe11.4),1pe10.2)')&
+                      iter,maxval(err),err2nrm,rate
+         if ((err2nrm < Schm_tolSL).or.(rate<Schm_rateSL)) exit
+         endif
       
-!!$omp do
-!2.Solve x^{n-1} = x^{n+1} - 2*dt*(V^{n})
+      end do
+
+      if (F_euler_L) then
+         
+         do k= k00, l_nk
+            do j= 1, l_nj
+               do i= 1, l_ni
+                  Adz_dpxyz(i,j,k,1) = Adz_wpxyz(i,j,k,1)
+                  Adz_pxyzd(1,i,j,k) = Adz_pxyzm(1,i,j,k)
+                  Adz_dpxyz(i,j,k,2) = Adz_wpxyz(i,j,k,2)
+                  Adz_pxyzd(2,i,j,k) = Adz_pxyzm(2,i,j,k)
+                  Adz_dpxyz(i,j,k,3) = Adz_wpxyz(i,j,k,3)
+                  Adz_pxyzd(3,i,j,k) = Adz_pxyzm(3,i,j,k) 
+                  Adz_dpz    (i,j,k) = Adz_wpz    (i,j,k)
+               end do
+            enddo
+            do j= Adz_j0, Adz_jn
+               do i= Adz_i0, Adz_in
+                  Adz_dep(:,i,j,k) = Adz_pxyzd(:,i,j,k)
+               end do
+            end do
+         enddo
+         
+      else
+         
+      !2.Solve x^{n-1} = x^{n+1} - 2*dt*(V^{n})
       do k= k00, l_nk
          do j= 1, l_nj
             do i= 1, l_ni
@@ -163,23 +185,14 @@
                Adz_pxyzd(3,i,j,k) = Adz_dpxyz(i,j,k,3)
             end do
          end do
+         do j= Adz_j0, Adz_jn
+            do i= Adz_i0, Adz_in
+               Adz_dep(:,i,j,k) = Adz_pxyzd(:,i,j,k)
+            end do
+         end do
       enddo
-!!$omp enddo
       
-!!$omp do
-      do k= Adz_k0, l_nk
-         Adz_pm   (:,Adz_i0:Adz_in, Adz_j0:Adz_jn, k)=&
-         Adz_pxyzm(:,Adz_i0:Adz_in, Adz_j0:Adz_jn, k)
-      end do
-!!$omp enddo nowait
-
-!---for departure point---      
-!!$omp do
-      do k= Adz_k0, l_nk
-         Adz_dep  (:,Adz_i0:Adz_in, Adz_j0:Adz_jn, k)=&
-         Adz_pxyzd(:,Adz_i0:Adz_in, Adz_j0:Adz_jn, k)
-      end do
-!!$omp enddo nowait
+      endif
 
       dim=3*ubound(Adz_wpxyz,3)
       call HLT_split (1, dim, HLT_np, HLT_start, HLT_end)
@@ -194,11 +207,11 @@
       call gem_xch_halo_8 ( xchg(1,HLT_start),&
                     -1,l_ni+2,-1,l_nj+2, HLT_np,-1)
 
-!like adz_interp_traj, but added code to account for the departure point
-!at previous time level                 
-      call BDF_interp_traj (dtzD_8, dtzA_8, F_dt_8)
+      call adz_int_traj (Adz_wpxyz,Adz_pmu,Adz_pmv,Adz_pt,F_dt_8)
+      call adz_int_traj (Adz_dpxyz,Adz_pdu,Adz_pdv,Adz_pt2,F_dt_8)
+      call BDF_interp_traj (F_dt_8)
 
 !     ---------------------------------------------------------------
 !
       return
-      end subroutine adz_traject_pic_stop
+      end subroutine adz_traject_BDF2

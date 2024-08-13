@@ -69,7 +69,7 @@
 
       endif
 
-      call adz_prepareWinds ()
+      call adz_prepareWinds (itpc)
 
 !!$omp do
       !0b.Estimate departure points as x^{n-1}=x^{n+1}-dt*V^{n} using
@@ -154,7 +154,7 @@
 
 !like adz_interp_traj, but added code to account for the departure point
 !at previous time level                 
-      call BDF_interp_traj (dtzD_8, dtzA_8, F_dt_8)
+      call BDF_interp_traj (F_dt_8)
 
 !     ---------------------------------------------------------------
 !
