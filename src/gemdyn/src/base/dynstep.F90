@@ -55,8 +55,8 @@
 
          call tstpdyn(0.5d0*Cstv_dt_8 ) ! BDF2
 
-!     special for tracer advection only
-         call adz_traject(Cstv_dt_8) !ext,ut0
+         !for first step tracer advection only
+         call adz_traject (Cstv_dt_8,1,.false.,.false.)
 
       else
             

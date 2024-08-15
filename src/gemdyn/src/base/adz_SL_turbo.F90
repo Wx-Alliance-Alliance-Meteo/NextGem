@@ -17,7 +17,7 @@
       use ISO_C_BINDING
       use dyn_fisl_options
       use adz_mem
-      use adz_interp_hlt_mod
+      use adz_interp_mod
       implicit none
 
       type(Adz_pntr_stack), dimension(3), target :: stack
@@ -27,12 +27,12 @@
 !---midpoint---
       stack(1)%src => rhsu_bdf_t1
       stack(1)%dst => rhsu_mid
-      call adz_tricub_hlt ( stack,1,Adz_pmu,Adz_cpntr_q,Adz_num_u,&
+      call adz_tricub ( stack,1,Adz_pmu,Adz_cpntr_q,Adz_num_u,&
                             Adz_i0u,Adz_inu,Adz_j0,Adz_jn,Adz_k0 )
 
       stack(1)%src => rhsv_bdf_t1
       stack(1)%dst => rhsv_mid
-      call adz_tricub_hlt ( stack,1,Adz_pmv,Adz_cpntr_q,Adz_num_v,&
+      call adz_tricub ( stack,1,Adz_pmv,Adz_cpntr_q,Adz_num_v,&
                             Adz_i0,Adz_in,Adz_j0v,Adz_jnv,Adz_k0 )
 
       stack(1)%src => rhsc_bdf_t1
@@ -42,7 +42,7 @@
 !     Adz_i0,Adz_in,Adz_j0,Adz_jn,1,l_nk+1,F_Quint_L=.false. )
          stop 'adz_SL_turbo'
       else
-         call adz_tricub_hlt ( stack,1,Adz_pm ,Adz_cpntr_q,Adz_num_q,&
+         call adz_tricub ( stack,1,Adz_pm ,Adz_cpntr_q,Adz_num_q,&
                                Adz_i0,Adz_in,Adz_j0,Adz_jn,Adz_k0 )
       endif
 
@@ -52,18 +52,18 @@
       stack(2)%dst => rhsf_mid
       stack(3)%src => rhsw_bdf_t1
       stack(3)%dst => rhsw_mid
-      call adz_tricub_hlt ( stack,3,Adz_pt ,Adz_cpntr_t,Adz_num_t,&
+      call adz_tricub ( stack,3,Adz_pt ,Adz_cpntr_t,Adz_num_t,&
                             Adz_i0,Adz_in,Adz_j0,Adz_jn,Adz_k0t )
 
 !---departure---
       stack(1)%src => rhsu_bdf_t2
       stack(1)%dst => rhsu_dep
-      call adz_tricub_hlt ( stack,1,Adz_pdu,Adz_cpntr_q,Adz_num_u,&
+      call adz_tricub ( stack,1,Adz_pdu,Adz_cpntr_q,Adz_num_u,&
                             Adz_i0u,Adz_inu,Adz_j0,Adz_jn,Adz_k0 )
 
       stack(1)%src => rhsv_bdf_t2
       stack(1)%dst => rhsv_dep
-      call adz_tricub_hlt ( stack,1,Adz_pdv,Adz_cpntr_q,Adz_num_v,&
+      call adz_tricub ( stack,1,Adz_pdv,Adz_cpntr_q,Adz_num_v,&
                             Adz_i0,Adz_in,Adz_j0v,Adz_jnv,Adz_k0 )
 
       stack(1)%src => rhsc_bdf_t2
@@ -73,7 +73,7 @@
 !     Adz_i0,Adz_in,Adz_j0,Adz_jn,1,l_nk+1,F_Quint_L=.false. )
          stop 'adz_SL_turbo'
       else
-         call adz_tricub_hlt ( stack,1,Adz_dep ,Adz_cpntr_q,Adz_num_q,&
+         call adz_tricub ( stack,1,Adz_dep ,Adz_cpntr_q,Adz_num_q,&
                               Adz_i0,Adz_in,Adz_j0,Adz_jn,Adz_k0 )
       endif
                            
@@ -83,7 +83,7 @@
       stack(2)%dst => rhsf_dep
       stack(3)%src => rhsw_bdf_t2
       stack(3)%dst => rhsw_dep
-      call adz_tricub_hlt ( stack,3,Adz_pdt ,Adz_cpntr_t,Adz_num_t,&
+      call adz_tricub ( stack,3,Adz_pdt ,Adz_cpntr_t,Adz_num_t,&
                             Adz_i0,Adz_in,Adz_j0,Adz_jn,Adz_k0t )
 !
 !     ---------------------------------------------------------------

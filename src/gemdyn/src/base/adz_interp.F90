@@ -13,7 +13,7 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
 
-module adz_interp_hlt_mod
+module adz_interp_mod
   use ISO_C_BINDING
   use adz_mem
   use adz_options
@@ -25,7 +25,7 @@ module adz_interp_hlt_mod
   public
 
 contains
-      subroutine adz_tricub_hlt ( F_stk,F_nptr,F_xyz,F_geom,F_num,&
+      subroutine adz_tricub ( F_stk,F_nptr,F_xyz,F_geom,F_num,&
                    F_i0,F_in,F_j0,F_jn,F_k0,F_ext_L,F_post,F_QV_L)
       implicit none
 
@@ -187,6 +187,6 @@ contains
 !---------------------------------------------------------------------
 !
       return
-      end subroutine adz_tricub_hlt
+      end subroutine adz_tricub
       
-end module adz_interp_hlt_mod
+end module adz_interp_mod

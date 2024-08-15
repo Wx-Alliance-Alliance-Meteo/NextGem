@@ -14,10 +14,9 @@
 !---------------------------------- LICENCE END ---------------------------------
 !------------------------------------------------------------------------------
 
-      subroutine adz_int_traj (F_wpxyz,F_wpz,F_pmu,F_pmv,F_pt,F_dt_8)
+      subroutine adz_int_traj_old (F_wpxyz,F_wpz,F_pmu,F_pmv,F_pt,F_dt_8)
       use adz_mem
       use adz_options
-      use dyn_fisl_options
       use glb_ld
       use dcst
       use gmm_vt0
@@ -41,11 +40,6 @@
 !
 !---------------------------------------------------------------------
 !
-      if (.not.SL_sfc) then
-         call adz_int_traj_old (F_wpxyz,F_wpz,F_pmu,F_pmv,F_pt,F_dt_8)
-         return
-      endif
-
       zmin_bound = dble(0)
       zmax_bound = dble(l_nk+1)
       k00=max(Adz_k0t-1,1)
@@ -86,7 +80,7 @@
          end do
       end do
 
-      do k= max(k00,2), l_nk-1
+      do k= max(k00,2), l_nk-2
          do j= Adz_j0, Adz_jn
             do i= Adz_i0, Adz_in
                xt = adz_vw1t(k)*F_wpxyz(i,j,k-1,1)+ &
@@ -108,7 +102,7 @@
          end do
       end do
 
-      k= l_nk
+      k= l_nk-1
       do j= Adz_j0, Adz_jn
          do i= Adz_i0, Adz_in
             xt = (F_wpxyz(i,j,k,1)+F_wpxyz(i,j,k+1,1))*half
@@ -120,6 +114,7 @@
          end do
       end do
 
+      k= l_nk
       if (Adz_slt_winds) then
          do j= Adz_j0, Adz_jn
             do i= Adz_i0, Adz_in
@@ -131,7 +126,23 @@
                F_pt(2,i,j,k)= min(max(yt,Adz_iminposy),Adz_imaxposy)
             end do
          end do
-      endif
+      else
+         do j= Adz_j0, Adz_jn
+            do i= Adz_i0, Adz_in
+               xt = wp*F_wpxyz(i,j,k,1)+wm*F_wpxyz(i,j,k-1,1)
+               yt = wp*F_wpxyz(i,j,k,2)+wm*F_wpxyz(i,j,k-1,2)
+               F_pt(1,i,j,k)= min(max(xt,Adz_iminposx),Adz_imaxposx)
+               F_pt(2,i,j,k)= min(max(yt,Adz_iminposy),Adz_imaxposy)
+            end do
+         end do
+      end if
+
+      do j= Adz_j0, Adz_jn
+         do i= Adz_i0, Adz_in
+            zt = wp*F_wpz(i,j,k)+wm*F_wpz(i,j,k-1)
+            F_pt(3,i,j,k)= zindx(zt)
+         end do
+      end do
       
       if (k00==1) then
          do j= Adz_j0, Adz_jn
@@ -145,7 +156,7 @@
             end do
          end do
       endif
-!
+!     
 !---------------------------------------------------------------------
 !
       return
@@ -169,5 +180,5 @@ contains
       return
       end function zindx
 
-      end subroutine adz_int_traj
+      end subroutine adz_int_traj_old
 

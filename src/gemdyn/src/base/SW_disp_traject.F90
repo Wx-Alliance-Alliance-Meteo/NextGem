@@ -221,10 +221,9 @@
                  l_ni,l_nj, 3*l_nk, 2,2, .false.,.false., l_ni,0)
 !!$omp end single
 
-!like adz_interp_traj, but added code to account for the departure point
-!at previous time level                 
-      call BDF_interp_traj (F_dt_8)
-
+      call adz_int_traj (Adz_wpxyz,Adz_wpz,Adz_pmu,Adz_pmv,Adz_pt ,F_dt_8)
+      call adz_int_traj (Adz_dpxyz,Adz_dpz,Adz_pdu,Adz_pdv,Adz_pdt,F_dt_8)
+!
 !     ---------------------------------------------------------------
 !
       return

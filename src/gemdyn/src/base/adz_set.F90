@@ -115,8 +115,6 @@
       Adz_kkmax= l_nk-2
 
       if (ADZ_OD_L) then
-         Adz_cpntr_qp= vsearch_setup_plus(Ver_z_8%m(1:G_nk+1), G_nk+1,&
-                    l_maxx-l_minx+1,l_maxy-l_miny+1,1-l_i0,1-l_j0)
          Adz_cpntr_q= vsearch_setup_plus(Ver_z_8%m(1:G_nk), G_nk,&
                     l_maxx-l_minx+1,l_maxy-l_miny+1,1-l_i0,1-l_j0)
          Adz_cpntr_t= vsearch_setup_plus(Ver_z_8%t(1:G_nk), G_nk,&
@@ -260,7 +258,7 @@
       allocate( Adz_zxabcde_8%m(l_nk),Adz_zaxbcde_8%m(l_nk),Adz_zbxacde_8%m(l_nk),&
                 Adz_zcxabde_8%m(l_nk),Adz_zdxabce_8%m(l_nk),Adz_zexabcd_8%m(l_nk))
 
-      do k=2, l_nk-2
+      do k=2, l_nk-1
          rx = Ver_z_8%t(k)
          ra = Ver_z_8%m(k-1)
          rb = Ver_z_8%m(k  )
@@ -411,17 +409,10 @@
                                     0,GMM_NULL_FLAGS)
       mymeta= SET_GMMUSR_FLAG(meta, flag_m_f)
       istat= gmm_create('ADZ_PXYZM',Adz_pxyzm, mymeta, flag_r_n)
-      istat= gmm_create('ADZ_PXYZD',Adz_pxyzd, mymeta, flag_r_n) !<--for departure
+      istat= gmm_create('ADZ_PXYZD',Adz_pxyzd, mymeta, flag_r_n)
       
-      call gmm_build_meta4D (meta,  -1,l_ni+2,0,0,l_ni+4, &
-                                    -1,l_nj+2,0,0,l_nj+4, &
-                                    1,l_nk+1,0,0,l_nk+1, &
-                                    1,3   ,0,0,   3, &
-                                    0,GMM_NULL_FLAGS)
-      mymeta= SET_GMMUSR_FLAG(meta, flag_m_f)
-      istat= gmm_create('ADZ_WPXYZ',Adz_wpxyz, mymeta, flag_r_n)
-      !for departure point
-      istat= gmm_create('ADZ_DPXYZ',Adz_dpxyz, mymeta, flag_r_n)
+      allocate (Adz_wpxyz(-1:l_ni+2,-1:l_nj+2,l_nk+1,3),Adz_dpxyz(-1:l_ni+2,-1:l_nj+2,l_nk+1,3))
+      allocate (Adz_wpz(l_ni,l_nj,l_nk+1),Adz_dpz(l_ni,l_nj,l_nk+1))
 
       call gmm_build_meta4D (meta,  -1,l_ni+2,0,0,l_ni+4, &
                                     -1,l_nj+2,0,0,l_nj+4, &
@@ -431,14 +422,6 @@
       mymeta= SET_GMMUSR_FLAG(meta, flag_m_f)
       !for displacement array in trajectories
       istat= gmm_create('ADZ_DISP',Adz_disp, mymeta, flag_r_n)
-
-      call gmm_build_meta3D (meta,  1,l_ni,0,0,l_ni, &
-                                    1,l_nj,0,0,l_nj, &
-                                    1,l_nk,0,0,l_nk, &
-                                    0,GMM_NULL_FLAGS)
-      mymeta= SET_GMMUSR_FLAG(meta, flag_m_f)
-      istat= gmm_create('ADZ_WPZ',Adz_wpz, mymeta, flag_r_n)
-      istat= gmm_create('ADZ_DPZ',Adz_dpz, mymeta, flag_r_n)
       
 !     Wind information at the lowest thermodynamic level
 !     from the physics surface layer scheme

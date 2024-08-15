@@ -27,7 +27,7 @@
 !
 !     ---------------------------------------------------------------
 !
-      call adz_traject_BDF2 (F_dt_8,itpc,F_euler_L)
+      call adz_traject (F_dt_8,itpc,F_euler_L,.true.)
 
       if ( F_type_S == 'TURBO' ) then
          call adz_SL_turbo ()

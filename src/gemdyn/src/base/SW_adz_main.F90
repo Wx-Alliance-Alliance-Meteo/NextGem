@@ -24,7 +24,7 @@
       use cstv
       use gem_options
       use adz_mem
-      use adz_interp_hlt_mod
+      use adz_interp_mod
       use dynkernel_options
       use mem_tstp
       use gmm_vt1
@@ -44,9 +44,9 @@
 !     ---------------------------------------------------------------
 !
       if(F_euler_L) then
-         call euler_adz_traject_pic (F_dt_8,itpc) !<--bdf trajectory
+         call SW_euler_adz_traject (F_dt_8,itpc) !<--bdf trajectory
       else
-         call adz_traject_pic (F_dt_8,itpc) !<--bdf trajectory
+         call SW_adz_traject (F_dt_8,itpc) !<--bdf trajectory
       endif
 
 !==========RHS terms======
@@ -54,29 +54,29 @@
 !---midpoint---
       stack(1)%src => orhsu_ext
       stack(1)%dst => rhsu_mid
-      call adz_tricub_hlt ( stack,1,Adz_pmu,Adz_cpntr_q,Adz_num_u,&
+      call adz_tricub ( stack,1,Adz_pmu,Adz_cpntr_q,Adz_num_u,&
                             Adz_i0u,Adz_inu,Adz_j0,Adz_jn,Adz_k0 )
       stack(1)%src => orhsv_ext
       stack(1)%dst => rhsv_mid
-      call adz_tricub_hlt ( stack,1,Adz_pmv,Adz_cpntr_q,Adz_num_v,&
+      call adz_tricub ( stack,1,Adz_pmv,Adz_cpntr_q,Adz_num_v,&
                             Adz_i0,Adz_in,Adz_j0v,Adz_jnv,Adz_k0 )
       stack(1)%src => orhsw_ext
       stack(1)%dst => rhsc_mid
-      call adz_tricub_hlt ( stack,1,Adz_pm ,Adz_cpntr_q,Adz_num_q,&
+      call adz_tricub ( stack,1,Adz_pm ,Adz_cpntr_q,Adz_num_q,&
                             Adz_i0,Adz_in,Adz_j0,Adz_jn,Adz_k0 )
 
 !---departure---
       stack(1)%src => orhst_ext
       stack(1)%dst => rhsu_dep
-      call adz_tricub_hlt ( stack,1,Adz_pdu,Adz_cpntr_q,Adz_num_u,&
+      call adz_tricub ( stack,1,Adz_pdu,Adz_cpntr_q,Adz_num_u,&
                             Adz_i0u,Adz_inu,Adz_j0,Adz_jn,Adz_k0 )
       stack(1)%src => orhsc_ext
       stack(1)%dst => rhsv_dep
-      call adz_tricub_hlt ( stack,1,Adz_pdv,Adz_cpntr_q,Adz_num_v,&
+      call adz_tricub ( stack,1,Adz_pdv,Adz_cpntr_q,Adz_num_v,&
                             Adz_i0,Adz_in,Adz_j0v,Adz_jnv,Adz_k0 )
       stack(1)%src => orhsf_ext
       stack(1)%dst => rhsc_dep
-      call adz_tricub_hlt ( stack,1,Adz_dep ,Adz_cpntr_q,Adz_num_q,&
+      call adz_tricub ( stack,1,Adz_dep ,Adz_cpntr_q,Adz_num_q,&
                             Adz_i0,Adz_in,Adz_j0,Adz_jn,Adz_k0 )
 
 !==========NL terms========

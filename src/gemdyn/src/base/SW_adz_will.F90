@@ -24,7 +24,7 @@
       use cstv
       use gem_options
       use adz_mem
-      use adz_interp_hlt_mod
+      use adz_interp_mod
       use dynkernel_options
       use mem_tstp
       use gmm_vt0
@@ -95,13 +95,13 @@
 !---midpoint---
       stack(1)%src => orhsw_ext
       stack(1)%dst => rhsc_mid
-      call adz_tricub_hlt ( stack,1,Adz_pm ,Adz_cpntr_q,Adz_num_q,&
+      call adz_tricub ( stack,1,Adz_pm ,Adz_cpntr_q,Adz_num_q,&
                             Adz_i0,Adz_in,Adz_j0,Adz_jn,Adz_k0 )
 
 !---departure---
       stack(1)%src => orhsf_ext
       stack(1)%dst => rhsc_dep
-      call adz_tricub_hlt ( stack,1,Adz_dep ,Adz_cpntr_q,Adz_num_q,&
+      call adz_tricub ( stack,1,Adz_dep ,Adz_cpntr_q,Adz_num_q,&
                             Adz_i0,Adz_in,Adz_j0,Adz_jn,Adz_k0 )
 
 !$OMP BARRIER

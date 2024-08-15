@@ -17,6 +17,8 @@
       use glb_ld
       use adz_options
       use adz_mem
+      use ver
+      implicit none
 
       integer i,j,k
 !
@@ -30,12 +32,8 @@
          do j = 1, l_nj
             do i = 1, l_ni
                Adz_pxyzm(1,i,j,k) = i + l_i0 - 1
-               Adz_wpxyz(i,j,k,1) = Adz_pxyzm(1,i,j,k)
                Adz_pxyzm(2,i,j,k) = j + l_j0 - 1
-               Adz_wpxyz(i,j,k,2) = Adz_pxyzm(2,i,j,k)
                Adz_pxyzm(3,i,j,k) = k
-               Adz_wpxyz(i,j,k,3) = Adz_pxyzm(3,i,j,k)
-               Adz_wpz(i,j,k)     = k
                Adz_disp(i,j,k,:)  = 0.d0
             end do
          end do
@@ -45,13 +43,14 @@
          do i = 1, l_ni
             Adz_wpxyz(i,j,l_nk+1,1) = i + l_i0 - 1
             Adz_wpxyz(i,j,l_nk+1,2) = j + l_j0 - 1
-            Adz_wpxyz(i,j,l_nk+1,3) = k
+            Adz_wpxyz(i,j,l_nk+1,3) = l_nk+1
             Adz_dpxyz(i,j,l_nk+1,1) = i + l_i0 - 1
             Adz_dpxyz(i,j,l_nk+1,2) = j + l_j0 - 1
-            Adz_dpxyz(i,j,l_nk+1,3) = k
+            Adz_dpxyz(i,j,l_nk+1,3) = l_nk+1
+            Adz_wpz(i,j,l_nk+1)     = Ver_z_8%m(l_nk+1)
+            Adz_dpz(i,j,l_nk+1)     = Ver_z_8%m(l_nk+1)
          end do
       end do
-      
 !
 !---------------------------------------------------------------------
 !

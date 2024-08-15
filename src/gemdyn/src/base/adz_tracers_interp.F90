@@ -16,7 +16,7 @@
       subroutine adz_tracers_interp ()
       use step_options
       use ens_options
-      use adz_interp_hlt_mod
+      use adz_interp_mod
       use mem_tracers
       use omp_timing
       implicit none
@@ -45,7 +45,7 @@
             pnt_stack(n)%dst => tracers_M(deb+n-1)%pntr
          end do
 !!$omp end single
-         call adz_tricub_hlt ( pnt_stack, Tr3d_ntrTRICUB_NT ,&
+         call adz_tricub ( pnt_stack, Tr3d_ntrTRICUB_NT ,&
                   Adz_pt,Adz_cpntr_t,Adz_num_t,Adz_i0,Adz_in,&
                   Adz_j0,Adz_jn,Adz_k0t,F_ext_L=.false. )
          call gtmg_stop (34)
@@ -60,7 +60,7 @@
             pnt_stack(n)%dst => tracers_M(deb+n-1)%pntr
          end do
 !!$omp end single
-         call adz_tricub_hlt ( pnt_stack, Tr3d_ntrBICHQV_NT ,&
+         call adz_tricub ( pnt_stack, Tr3d_ntrBICHQV_NT ,&
                   Adz_pt,Adz_cpntr_t,Adz_num_t,Adz_i0,Adz_in,&
                   Adz_j0,Adz_jn,Adz_k0t,F_ext_L=.false.,F_QV_L=.true. )
          call gtmg_stop (35)
@@ -78,7 +78,7 @@
          end do
 !!$omp end single
          if (.not.Adz_BC_LAM_zlf_L) then
-            call adz_tricub_hlt ( pnt_stack, Tr3d_ntrTRICUB_WP ,&
+            call adz_tricub ( pnt_stack, Tr3d_ntrTRICUB_WP ,&
                   Adz_pt,Adz_cpntr_t,Adz_num_t,Adz_i0,Adz_in,&
                   Adz_j0,Adz_jn,Adz_k0t,F_ext_L=.false.,F_post=Tr_3CWP)
          else
@@ -88,7 +88,8 @@
             end do
 !!$omp end single
             call adz_BC_LAM_zlf_0_hlt (pnt_stack,Tr3d_ntrTRICUB_WP,0)
-            call adz_tricub_hlt ( pnt_stack, Tr3d_ntrTRICUB_WP ,&
+            stop 'adz_tracers_interp: Adz_pb is undefined'
+            call adz_tricub ( pnt_stack, Tr3d_ntrTRICUB_WP ,&
                   Adz_pb,Adz_cpntr_t,Adz_num_b,Adz_i0b,Adz_inb,&
                   Adz_j0b,Adz_jnb,1,F_ext_L=.false.,F_post=Tr_3CWP)
             call adz_BC_LAM_zlf_0_hlt (pnt_stack,Tr3d_ntrTRICUB_WP,1)
@@ -108,7 +109,7 @@
          end do
 !!$omp end single
          if (.not.Adz_BC_LAM_zlf_L) then
-            call adz_tricub_hlt ( pnt_stack, Tr3d_ntrBICHQV_WP,&
+            call adz_tricub ( pnt_stack, Tr3d_ntrBICHQV_WP,&
                     Adz_pt,Adz_cpntr_t,Adz_num_t,Adz_i0,Adz_in,&
                     Adz_j0,Adz_jn,Adz_k0t, F_ext_L=.false.    ,&
                     F_QV_L=.true.,F_post=Tr_BQWP  )
@@ -119,7 +120,8 @@
             end do
 !!$omp end single
             call adz_BC_LAM_zlf_0_hlt (pnt_stack,Tr3d_ntrBICHQV_WP,0)
-            call adz_tricub_hlt ( pnt_stack, Tr3d_ntrBICHQV_WP,&
+            stop 'adz_tracers_interp: Adz_pb is undefined'
+            call adz_tricub ( pnt_stack, Tr3d_ntrBICHQV_WP,&
                   Adz_pb,Adz_cpntr_t,Adz_num_b,Adz_i0b,Adz_inb,&
                   Adz_j0b,Adz_jnb,1, F_ext_L=.false.          ,&
                   F_QV_L=.true.,F_post=Tr_BQWP  )

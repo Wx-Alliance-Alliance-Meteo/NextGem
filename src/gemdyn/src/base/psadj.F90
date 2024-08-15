@@ -88,6 +88,7 @@
          !Estimate FLUX_out/FLUX_in using Tracer=1 based on Aranami et al. (2015)
          !-----------------------------------------------------------------------
          call gtmg_start (54, 'C_BCFLUX_PS', 32)
+         stop 'PSADJ: Adz_pb is undefined'
          call adz_BC_LAM_Aranami_hlt (empty,Adz_pb,Adz_num_b,1,Adz_lminx,Adz_lmaxx,Adz_lminy,Adz_lmaxy,empty_i,MAXTR3D+1)
          call gtmg_stop (54)
 

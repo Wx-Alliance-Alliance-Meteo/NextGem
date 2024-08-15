@@ -45,22 +45,22 @@
       do j= 1, l_nj
          do i= 1, l_ni
             Adz_ww_arr(i,j,1)= Adz_vw5 * zdt0(i,j,1)
-            Adz_ww_arr(i,j,2) = adz_vwt2m(2,2) * zdt0(i,j,1) + &
-                                adz_vwt2m(3,2) * zdt0(i,j,2) + &
-                                adz_vwt2m(4,2) * zdt0(i,j,3)
-            Adz_ww_arr(i,j,l_nk) = adz_vwt2m(1,l_nk) * zdt0(i,j,l_nk-2) + &
-                                   adz_vwt2m(2,l_nk) * zdt0(i,j,l_nk-1) + &
-                                   adz_vwt2m(3,l_nk) * zdt0(i,j,l_nk  )
+            Adz_ww_arr(i,j,2)= adz_vwt2m(2,2) * zdt0(i,j,1) + &
+                               adz_vwt2m(3,2) * zdt0(i,j,2) + &
+                               adz_vwt2m(4,2) * zdt0(i,j,3)
+            Adz_ww_arr(i,j,l_nk)= adz_vwt2m(1,l_nk) * zdt0(i,j,l_nk-2) + &
+                                  adz_vwt2m(2,l_nk) * zdt0(i,j,l_nk-1) + &
+                                  adz_vwt2m(3,l_nk) * zdt0(i,j,l_nk  )
          end do
       end do
 
       do k= 3, l_nk-1
          do j = 1,l_nj
             do i = 1,l_ni
-               Adz_ww_arr(i,j,k) = adz_vwt2m(1,k) * zdt0(i,j,k-2) + &
-                                   adz_vwt2m(2,k) * zdt0(i,j,k-1) + &
-                                   adz_vwt2m(3,k) * zdt0(i,j,k  ) + &
-                                   adz_vwt2m(4,k) * zdt0(i,j,k+1)
+               Adz_ww_arr(i,j,k)= adz_vwt2m(1,k) * zdt0(i,j,k-2) + &
+                                  adz_vwt2m(2,k) * zdt0(i,j,k-1) + &
+                                  adz_vwt2m(3,k) * zdt0(i,j,k  ) + &
+                                  adz_vwt2m(4,k) * zdt0(i,j,k+1)
             end do
          end do
       end do
@@ -77,10 +77,10 @@
          end do
          do j= 1-Adz_haloy, l_nj+Adz_haloy
          do i= 1-Adz_halox, l_ni+Adz_halox
-            Adz_uvw_d(3,i,j,1) = Adz_vw5 * Adz_ww_ext(i,j,1)
-            Adz_uvw_d(3,i,j,2)= adz_vwt2m(2,2) * Adz_ww_ext(i,j,2-1) + &
-                                adz_vwt2m(3,2) * Adz_ww_ext(i,j,2  ) + &
-                                adz_vwt2m(4,2) * Adz_ww_ext(i,j,2+1)
+            Adz_uvw_d(3,i,j,1)= Adz_vw5 * Adz_ww_ext(i,j,1)
+            Adz_uvw_d(3,i,j,2)= adz_vwt2m(2,2) * Adz_ww_ext(i,j,1) + &
+                                adz_vwt2m(3,2) * Adz_ww_ext(i,j,2) + &
+                                adz_vwt2m(4,2) * Adz_ww_ext(i,j,3)
             Adz_uvw_d(3,i,j,l_nk)= adz_vwt2m(1,l_nk) * Adz_ww_ext(i,j,l_nk-2) + &
                                    adz_vwt2m(2,l_nk) * Adz_ww_ext(i,j,l_nk-1) + &
                                    adz_vwt2m(3,l_nk) * Adz_ww_ext(i,j,l_nk  )

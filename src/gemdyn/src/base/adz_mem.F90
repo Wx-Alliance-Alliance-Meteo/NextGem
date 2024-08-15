@@ -65,7 +65,7 @@ module adz_mem
       type(ADZ_TYPE_SV_R8) :: Adz_zxabcde_8, Adz_zaxbcde_8, Adz_zbxacde_8, &
                               Adz_zcxabde_8, Adz_zdxabce_8, Adz_zexabcd_8
 
-      type(C_PTR) :: Adz_cpntr_qp,Adz_cpntr_q,Adz_cpntr_t
+      type(C_PTR) :: Adz_cpntr_q,Adz_cpntr_t
 
       type Adz_pntr_stack
          real, dimension(:,:,:), pointer :: src,dst,pil
