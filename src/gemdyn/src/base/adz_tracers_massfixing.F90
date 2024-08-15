@@ -15,7 +15,7 @@
 
       subroutine adz_tracers_massfixing ()
       use ens_options
-      use adz_interp_hlt_mod
+      use adz_interp_mod
       use mem_tracers
       use omp_timing
       implicit none
