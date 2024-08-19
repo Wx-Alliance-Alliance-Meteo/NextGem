@@ -48,11 +48,11 @@
       F_err = 0
 
       ! basic global lateral boundary conditions width
-      F_bsc_base = 5
+      F_bsc_base = 7
       if(F_yinyang_L) F_bsc_base=F_bsc_base+1
 
       ! added points for proper de-staggering of u,v at physics interface
-      F_bsc_ext1 = 2
+      F_bsc_ext1 = 4
 
       ! total extension to user specified grid configuration
       F_extension= F_maxcfl + F_bsc_base + F_bsc_ext1

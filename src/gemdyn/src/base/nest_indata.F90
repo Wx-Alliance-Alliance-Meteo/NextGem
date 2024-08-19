@@ -77,8 +77,8 @@
 !!$omp enddo
       endif
 
-      call vertical_metric_omp (nest_metric, F_topo, nest_orols, &
-                                l_minx,l_maxx,l_miny,l_maxy)
+      call vertical_metric (nest_metric, F_topo, nest_orols, &
+                              l_minx,l_maxx,l_miny,l_maxy)
                    
       call canonical_indata()
       
@@ -198,7 +198,7 @@
 !!$omp enddo
       endif
 
-      call vertical_metric_omp (nest_metric, F_topo, nest_orols, &
+      call vertical_metric (nest_metric, F_topo, nest_orols, &
                                 l_minx,l_maxx,l_miny,l_maxy)
                    
       call canonical_indata()

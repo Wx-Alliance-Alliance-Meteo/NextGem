@@ -59,7 +59,7 @@
 
       if(Step_kount.le.2) then
          call set_dync ( .true., dt_8 )
-         call vertical_metric_omp (GVM, fis0, orols,&
+         call vertical_metric (GVM, fis0, orols,&
                        l_minx,l_maxx,l_miny,l_maxy)
       endif
 

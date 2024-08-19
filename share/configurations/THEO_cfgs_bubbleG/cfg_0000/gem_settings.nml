@@ -12,7 +12,7 @@
   bubble_gaus_L = .true.
 /
  &bubble_cfgs
-  bubble_ni = 101 ,  bubble_nj = 1 , bubble_nk = 150
+  bubble_ni = 121 ,  bubble_nj = 1 , bubble_nk = 150
   bubble_dx = 10. ,  bubble_dz = 10.
   bubble_theta      = 303.15
   bubble_rad        = 5

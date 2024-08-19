@@ -21,12 +21,12 @@ module gem_options
    integer,parameter  :: STAT_MAXN = 500
 
    !# number of points for the halo on X
-   integer :: G_halox = 4
+   integer :: G_halox = 6
    namelist /gem_cfgs  / G_halox
    namelist /gem_cfgs_p/ G_halox
 
    !# number of points for the halo on Y
-   integer :: G_haloy = 4
+   integer :: G_haloy = 6
    namelist /gem_cfgs  / G_haloy
    namelist /gem_cfgs_p/ G_haloy
 

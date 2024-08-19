@@ -45,7 +45,7 @@
          call set_params (.true.)
          call set_sol ()
 !!$omp end single
-         call vertical_metric_omp (GVM, fis0, orols, l_minx,l_maxx,l_miny,l_maxy)
+         call vertical_metric (GVM, fis0, orols, l_minx,l_maxx,l_miny,l_maxy)
       endif
       done =.true.
       

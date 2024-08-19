@@ -59,8 +59,10 @@
             call itf_Iserv_request (Next_pilot_S,INs_list_S,1001,INs_nrequests)
          endif
       else
+!!$omp parallel
          call vertical_metric (GVM, fis0, orols, &
                                l_minx,l_maxx,l_miny,l_maxy)
+!!$omp end parallel
          if ( .not. Grd_yinyang_L .and. Lam_ctebcs_L ) then
             call nest_indata  (nest_u, nest_v , nest_w, nest_t   ,&
                                nest_q, nest_zd, nest_tr  ,&

@@ -1,5 +1,5 @@
  &grid
-  Grd_typ_S = 'GY', Grd_ni = 107
+  Grd_typ_S = 'GY', Grd_ni = 127
   Grd_maxcfl = 2
  /
 
