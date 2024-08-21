@@ -57,6 +57,4 @@ module mem_nest
 
       real, pointer, dimension (:) :: nest_deb, nest_now,&
                                       nest_fin, nest_prev
-
-      type(Vmetric) :: nest_metric
 end module mem_nest

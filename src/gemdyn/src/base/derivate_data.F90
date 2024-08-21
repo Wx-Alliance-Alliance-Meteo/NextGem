@@ -15,9 +15,10 @@
 
 !** s/r derivate_data
 
-      subroutine derivate_data ( F_zd, F_w, F_u, F_v, F_t, F_s, F_q   ,&
-                     F_topo, F_orols, F_metric, Minx, Maxx, Miny, Maxy,&
-                     Nk, F_zd_L, F_w_L, F_q_L )
+      subroutine derivate_data ( F_zd, F_w, F_u, F_v, F_t, F_s, F_q , &
+                                 F_topo, F_orols, F_zmom_8, F_ztht_8, &
+                      Minx, Maxx, Miny, Maxy,Nk, F_zd_L, F_w_L, F_q_L )
+      use, intrinsic :: iso_fortran_env
       use cstv
       use dyn_fisl_options
       use dynkernel_options
@@ -32,7 +33,7 @@
       real, dimension(Minx:Maxx,Miny:Maxy   ), intent(inout ):: F_s
       real, dimension(Minx:Maxx,Miny:Maxy,Nk), intent(out)   :: F_zd, F_w,F_q
       real, dimension(Minx:Maxx,Miny:Maxy,Nk), intent(inout) :: F_u, F_v, F_t
-      type(Vmetric) , intent(in ) :: F_metric
+      real(kind=REAL64), dimension(*), intent(in) :: F_zmom_8, F_ztht_8
 
       integer :: i,j,k
       integer :: HLT_start, HLT_end, local_np
@@ -52,8 +53,8 @@
          call gem_xch_halo ( F_q(l_minx,l_miny,HLT_start),&
                    l_minx,l_maxx,l_miny,l_maxy,local_np,-1)
          call diag_zd_w( F_zd, F_w, F_u, F_v, F_t, F_q,&
-                         F_metric,Minx, Maxx, Miny, Maxy,&
-                         Nk,F_zd_L, F_w_L)
+                         F_zmom_8, F_ztht_8,Minx, Maxx, Miny, Maxy,&
+                         Nk, F_zd_L, F_w_L)
       endif
 !     
 !     ________________________________________________________________

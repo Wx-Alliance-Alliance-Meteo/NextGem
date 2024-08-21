@@ -18,41 +18,31 @@
       subroutine vertical_metric (F_metric, F_topo, F_orols, Minx,Maxx,Miny,Maxy)
       use, intrinsic :: iso_fortran_env
       use gem_options
-      use lam_options
       use dyn_fisl_options
-      use dynkernel_options
-      use HORgrid_options
       use geomh
       use tdpack
       use glb_ld
-      use mem_nest
+      use metric
       use gmm_geof
-      use mem_tstp
-      use cstv
-      use lun
       use ver
-      use sol_mem
       implicit none
 
       integer, intent(IN) :: Minx,Maxx,Miny,Maxy
       real, dimension (Minx:Maxx,Miny:Maxy), intent(IN) :: F_topo, F_orols
       type(Vmetric) , intent(INOUT) :: F_metric
 
-      integer :: i,j,k, k0, err
+      integer :: i,j,k
       real, parameter :: one=1.d0, half=.5d0
       real(kind=REAL64) :: zthtu_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1),&
                            zthtv_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1)
 !
 !     ---------------------------------------------------------------
 !
-      k0= 1+Lam_gbpil_T
-
+      call lvl_heights2 (F_metric, QWm2t, QWt2m, F_topo, F_orols, Minx,Maxx,Miny,Maxy)
 !!$omp do collapse(2)
       do k=1,G_nk
          do j=1-G_haloy,l_nj+G_haloy
             do i=1-G_halox,l_ni+G_halox
-               F_metric%zmom_8(i,j,k)=ver_z_8%m(k)+(Ver_b_8%m(k)*F_topo(i,j)+Ver_c_8%m(k)*F_orols(i,j))/grav_8
-               F_metric%ztht_8(i,j,k)=ver_z_8%t(k)+(Ver_b_8%t(k)*F_topo(i,j)+Ver_c_8%t(k)*F_orols(i,j))/grav_8
                zthtu_8(i,j,k)=ver_z_8%t(k)+(Ver_b_8%t(k)*fis0u(i,j)+Ver_c_8%t(k)*orolsu(i,j))/grav_8
                zthtv_8(i,j,k)=ver_z_8%t(k)+(Ver_b_8%t(k)*fis0v(i,j)+Ver_c_8%t(k)*orolsv(i,j))/grav_8
             end do
@@ -62,12 +52,8 @@
 !!$omp do
       do j=1-G_haloy,l_nj+G_haloy
          do i=1-G_halox,l_ni+G_halox
-            F_metric%ztht_8(i,j,0)=ver_z_8%m(0)
             zthtu_8(i,j,0)=ver_z_8%m(0)
             zthtv_8(i,j,0)=ver_z_8%m(0)
-            F_metric%zmom_8(i,j,0)=ver_z_8%m(0)
-            F_metric%zmom_8(i,j,G_nk+1)= F_topo(i,j)/grav_8
-            F_metric%ztht_8(i,j,G_nk+1)= F_metric%zmom_8(i,j,G_nk+1)
             zthtu_8(i,j,G_nk+1)= fis0u(i,j)/grav_8
             zthtv_8(i,j,G_nk+1)= fis0v(i,j)/grav_8
             F_metric%lg_pstar_8(i,j,G_nk+1)=log(1.d5)-grav_8*F_metric%zmom_8(i,j,G_nk+1)/(rgasd_8*Cstv_Tstr_8)
@@ -156,32 +142,7 @@
       enddo
 !!$omp enddo
 
-
-!!$   L1 = ((pt - z2)*(pt - z3)*(pt - z4)*(pt - z5)*(pt - z6)) / ((z1 - z2)*(z1 - z3)*(z1 - z4)*(z1 - z5)*(z1 - z6))
-!!$   L2 = ((pt - z1)*(pt - z3)*(pt - z4)*(pt - z5)*(pt - z6)) / ((z2 - z1)*(z2 - z3)*(z2 - z4)*(z2 - z5)*(z2 - z6))
-!!$   L3 = ((pt - z1)*(pt - z2)*(pt - z4)*(pt - z5)*(pt - z6)) / ((z3 - z1)*(z3 - z2)*(z3 - z4)*(z3 - z5)*(z3 - z6))
-!!$   L4 = ((pt - z1)*(pt - z2)*(pt - z3)*(pt - z5)*(pt - z6)) / ((z4 - z1)*(z4 - z2)*(z4 - z3)*(z4 - z5)*(z4 - z6))
-!!$   L5 = ((pt - z1)*(pt - z2)*(pt - z3)*(pt - z4)*(pt - z6)) / ((z5 - z1)*(z5 - z2)*(z5 - z3)*(z5 - z4)*(z5 - z6))
-!!$   L6 = ((pt - z1)*(pt - z2)*(pt - z3)*(pt - z4)*(pt - z5)) / ((z6 - z1)*(z6 - z2)*(z6 - z3)*(z6 - z4)*(z6 - z5))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      
-!      call heights_uv () !revisit that code
+!     call heights_uv () !revisit that code
 !
 !     ---------------------------------------------------------------
 !

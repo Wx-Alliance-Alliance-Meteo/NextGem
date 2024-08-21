@@ -163,6 +163,19 @@
       sw_f11 (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>sw_frc(10*dim+1:)
       sw_f12 (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>sw_frc(11*dim+1:)
 
+      allocate ( QWm2t%L1(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
+                 QWm2t%L2(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
+                 QWm2t%L3(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
+                 QWm2t%L4(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
+                 QWm2t%L5(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
+                 QWm2t%L6(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
+                 QWt2m%L1(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
+                 QWt2m%L2(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
+                 QWt2m%L3(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
+                 QWt2m%L4(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
+                 QWt2m%L5(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
+                 QWt2m%L6(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1) ) 
+                 
       allocate ( GVM%zmom_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
                  GVM%ztht_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
                  GVM%zmom_u(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &

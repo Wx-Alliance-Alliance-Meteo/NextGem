@@ -28,6 +28,7 @@
       use inp_options
       use lun
       use metric
+      use ver
       use step_options
       use theo_options
       use tr3d
@@ -40,9 +41,10 @@
       implicit none
 
       logical :: synthetic_data_L
-      integer :: i,j,k,dimens
+      integer :: i,j,k,dimens,km1,km2,km3,kp1,kp2,kp3
       integer :: HLT_start, HLT_end, local_np
       real, dimension(l_minx:l_maxx,l_miny:l_maxy) :: p0
+      real retval
 !
 !     ---------------------------------------------------------------
 !
@@ -136,8 +138,8 @@
                          1-G_halox*west ,l_niu+G_halox*east ,&
                          1-G_haloy*south,l_njv+G_haloy*north, .true. )
 
-         call derivate_data (zdt1,wt1, ut1,vt1,tt1,p0,qt1,fis0,orols,GVM,&
-                             l_minx,l_maxx,l_miny,l_maxy, G_nk         ,&
+                          call derivate_data (zdt1,wt1, ut1,vt1,tt1,p0,qt1,fis0,orols,&
+                              GVM%zmom_8,GVM%ztht_8,l_minx,l_maxx,l_miny,l_maxy, G_nk,&
                              .not.Inp_zd_L, .not.Inp_w_L, .not.Inp_qt_L )
       endif
       call pressure ( pw_pm_plus,pw_pt_plus,pw_p0_plus,pw_log_pm,&
@@ -145,6 +147,41 @@
                       l_minx,l_maxx,l_miny,l_maxy,l_nk,1 )
       call pw_update_GW ()
       call psadj_init()
+      
+!!$      i=l_ni/2
+!!$      j=l_nj/2
+!!$      do k=1,G_nk-1
+!!$         km1=max(k-1,1)
+!!$         km2=max(k-2,1)
+!!$         kp2=min(k+2,G_nk)
+!!$         kp3=min(k+3,G_nk)
+!!$         retval = ut1(i,j,km2) * QWm2t%L1(i,j,k)&
+!!$                 +ut1(i,j,km1) * QWm2t%L2(i,j,k)&
+!!$                 +ut1(i,j,k  ) * QWm2t%L3(i,j,k)&
+!!$                 +ut1(i,j,k+1) * QWm2t%L4(i,j,k)&
+!!$                 +ut1(i,j,kp2) * QWm2t%L5(i,j,k)&
+!!$                 +ut1(i,j,kp3) * QWm2t%L6(i,j,k)
+!!$         write(6,'(i4,5f15.5)') k,GVM%zmom_8(i,j,k),ut1(i,j,k),GVM%ztht_8(i,j,k),retval,(ut1(i  ,j,k)+ut1(i  ,j,k+1))*0.5
+!!$      end do
+!!$      write(6,'(i4,5f15.5)') G_nk,GVM%zmom_8(i,j,G_nk),ut1(i,j,G_nk)
+!!$
+!!$!      write(6,'(i4,5f15.5)') 1,GVM%ztht_8(i,j,1),tt1(i,j,1)
+!!$      i=l_ni/2
+!!$      j=l_nj/2
+!!$      do k=2,G_nk
+!!$         km2=max(k-2,1)
+!!$         km3=max(k-3,1)
+!!$         kp1=min(k+1,G_nk)
+!!$         kp2=min(k+2,G_nk)
+!!$         retval = tt1(i,j,km3) * QWt2m%L1(i,j,k)&
+!!$                 +tt1(i,j,km2) * QWt2m%L2(i,j,k)&
+!!$                 +tt1(i,j,k-1) * QWt2m%L3(i,j,k)&
+!!$                 +tt1(i,j,k  ) * QWt2m%L4(i,j,k)&
+!!$                 +tt1(i,j,kp1) * QWt2m%L5(i,j,k)&
+!!$                 +tt1(i,j,kp2) * QWt2m%L6(i,j,k)
+!!$!         write(6,'(i4,5f15.5)') k,GVM%ztht_8(i,j,k),tt1(i,j,k),GVM%zmom_8(i,j,k),retval,Ver_wp_8%m(k)*tt1(i  ,j,k)+Ver_wm_8%m(k)*tt1(i  ,j,k-1)
+!!$      end do
+!!$      call gem_stop
 
 !!$omp do collapse(2)
       do k=1, G_nk
