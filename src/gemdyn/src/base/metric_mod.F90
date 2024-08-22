@@ -14,6 +14,7 @@
 !---------------------------------- LICENCE END ---------------------------------
 
 module metric
+      
    use, intrinsic :: iso_fortran_env
    implicit none
    public
@@ -31,11 +32,9 @@ module metric
       real(kind=REAL64), dimension(:,:)  , allocatable :: mc_css_H_8, mc_alfas_H_8, mc_betas_H_8
       real(kind=REAL64), dimension(:,:)  , allocatable :: mc_cst_8, mc_alfat_8, mc_cstp_8
    end type Vmetric
-   type Vops
-      real(kind=REAL64), dimension(:,:,:), allocatable :: L1,L2,L3,L4,L5,L6
-   end type Vops
-   type(Vops) :: QWm2t, QWt2m, QDm2t, QDt2m
-      
+
    type(Vmetric) :: GVM
+
+   real(kind=REAL64), dimension(:,:), allocatable :: QWm2t, QWt2m, QDm2t, QDt2m
       
 end module metric

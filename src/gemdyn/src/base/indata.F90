@@ -28,6 +28,7 @@
       use inp_options
       use lun
       use metric
+      use geomh
       use ver
       use step_options
       use theo_options
@@ -44,7 +45,7 @@
       integer :: i,j,k,dimens,km1,km2,km3,kp1,kp2,kp3
       integer :: HLT_start, HLT_end, local_np
       real, dimension(l_minx:l_maxx,l_miny:l_maxy) :: p0
-      real retval
+      real retval,v1,v2,v3,v4,v5,v6
 !
 !     ---------------------------------------------------------------
 !
@@ -155,32 +156,73 @@
 !!$         km2=max(k-2,1)
 !!$         kp2=min(k+2,G_nk)
 !!$         kp3=min(k+3,G_nk)
-!!$         retval = ut1(i,j,km2) * QWm2t%L1(i,j,k)&
-!!$                 +ut1(i,j,km1) * QWm2t%L2(i,j,k)&
-!!$                 +ut1(i,j,k  ) * QWm2t%L3(i,j,k)&
-!!$                 +ut1(i,j,k+1) * QWm2t%L4(i,j,k)&
-!!$                 +ut1(i,j,kp2) * QWm2t%L5(i,j,k)&
-!!$                 +ut1(i,j,kp3) * QWm2t%L6(i,j,k)
-!!$         write(6,'(i4,5f15.5)') k,GVM%zmom_8(i,j,k),ut1(i,j,k),GVM%ztht_8(i,j,k),retval,(ut1(i  ,j,k)+ut1(i  ,j,k+1))*0.5
+!!$         retval = ut1(i,j,km2) * QWm2t(1,k)&
+!!$                 +ut1(i,j,km1) * QWm2t(2,k)&
+!!$                 +ut1(i,j,k  ) * QWm2t(3,k)&
+!!$                 +ut1(i,j,k+1) * QWm2t(4,k)&
+!!$                 +ut1(i,j,kp2) * QWm2t(5,k)&
+!!$                 +ut1(i,j,kp3) * QWm2t(6,k)
+!!$!         write(6,'(i4,5f15.5)') k,GVM%zmom_8(i,j,k),ut1(i,j,k),GVM%ztht_8(i,j,k),retval,(ut1(i  ,j,k)+ut1(i  ,j,k+1))*0.5
 !!$      end do
-!!$      write(6,'(i4,5f15.5)') G_nk,GVM%zmom_8(i,j,G_nk),ut1(i,j,G_nk)
+!!$!      write(6,'(i4,5f15.5)') G_nk,GVM%zmom_8(i,j,G_nk),ut1(i,j,G_nk)
 !!$
-!!$!      write(6,'(i4,5f15.5)') 1,GVM%ztht_8(i,j,1),tt1(i,j,1)
-!!$      i=l_ni/2
-!!$      j=l_nj/2
+!!$      write(6,'(i4,5f15.5)') 1,GVM%ztht_8(i,j,1),tt1(i,j,1)
 !!$      do k=2,G_nk
 !!$         km2=max(k-2,1)
 !!$         km3=max(k-3,1)
 !!$         kp1=min(k+1,G_nk)
 !!$         kp2=min(k+2,G_nk)
-!!$         retval = tt1(i,j,km3) * QWt2m%L1(i,j,k)&
-!!$                 +tt1(i,j,km2) * QWt2m%L2(i,j,k)&
-!!$                 +tt1(i,j,k-1) * QWt2m%L3(i,j,k)&
-!!$                 +tt1(i,j,k  ) * QWt2m%L4(i,j,k)&
-!!$                 +tt1(i,j,kp1) * QWt2m%L5(i,j,k)&
-!!$                 +tt1(i,j,kp2) * QWt2m%L6(i,j,k)
-!!$!         write(6,'(i4,5f15.5)') k,GVM%ztht_8(i,j,k),tt1(i,j,k),GVM%zmom_8(i,j,k),retval,Ver_wp_8%m(k)*tt1(i  ,j,k)+Ver_wm_8%m(k)*tt1(i  ,j,k-1)
+!!$         retval = tt1(i,j,km3) * QWt2m(1,k)&
+!!$                 +tt1(i,j,km2) * QWt2m(2,k)&
+!!$                 +tt1(i,j,k-1) * QWt2m(3,k)&
+!!$                 +tt1(i,j,k  ) * QWt2m(4,k)&
+!!$                 +tt1(i,j,kp1) * QWt2m(5,k)&
+!!$                 +tt1(i,j,kp2) * QWt2m(6,k)
+!!$         write(6,'(i4,5f15.5)') k,GVM%ztht_8(i,j,k),tt1(i,j,k),GVM%zmom_8(i,j,k),retval,Ver_wp_8%m(k)*tt1(i  ,j,k)+Ver_wm_8%m(k)*tt1(i  ,j,k-1)
 !!$      end do
+!!$      
+!!$      i=l_ni/2
+!!$      j=l_nj/2
+!!$      do k=1,G_nk-1
+!!$         km1=max(k-1,1)
+!!$         km2=max(k-2,1)
+!!$         kp2=min(k+2,G_nk)
+!!$         kp3=min(k+3,G_nk)
+!!$         retval = ut1(i,j,km2) * QDm2t(1,k)&
+!!$                 +ut1(i,j,km1) * QDm2t(2,k)&
+!!$                 +ut1(i,j,k  ) * QDm2t(3,k)&
+!!$                 +ut1(i,j,k+1) * QDm2t(4,k)&
+!!$                 +ut1(i,j,kp2) * QDm2t(5,k)&
+!!$                 +ut1(i,j,kp3) * QDm2t(6,k)
+!!$!         write(6,'(i4,5f15.5)') k,retval,(ut1(i  ,j,k+1)-ut1(i  ,j,k))*Ver_idz_8%t(k)
+!!$      end do
+!!$      do k=2,G_nk
+!!$         km1=max(k-1,1)
+!!$         km2=max(k-2,1)
+!!$         km3=max(k-3,1)
+!!$         kp1=min(k+1,G_nk)
+!!$         kp2=min(k+2,G_nk)
+!!$         kp3=min(k+3,G_nk)
+!!$         retval = tt1(i,j,km3) * QDt2m(1,k)&
+!!$                 +tt1(i,j,km2) * QDt2m(2,k)&
+!!$                 +tt1(i,j,k-1) * QDt2m(3,k)&
+!!$                 +tt1(i,j,k  ) * QDt2m(4,k)&
+!!$                 +tt1(i,j,kp1) * QDt2m(5,k)&
+!!$                 +tt1(i,j,kp2) * QDt2m(6,k)
+!!$         write(6,'(i4,5f15.5)') k,retval,(tt1(i  ,j,k)-tt1(i  ,j,k-1))*Ver_idz_8%m(k)
+!!$      end do
+!!$      
+!!$      i=l_ni/2
+!!$      j=l_nj/2
+!!$      k=l_nk/2
+!!$      retval = Hderiv(tt1(i-2,j,k),tt1(i-1,j,k),tt1(i  ,j,k),&
+!!$                      tt1(i+1,j,k),tt1(i+2,j,k),tt1(i+3,j,k),geomh_hx_8)
+!!$!      print*, retval,(tt1(i+1,j,k)-tt1(i,j,k))*geomh_inv_hx_8
+!!$      do i=1,l_ni
+!!$      retval = Hstag(tt1(i-2,j,k),tt1(i-1,j,k),tt1(i  ,j,k),&
+!!$                      tt1(i+1,j,k),tt1(i+2,j,k),tt1(i+3,j,k))
+!!$                      print*, i,retval,(tt1(i+1,j,k)+tt1(i,j,k))*0.5
+!!$                   end do
 !!$      call gem_stop
 
 !!$omp do collapse(2)

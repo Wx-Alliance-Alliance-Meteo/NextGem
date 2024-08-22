@@ -28,7 +28,7 @@
       implicit none
 
       integer, intent(IN) :: Minx,Maxx,Miny,Maxy
-      real, dimension (Minx:Maxx,Miny:Maxy), intent(IN) :: F_topo, F_orols
+      real, dimension(Minx:Maxx,Miny:Maxy), intent(IN) :: F_topo, F_orols
       type(Vmetric) , intent(INOUT) :: F_metric
 
       integer :: i,j,k
@@ -38,7 +38,8 @@
 !
 !     ---------------------------------------------------------------
 !
-      call lvl_heights2 (F_metric, QWm2t, QWt2m, F_topo, F_orols, Minx,Maxx,Miny,Maxy)
+      call lvl_heights ( F_metric%zmom_8, F_metric%ztht_8, &
+                         F_topo, F_orols, Minx,Maxx,Miny,Maxy )
 !!$omp do collapse(2)
       do k=1,G_nk
          do j=1-G_haloy,l_nj+G_haloy

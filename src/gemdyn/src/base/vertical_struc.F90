@@ -151,6 +151,9 @@
       Ver_zmin_8 = Ver_z_8%m(G_nk+1)
       Ver_zmax_8 = Ver_z_8%m(0)
 
+      call QW_vinterp ()
+      call QW_vderiva ()
+
       if ( Ctrl_canonical_dcmip_L ) then
          Cstv_pref_8 = 100000.d0
          Cstv_ptop_8 = Cstv_pref_8 * exp(-Ver_z_8%m(0)/8780.2)
