@@ -52,7 +52,7 @@
 ! Common memory arena for temporary computations within OMP parallel regions
       dim= max(Adz_nij,(l_maxx-l_minx+1)*(l_maxy-l_miny+1)) * G_nk
       ntr= max(10, Tr3d_ntrTRICUB_NT, Tr3d_ntrTRICUB_WP, Tr3d_ntrBICHQV_NT, Tr3d_ntrBICHQV_WP)
-      allocate ( WS1_8 (5*dim),  WS1 (ntr*dim))
+      allocate ( WS1_8 (10*dim),  WS1 (ntr*dim))
 !
 !     ---------------------------------------------------------------
 !

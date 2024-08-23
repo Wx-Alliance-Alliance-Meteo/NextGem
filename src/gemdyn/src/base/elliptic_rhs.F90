@@ -36,7 +36,8 @@
       integer :: i, j, k, HLT_np, HLT_start, HLT_end
       integer :: km,i00,inn,j00,jnn,dim,ub
       real, dimension(:,:,:), pointer :: wkf
-      real, dimension(:,:,:), pointer :: tots, logT, logQ, Rt
+      real, dimension(:,:,:), pointer :: tots, logT, logQ, Rt!, t2u, v2u, t2v, u2v
+      real(kind=REAL64), dimension(:,:,:), pointer :: t2u, v2u, t2v, u2v
       real(kind=REAL64) :: Rqq,tau_8,invT_8,a,b,c,barz,barzp
       real(kind=REAL64) :: w0,w1,w2,w3,w4,w5,w6,w7, dudx,dvdy,ubx,vby
       real(kind=REAL64) :: Nwww,Nttt,t_interp,u_interp,v_interp
@@ -68,6 +69,11 @@
       dim= (l_maxx-l_minx+1)*(l_maxy-l_miny+1)
       Rt   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => WS1(ub+1:) ; ub=ub+dim*l_nk
       wkf  (l_minx:l_maxx,l_miny:l_maxy,1:1)    => WS1(ub+1:) ; ub=ub+dim
+      ub=0
+      t2u  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => WS1_8(ub+1:) ; ub=ub+dim*l_nk
+      v2u  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => WS1_8(ub+1:) ; ub=ub+dim*l_nk
+      t2v  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => WS1_8(ub+1:) ; ub=ub+dim*l_nk
+      u2v  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => WS1_8(ub+1:) ; ub=ub+dim*l_nk
 
       do k=1, l_nk
          do j=1, l_nj
@@ -77,6 +83,8 @@
             end do
          end do
       end do
+      
+      call tt2wnd (t2u, v2u, t2v, u2v, l_minx,l_maxx,l_miny,l_maxy,G_nk)
 
       do k=1, l_nk
          km=max(k-1,1)
@@ -92,14 +100,9 @@
          end do
          do j= ds_j0, ds_jn
          do i= i00, inn
-            barz = Ver_wp_8%m(k)*tt0(i  ,j,k)+Ver_wm_8%m(k)*tt0(i  ,j,km)
-            barzp= Ver_wp_8%m(k)*tt0(i+1,j,k)+Ver_wm_8%m(k)*tt0(i+1,j,km)
-            t_interp = (barz+barzp)*half/Cstv_Tstr_8-one
-            v_interp = 0.25d0*(vt0(i  ,j,k)+vt0(i  ,j-1,k)+&
-                               vt0(i+1,j,k)+vt0(i+1,j-1,k))
-            Nuu(i,j,k)= t_interp*( qt0(i+1,j,k) - qt0(i,j,k) ) * geomh_invDX_8(j) &
-                        - ( Cori_fcoru_8(i,j) + geomh_tyoa_8(j) * ut0(i,j,k) ) * v_interp &
-                        - t_interp*GVM%mc_Jx_8(i,j,k) * ( &
+            Nuu(i,j,k)= t2u(i,j,k)*( qt0(i+1,j,k) - qt0(i,j,k) ) * geomh_invDX_8(j) &
+                        - ( Cori_fcoru_8(i,j) + geomh_tyoa_8(j) * ut0(i,j,k) ) * v2u(i,j,k) &
+                        - t2u(i,j,k)*GVM%mc_Jx_8(i,j,k) * ( &
                           Ver_wp_8%m(k)*half*( (qt0(i+1,j,k+1)-qt0(i+1,j,k ))*GVM%mc_iJz_8(i+1,j,k )   &
                                               +(qt0(i  ,j,k+1)-qt0(i  ,j,k ))*GVM%mc_iJz_8(i  ,j,k ) ) &
                          +Ver_wm_8%m(k)*half*( (qt0(i+1,j,k  )-qt0(i+1,j,km))*GVM%mc_iJz_8(i+1,j,km)   &
@@ -108,13 +111,9 @@
          end do         
          do j= j00, jnn
          do i= ds_i0, ds_in
-            barz = Ver_wp_8%m(k)*tt0(i,j  ,k)+Ver_wm_8%m(k)*tt0(i,j  ,km)
-            barzp= Ver_wp_8%m(k)*tt0(i,j+1,k)+Ver_wm_8%m(k)*tt0(i,j+1,km)
-            t_interp = (barz+barzp)*half/Cstv_Tstr_8-one
-            u_interp = 0.25d0*(ut0(i,j,k)+ut0(i-1,j,k)+ut0(i,j+1,k)+ut0(i-1,j+1,k))
-            Nvv(i,j,k)= t_interp*( qt0(i,j+1,k) - qt0(i,j,k) ) * geomh_invDY_8 &
-                        + ( Cori_fcorv_8(i,j) + geomh_tyoav_8(j) * u_interp ) * u_interp &
-                        - t_interp*GVM%mc_Jy_8(i,j,k) * ( &
+            Nvv(i,j,k)= t2v(i,j,k)*( qt0(i,j+1,k) - qt0(i,j,k) ) * geomh_invDY_8 &
+                        + ( Cori_fcorv_8(i,j) + geomh_tyoav_8(j) * u_interp ) * u2v(i,j,k) &
+                        - t2v(i,j,k)*GVM%mc_Jy_8(i,j,k) * ( &
                           Ver_wp_8%m(k)*half*( (qt0(i,j+1,k+1)-qt0(i,j+1,k ))*GVM%mc_iJz_8(i,j+1,k )   &
                                               +(qt0(i,j  ,k+1)-qt0(i,j  ,k ))*GVM%mc_iJz_8(i,j  ,k ) ) &
                          +Ver_wm_8%m(k)*half*( (qt0(i,j+1,k  )-qt0(i,j+1,km))*GVM%mc_iJz_8(i,j+1,km)   &

@@ -86,6 +86,7 @@
       z3 = Ver_a_8%t(3)
       z4 = Ver_a_8%t(4)      
       pt = Ver_a_8%m(3)
+      QWt2m(4,1) = 1.d0 ! constant extrapolation temporary fudge
       QWt2m(2,3) = ((pt - z2)*(pt - z3)*(pt - z4)) / ((z1 - z2)*(z1 - z3)*(z1 - z4))
       QWt2m(3,3) = ((pt - z1)*(pt - z3)*(pt - z4)) / ((z2 - z1)*(z2 - z3)*(z2 - z4))
       QWt2m(4,3) = ((pt - z1)*(pt - z2)*(pt - z4)) / ((z3 - z1)*(z3 - z2)*(z3 - z4))

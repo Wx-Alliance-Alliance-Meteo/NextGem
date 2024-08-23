@@ -20,6 +20,8 @@
       use gem_options
       use dyn_fisl_options
       use geomh
+      use dcst
+      use gmm_vt1
       use tdpack
       use glb_ld
       use metric
@@ -102,10 +104,12 @@
       do k=1,G_nk
          do j=1-G_haloy+1,l_nj+G_haloy-1
             do i=1-G_halox+1,l_ni+G_halox-1
-               F_metric%mc_Jx_8 (i,j,k)=(F_metric%zmom_8(i+1,j,k)-F_metric%zmom_8(i,j,k))*geomh_invDX_8(j)
-               F_metric%mc_Jy_8 (i,j,k)=(F_metric%zmom_8(i,j+1,k)-F_metric%zmom_8(i,j,k))*geomh_invDY_8
-               F_metric%mc_iJz_8(i,j,k)=one/(F_metric%zmom_8(i,j,k+1)-F_metric%zmom_8(i,j,k))
+               F_metric%mc_Jx_8 (i,j,k)= Hderiv8(F_metric%zmom_8(i-2,j,k),F_metric%zmom_8(i-1,j,k),F_metric%zmom_8(i  ,j,k),&
+                                                 F_metric%zmom_8(i+1,j,k),F_metric%zmom_8(i+2,j,k),F_metric%zmom_8(i+3,j,k),geomh_invDX_8(j))
+               F_metric%mc_Jy_8 (i,j,k)= Hderiv8(F_metric%zmom_8(i,j-2,k),F_metric%zmom_8(i,j-1,k),F_metric%zmom_8(i  ,j,k),&
+                                                 F_metric%zmom_8(i,j+1,k),F_metric%zmom_8(i,j+2,k),F_metric%zmom_8(i,j+3,k),geomh_invDY_8)
 
+               F_metric%mc_iJz_8(i,j,k)=one/(F_metric%zmom_8(i,j,k+1)-F_metric%zmom_8(i,j,k))
                F_metric%mc_Ix_8(i,j,k)=log( (zthtu_8(i,j,k)-zthtu_8(i,j,k-1))/(zthtu_8(i-1,j,k)-zthtu_8(i-1,j,k-1)) )*geomh_invDX_8(j)
                F_metric%mc_Iy_8(i,j,k)=log( (zthtv_8(i,j,k)-zthtv_8(i,j,k-1))/(zthtv_8(i,j-1,k)-zthtv_8(i,j-1,k-1)) )*geomh_invDY_8
                F_metric%mc_Iz_8(i,j,k)=log( (F_metric%zmom_8(i,j,k+1)-F_metric%zmom_8(i,j,k))/(Ver_z_8%m(k+1)-Ver_z_8%m(k)) &
@@ -148,4 +152,5 @@
 !     ---------------------------------------------------------------
 !
       return
+      include 'H5th_ope.inc'
       end subroutine vertical_metric

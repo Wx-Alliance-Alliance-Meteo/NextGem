@@ -211,19 +211,6 @@
 !!$                 +tt1(i,j,kp2) * QDt2m(6,k)
 !!$         write(6,'(i4,5f15.5)') k,retval,(tt1(i  ,j,k)-tt1(i  ,j,k-1))*Ver_idz_8%m(k)
 !!$      end do
-!!$      
-!!$      i=l_ni/2
-!!$      j=l_nj/2
-!!$      k=l_nk/2
-!!$      retval = Hderiv(tt1(i-2,j,k),tt1(i-1,j,k),tt1(i  ,j,k),&
-!!$                      tt1(i+1,j,k),tt1(i+2,j,k),tt1(i+3,j,k),geomh_hx_8)
-!!$!      print*, retval,(tt1(i+1,j,k)-tt1(i,j,k))*geomh_inv_hx_8
-!!$      do i=1,l_ni
-!!$      retval = Hstag(tt1(i-2,j,k),tt1(i-1,j,k),tt1(i  ,j,k),&
-!!$                      tt1(i+1,j,k),tt1(i+2,j,k),tt1(i+3,j,k))
-!!$                      print*, i,retval,(tt1(i+1,j,k)+tt1(i,j,k))*0.5
-!!$                   end do
-!!$      call gem_stop
 
 !!$omp do collapse(2)
       do k=1, G_nk

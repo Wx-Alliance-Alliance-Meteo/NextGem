@@ -120,21 +120,5 @@ module geomh
    real, dimension(:,:), pointer, contiguous :: geomh_lonrx
    real, dimension(:,:), pointer, contiguous :: geomh_latij
    real, dimension(:,:), pointer, contiguous :: geomh_lonij
-contains
-      real(kind=REAL64) function Hderiv(v1,v2,v3,v4,v5,v6,h)
-      real             , intent(in) :: v1,v2,v3,v4,v5,v6
-      real(kind=REAL64), intent(in) :: h
-      Hderiv = ( 3.d0  * (v6 - v1) / 10.d0 &
-               + 25.d0 * (v2 - v5) / 6.d0  &
-               + 75.d0 * (v4 - v3) ) / (64.d0 * geomh_hx_8)
-      end function Hderiv
-
-      real(kind=REAL64) function Hstag(v1,v2,v3,v4,v5,v6)
-      real             , intent(in) :: v1,v2,v3,v4,v5,v6
-      real(kind=REAL64), parameter :: intw1 = 3.d0/256.d0,  &
-                                      intw2 = -25.d0/256.d0,&
-                                      intw3 = 75.d0/128.d0
-      Hstag = (v1+v6)*intw1 + (v2+v5)*intw2 + (v3+v4)*intw3
-      end function Hstag
     
 end module geomh
