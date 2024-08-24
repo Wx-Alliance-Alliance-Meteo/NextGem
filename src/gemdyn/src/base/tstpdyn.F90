@@ -59,8 +59,7 @@
 
       if(Step_kount.le.2) then
          call set_dync ( .true., dt_8 )
-         call vertical_metric (GVM, fis0, orols,&
-                       l_minx,l_maxx,l_miny,l_maxy)
+         call vertical_metric ()
       endif
 
       call rhs1 (dt_8) ! also first guess into t0

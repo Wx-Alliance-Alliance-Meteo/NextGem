@@ -175,18 +175,6 @@ contains
 !     
 !---------------------------------------------------------------------
 !
-      istat = gmm_get (gmmk_pw_uu_plus_s, pw_uu_plus)
-      istat = gmm_get (gmmk_pw_vv_plus_s, pw_vv_plus)
-      istat = gmm_get (gmmk_pw_tt_plus_s, pw_tt_plus)
-      istat = gmm_get (gmmk_ut1_s ,ut1 )
-      istat = gmm_get (gmmk_vt1_s ,vt1 )
-      istat = gmm_get (gmmk_wt1_s ,wt1 )
-      istat = gmm_get (gmmk_tt1_s ,tt1 )
-      istat = gmm_get (gmmk_zdt1_s,zdt1)
-      istat = gmm_get (gmmk_orols_s ,orols )
-      istat = gmm_get (gmmk_fis0_s,fis0)
-      istat = gmm_get (gmmk_qt1_s ,qt1 )
-
       wt1= 0. ; zdt1= 0.
 
       if (      Theo_case_S == 'MTN_SCHAR'   &

@@ -13,6 +13,7 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
 module gmm_geof
+   use, intrinsic :: iso_fortran_env
    implicit none
    public
    save
@@ -30,6 +31,7 @@ module gmm_geof
 !-----------------------------------------------------------------------
 !
 !
+      real, pointer, contiguous, dimension (:,:,:) :: orography => null()
       real, pointer, contiguous, dimension (:,:) :: fis0      => null()
       real, pointer, contiguous, dimension (:,:) :: fis0u     => null()
       real, pointer, contiguous, dimension (:,:) :: fis0v     => null()
@@ -42,11 +44,12 @@ module gmm_geof
       real, pointer, contiguous, dimension (:,:) :: me_large => null()
       real, pointer, contiguous, dimension (:,:,:) :: dgzm     => null()
       real, pointer, contiguous, dimension (:,:,:) :: dgzt     => null()
-
+      real(kind=REAL64), allocatable, dimension (:,:,:) :: &
+                            zthtu_8,zmomu_8, zthtv_8,zmomv_8
+      
       integer, parameter :: MAXNAMELENGTH = 32
 
-      character(len=MAXNAMELENGTH), parameter :: gmmk_fis0_s      = 'FIS0'
-      character(len=MAXNAMELENGTH), parameter :: gmmk_orols_s     = 'OROLS'
+      character(len=MAXNAMELENGTH), parameter :: gmmk_orography_s = 'OROGRAPHY'
       character(len=MAXNAMELENGTH), parameter :: gmmk_topo_low_s  = 'TOPOLOW'
       character(len=MAXNAMELENGTH), parameter :: gmmk_topo_high_s = 'TOPOHIGH'
       character(len=MAXNAMELENGTH), parameter :: gmmk_me_full_s   = 'MEFULL'

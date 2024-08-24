@@ -15,10 +15,11 @@
 
 !**s/r vertical_metric - Compute vertical metric coefficients
 
-      subroutine vertical_metric (F_metric, F_topo, F_orols, Minx,Maxx,Miny,Maxy)
+      subroutine vertical_metric ()
       use, intrinsic :: iso_fortran_env
       use gem_options
       use dyn_fisl_options
+      use HORgrid_options
       use geomh
       use dcst
       use gmm_vt1
@@ -29,37 +30,31 @@
       use ver
       implicit none
 
-      integer, intent(IN) :: Minx,Maxx,Miny,Maxy
-      real, dimension(Minx:Maxx,Miny:Maxy), intent(IN) :: F_topo, F_orols
-      type(Vmetric) , intent(INOUT) :: F_metric
-
       integer :: i,j,k
+      integer :: HLT_start, HLT_end, local_np
       real, parameter :: one=1.d0, half=.5d0
-      real(kind=REAL64) :: zthtu_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1),&
-                           zthtv_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1)
 !
 !     ---------------------------------------------------------------
 !
-      call lvl_heights ( F_metric%zmom_8, F_metric%ztht_8, &
-                         F_topo, F_orols, Minx,Maxx,Miny,Maxy )
-!!$omp do collapse(2)
-      do k=1,G_nk
-         do j=1-G_haloy,l_nj+G_haloy
-            do i=1-G_halox,l_ni+G_halox
-               zthtu_8(i,j,k)=ver_z_8%t(k)+(Ver_b_8%t(k)*fis0u(i,j)+Ver_c_8%t(k)*orolsu(i,j))/grav_8
-               zthtv_8(i,j,k)=ver_z_8%t(k)+(Ver_b_8%t(k)*fis0v(i,j)+Ver_c_8%t(k)*orolsv(i,j))/grav_8
-            end do
-         end do
-      end do
-!!$omp enddo
+      if (Grd_yinyang_L) then
+         call yyg_xchng_hlt (orography, l_minx,l_maxx,l_miny,l_maxy, &
+                             l_ni,l_nj, 6, .false., 'CUBIC', .true.)
+      else
+         call HLT_split (1, 6, local_np, HLT_start, HLT_end)
+         call gem_xch_halo (orography(l_minx,l_minx,HLT_start), l_minx,l_maxx,l_miny,l_maxy,local_np,-1 )
+      endif
+      
+      call lvl_heights ( GVM%zmom_8, GVM%ztht_8, &
+                         fis0, orols, l_minx,l_maxx,l_miny,l_maxy)
+      call lvl_heights ( zmomu_8, zthtu_8, &
+                         fis0u, orolsu, l_minx,l_maxx,l_miny,l_maxy)
+      call lvl_heights ( zmomv_8, zthtv_8, &
+                         fis0v, orolsv, l_minx,l_maxx,l_miny,l_maxy)
+
 !!$omp do
       do j=1-G_haloy,l_nj+G_haloy
          do i=1-G_halox,l_ni+G_halox
-            zthtu_8(i,j,0)=ver_z_8%m(0)
-            zthtv_8(i,j,0)=ver_z_8%m(0)
-            zthtu_8(i,j,G_nk+1)= fis0u(i,j)/grav_8
-            zthtv_8(i,j,G_nk+1)= fis0v(i,j)/grav_8
-            F_metric%lg_pstar_8(i,j,G_nk+1)=log(1.d5)-grav_8*F_metric%zmom_8(i,j,G_nk+1)/(rgasd_8*Cstv_Tstr_8)
+            GVM%lg_pstar_8(i,j,G_nk+1)=log(1.d5)-grav_8*GVM%zmom_8(i,j,G_nk+1)/(rgasd_8*Cstv_Tstr_8)
          end do
       end do
 !!$omp enddo
@@ -67,8 +62,8 @@
       do k=1,G_nk
          do j=1-G_haloy,l_nj+G_haloy
             do i=1-G_halox,l_ni+G_halox
-               dgzm(i,j,k)=F_metric%zmom_8(i,j,k)-F_metric%zmom_8(i,j,k+1)
-               dgzt(i,j,k)=F_metric%ztht_8(i,j,k)-F_metric%ztht_8(i,j,k+1)
+               dgzm(i,j,k)=GVM%zmom_8(i,j,k)-GVM%zmom_8(i,j,k+1)
+               dgzt(i,j,k)=GVM%ztht_8(i,j,k)-GVM%ztht_8(i,j,k+1)
             end do
          end do
       end do
@@ -91,11 +86,11 @@
       do j=1-G_haloy,l_nj+G_haloy
          do k=G_nk,1,-1
             do i=1-G_halox,l_ni+G_halox
-               F_metric%lg_pstar_8(i,j,k)=F_metric%lg_pstar_8(i,j,k+1)+grav_8*(F_metric%zmom_8(i,j,k+1)-F_metric%zmom_8(i,j,k))/(rgasd_8*Cstv_Tstr_8)
+               GVM%lg_pstar_8(i,j,k)=GVM%lg_pstar_8(i,j,k+1)+grav_8*(GVM%zmom_8(i,j,k+1)-GVM%zmom_8(i,j,k))/(rgasd_8*Cstv_Tstr_8)
             end do
          end do
          do i=1-G_halox,l_ni+G_halox
-            F_metric%ztht_8(i,j,G_nk)= F_metric%zmom_8(i,j,G_nk+1) !temporary for mc_Ix_8 and mc_Iy_8 below
+            GVM%ztht_8(i,j,G_nk)= GVM%zmom_8(i,j,G_nk+1) !temporary for mc_Ix_8 and mc_Iy_8 below
          end do
       end do
 !!$omp enddo
@@ -104,17 +99,17 @@
       do k=1,G_nk
          do j=1-G_haloy+1,l_nj+G_haloy-1
             do i=1-G_halox+1,l_ni+G_halox-1
-               F_metric%mc_Jx_8 (i,j,k)= Hderiv8(F_metric%zmom_8(i-2,j,k),F_metric%zmom_8(i-1,j,k),F_metric%zmom_8(i  ,j,k),&
-                                                 F_metric%zmom_8(i+1,j,k),F_metric%zmom_8(i+2,j,k),F_metric%zmom_8(i+3,j,k),geomh_invDX_8(j))
-               F_metric%mc_Jy_8 (i,j,k)= Hderiv8(F_metric%zmom_8(i,j-2,k),F_metric%zmom_8(i,j-1,k),F_metric%zmom_8(i  ,j,k),&
-                                                 F_metric%zmom_8(i,j+1,k),F_metric%zmom_8(i,j+2,k),F_metric%zmom_8(i,j+3,k),geomh_invDY_8)
+               GVM%mc_Jx_8 (i,j,k)= Hderiv8(GVM%zmom_8(i-2,j,k),GVM%zmom_8(i-1,j,k),GVM%zmom_8(i  ,j,k),&
+                                                 GVM%zmom_8(i+1,j,k),GVM%zmom_8(i+2,j,k),GVM%zmom_8(i+3,j,k),geomh_invDX_8(j))
+               GVM%mc_Jy_8 (i,j,k)= Hderiv8(GVM%zmom_8(i,j-2,k),GVM%zmom_8(i,j-1,k),GVM%zmom_8(i  ,j,k),&
+                                                 GVM%zmom_8(i,j+1,k),GVM%zmom_8(i,j+2,k),GVM%zmom_8(i,j+3,k),geomh_invDY_8)
 
-               F_metric%mc_iJz_8(i,j,k)=one/(F_metric%zmom_8(i,j,k+1)-F_metric%zmom_8(i,j,k))
-               F_metric%mc_Ix_8(i,j,k)=log( (zthtu_8(i,j,k)-zthtu_8(i,j,k-1))/(zthtu_8(i-1,j,k)-zthtu_8(i-1,j,k-1)) )*geomh_invDX_8(j)
-               F_metric%mc_Iy_8(i,j,k)=log( (zthtv_8(i,j,k)-zthtv_8(i,j,k-1))/(zthtv_8(i,j-1,k)-zthtv_8(i,j-1,k-1)) )*geomh_invDY_8
-               F_metric%mc_Iz_8(i,j,k)=log( (F_metric%zmom_8(i,j,k+1)-F_metric%zmom_8(i,j,k))/(Ver_z_8%m(k+1)-Ver_z_8%m(k)) &
-                                  /(F_metric%zmom_8(i,j,k)-F_metric%zmom_8(i,j,k-1))*(Ver_z_8%m(k)-Ver_z_8%m(k-1)) )*Ver_idz_8%m(k)
-               F_metric%mc_logJz_8(i,j,k)= 0.0
+               GVM%mc_iJz_8(i,j,k)=one/(GVM%zmom_8(i,j,k+1)-GVM%zmom_8(i,j,k))
+               GVM%mc_Ix_8(i,j,k)=log( (zthtu_8(i,j,k)-zthtu_8(i,j,k-1))/(zthtu_8(i-1,j,k)-zthtu_8(i-1,j,k-1)) )*geomh_invDX_8(j)
+               GVM%mc_Iy_8(i,j,k)=log( (zthtv_8(i,j,k)-zthtv_8(i,j,k-1))/(zthtv_8(i,j-1,k)-zthtv_8(i,j-1,k-1)) )*geomh_invDY_8
+               GVM%mc_Iz_8(i,j,k)=log( (GVM%zmom_8(i,j,k+1)-GVM%zmom_8(i,j,k))/(Ver_z_8%m(k+1)-Ver_z_8%m(k)) &
+                                  /(GVM%zmom_8(i,j,k)-GVM%zmom_8(i,j,k-1))*(Ver_z_8%m(k)-Ver_z_8%m(k-1)) )*Ver_idz_8%m(k)
+               GVM%mc_logJz_8(i,j,k)= 0.0
 
             end do
          end do
@@ -124,8 +119,8 @@
       do j=1-G_haloy+1,l_nj+G_haloy-1
 !DIR$ SIMD
          do i=1-G_halox+1,l_ni+G_halox-1
-            F_metric%mc_iJz_8(i,j,0)=one/(F_metric%zmom_8(i,j,1)-ver_z_8%m(0))
-            F_metric%mc_css_H_8(i,j) = one/(gama_8*(F_metric%mc_iJz_8(i,j,G_nk)-half*mu_8))
+            GVM%mc_iJz_8(i,j,0)=one/(GVM%zmom_8(i,j,1)-ver_z_8%m(0))
+            GVM%mc_css_H_8(i,j) = one/(gama_8*(GVM%mc_iJz_8(i,j,G_nk)-half*mu_8))
          end do
       end do
 !!$omp enddo
@@ -133,7 +128,7 @@
       do j=1-G_haloy,l_nj+G_haloy
 !DIR$ SIMD
          do i=1-G_halox,l_ni+G_halox
-            F_metric%ztht_8(i,j,G_nk)= ver_z_8%t(G_nk)+(Ver_b_8%t(G_nk)*F_topo(i,j)+Ver_c_8%t(G_nk)*F_orols(i,j))/grav_8
+            GVM%ztht_8(i,j,G_nk)= ver_z_8%t(G_nk)+(Ver_b_8%t(G_nk)*fis0(i,j)+Ver_c_8%t(G_nk)*orols(i,j))/grav_8
          end do
       end do
 !!$omp enddo
@@ -141,8 +136,8 @@
 !!$omp do
       do j=1-G_haloy+1,l_nj+G_haloy-1
          do i=1-G_halox+1,l_ni+G_halox-1
-            F_metric%mc_alfas_H_8(i,j) = ( F_metric%mc_iJz_8(i,j,G_nk) + half*mu_8 + Ver_wmstar_8(G_nk)*(F_metric%mc_iJz_8(i,j,G_nk-1) -half*mu_8) ) / (F_metric%mc_iJz_8(i,j,G_nk)-half*mu_8)
-            F_metric%mc_betas_H_8(i,j) =                                             Ver_wmstar_8(G_nk)*(F_metric%mc_iJz_8(i,j,G_nk-1) +half*mu_8)   / (F_metric%mc_iJz_8(i,j,G_nk)-half*mu_8)
+            GVM%mc_alfas_H_8(i,j) = ( GVM%mc_iJz_8(i,j,G_nk) + half*mu_8 + Ver_wmstar_8(G_nk)*(GVM%mc_iJz_8(i,j,G_nk-1) -half*mu_8) ) / (GVM%mc_iJz_8(i,j,G_nk)-half*mu_8)
+            GVM%mc_betas_H_8(i,j) =                                             Ver_wmstar_8(G_nk)*(GVM%mc_iJz_8(i,j,G_nk-1) +half*mu_8)   / (GVM%mc_iJz_8(i,j,G_nk)-half*mu_8)
          enddo
       enddo
 !!$omp enddo

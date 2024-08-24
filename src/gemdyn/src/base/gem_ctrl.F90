@@ -60,8 +60,7 @@
          endif
       else
 !!$omp parallel
-         call vertical_metric (GVM, fis0, orols, &
-                               l_minx,l_maxx,l_miny,l_maxy)
+         call vertical_metric ()
 !!$omp end parallel
          if ( .not. Grd_yinyang_L .and. Lam_ctebcs_L ) then
             call nest_indata  (nest_u, nest_v , nest_w, nest_t   ,&

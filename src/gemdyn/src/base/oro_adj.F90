@@ -58,14 +58,13 @@
       subroutine oro_xchg_adj ()
       use gem_options
       use glb_ld
-      use HORgrid_options
       use mem_nest
       use gmm_geof
       use tdpack
       use, intrinsic :: iso_fortran_env
       implicit none
 
-      integer :: i,j, HLT_start, HLT_end, local_np
+      integer :: i,j
 !
 !     ---------------------------------------------------------------
 !
@@ -79,30 +78,9 @@
          end do
       end do
 !!$omp enddo
-      if (Grd_yinyang_L) then
-         call yyg_xchng_hlt (fis0, l_minx,l_maxx,l_miny,l_maxy, &
-                         l_ni,l_nj, 1, .false., 'CUBIC', .true.)
-         call yyg_xchng_hlt (fis0u, l_minx,l_maxx,l_miny,l_maxy, &
-                         l_ni,l_nj, 1, .false., 'CUBIC', .true.)
-         call yyg_xchng_hlt (fis0v, l_minx,l_maxx,l_miny,l_maxy, &
-                         l_ni,l_nj, 1, .false., 'CUBIC', .true.)
-         call yyg_xchng_hlt (orols, l_minx,l_maxx,l_miny,l_maxy, &
-                         l_ni,l_nj, 1, .false., 'CUBIC', .true.)
-         call yyg_xchng_hlt (orolsu, l_minx,l_maxx,l_miny,l_maxy, &
-                         l_ni,l_nj, 1, .false., 'CUBIC', .true.)
-         call yyg_xchng_hlt (orolsv, l_minx,l_maxx,l_miny,l_maxy, &
-                         l_ni,l_nj, 1, .false., 'CUBIC', .true.)
-      else
-         call HLT_split (1, 1, local_np, HLT_start, HLT_end)
-         call gem_xch_halo (  fis0, l_minx,l_maxx,l_miny,l_maxy,local_np,-1 )
-         call gem_xch_halo (  fis0u, l_minx,l_maxx,l_miny,l_maxy,local_np,-1 )
-         call gem_xch_halo (  fis0v, l_minx,l_maxx,l_miny,l_maxy,local_np,-1 )
-         call gem_xch_halo ( orols, l_minx,l_maxx,l_miny,l_maxy,local_np,-1 )
-         call gem_xch_halo ( orolsu, l_minx,l_maxx,l_miny,l_maxy,local_np,-1 )
-         call gem_xch_halo ( orolsv, l_minx,l_maxx,l_miny,l_maxy,local_np,-1 )
-      end if
       
-      call vertical_metric (GVM, fis0, orols, l_minx,l_maxx,l_miny,l_maxy)
+      call vertical_metric ()
+      
 !!$omp do
       do j= 1-G_haloy+1, l_nj+G_haloy-1
          me_full (1-G_halox+1:l_ni+G_halox-1,j) =  fis0(1-G_halox+1:l_ni+G_halox-1,j) / grav_8

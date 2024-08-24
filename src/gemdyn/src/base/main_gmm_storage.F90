@@ -58,18 +58,22 @@
          call nest_set_mem
       end if
 
-!     Initialize digital filter variables modules
-!     --------------------------------------------
-
-      nullify (fis0, fis0u, fis0v, orols, orolsu, orolsv)
-      nullify (topo_low, topo_high, me_full, me_large)
-      
-      istat = gmm_create(gmmk_fis0_s ,fis0  ,meta2d,GMM_FLAG_RSTR+GMM_FLAG_IZER)
-      istat = gmm_create('FIS0U'     ,fis0u ,meta2d,GMM_FLAG_RSTR+GMM_FLAG_IZER)
-      istat = gmm_create('FIS0V'     ,fis0v ,meta2d,GMM_FLAG_RSTR+GMM_FLAG_IZER)
-      istat = gmm_create(gmmk_orols_s,orols ,meta2d,GMM_FLAG_RSTR+GMM_FLAG_IZER)
-      istat = gmm_create('OROLSU'    ,orolsu,meta2d,GMM_FLAG_RSTR+GMM_FLAG_IZER)
-      istat = gmm_create('OROLSV'    ,orolsv,meta2d,GMM_FLAG_RSTR+GMM_FLAG_IZER)
+      call gmm_build_meta3D(meta, &
+                            l_minx,l_maxx,G_halox,G_halox,l_ni, &
+                            l_miny,l_maxy,G_haloy,G_haloy,l_nj, &
+                            1,6,0,0,6, 0,GMM_NULL_FLAGS)
+      istat = gmm_create(gmmk_orography_s ,orography  ,meta,GMM_FLAG_RSTR+GMM_FLAG_IZER)
+                             
+      fis0  (l_minx:l_maxx,l_miny:l_maxy) => orography(l_minx:l_maxx,l_miny:l_maxy,1:)
+      fis0u (l_minx:l_maxx,l_miny:l_maxy) => orography(l_minx:l_maxx,l_miny:l_maxy,2:)
+      fis0v (l_minx:l_maxx,l_miny:l_maxy) => orography(l_minx:l_maxx,l_miny:l_maxy,3:)
+      orols (l_minx:l_maxx,l_miny:l_maxy) => orography(l_minx:l_maxx,l_miny:l_maxy,4:)
+      orolsu(l_minx:l_maxx,l_miny:l_maxy) => orography(l_minx:l_maxx,l_miny:l_maxy,5:)
+      orolsv(l_minx:l_maxx,l_miny:l_maxy) => orography(l_minx:l_maxx,l_miny:l_maxy,6:)
+      allocate (zthtu_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1),&
+                zmomu_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1),&
+                zthtv_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1),&
+                zmomv_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1) )
 
       call gmm_build_meta3D(meta, &
                             l_minx,l_maxx,G_halox,G_halox,l_ni, &
@@ -78,13 +82,12 @@
       flag_m_f = FLAG_LVL_M
       mymeta= SET_GMMUSR_FLAG(meta, flag_m_f)
 
+      nullify (topo_low, topo_high, me_full, me_large)
       istat = gmm_create(gmmk_topo_low_s ,topo_low ,mymeta,GMM_FLAG_RSTR+GMM_FLAG_IZER)
       istat = gmm_create(gmmk_topo_high_s,topo_high,mymeta,GMM_FLAG_RSTR+GMM_FLAG_IZER)
-
       istat = gmm_create(gmmk_me_full_s, me_full  , meta2d,GMM_FLAG_RSTR+GMM_FLAG_IZER)
       istat = gmm_create(gmmk_me_large_s, me_large, meta2d,GMM_FLAG_RSTR+GMM_FLAG_IZER)
-      gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)=gmmk_fis0_s      ; GMM_tbl%ara(gmm_cnt)='QQ' ; GMM_tbl%cn(gmm_cnt)='SF' ; GMM_tbl%fst(gmm_cnt)='FIS0'
-      gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)=gmmk_orols_s     ; GMM_tbl%ara(gmm_cnt)='QQ' ; GMM_tbl%cn(gmm_cnt)='SF' ; GMM_tbl%fst(gmm_cnt)='LSOR'
+      
       gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)=gmmk_topo_low_s  ; GMM_tbl%ara(gmm_cnt)='QQ' ; GMM_tbl%cn(gmm_cnt)='SF' ; GMM_tbl%fst(gmm_cnt)='MEHi'
       gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)=gmmk_topo_high_s ; GMM_tbl%ara(gmm_cnt)='QQ' ; GMM_tbl%cn(gmm_cnt)='SF' ; GMM_tbl%fst(gmm_cnt)='MElo'
       gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)=gmmk_me_full_s   ; GMM_tbl%ara(gmm_cnt)='QQ' ; GMM_tbl%cn(gmm_cnt)='SF' ; GMM_tbl%fst(gmm_cnt)='FUME'
@@ -92,7 +95,6 @@
 
       dimH= (l_maxx-l_minx+1)*(l_maxy-l_miny+1)
       dim = dimH*G_nk
-     ! allocate (rhs(11*dim)) ; rhs=0.
       allocate (LT  (5*dim+2*dimH)) ; LT =0.
       
       Ruu  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>LT(      1:)
