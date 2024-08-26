@@ -29,6 +29,7 @@
       use mem_tstp
       use tdpack
       use ver
+      use yyg_param
       use, intrinsic :: iso_fortran_env
       implicit none
 
@@ -38,13 +39,14 @@
 
       integer :: HLT_j0, HLT_jn, HLT_nj, HLT_nk, &
                  HLT_np, HLT_start, HLT_end
-      integer :: i, j, k, k0, k0t, km, kp, n
-!      integer :: i0,in,j0,jn
+      integer :: i, j, k, k0, k0t, km, kp, n, ii
+      integer :: km1,km2,km3,kp1,kp2,kp3
       real(kind=REAL64) :: r1(l_ni), r2(l_ni), r3(l_ni), r4(l_ni)
       real(kind=REAL64) :: w1(l_ni),w2(l_ni),w3(l_ni),w4(l_ni),&
           w5(l_ni),w6(l_ni),w7(l_ni),w8(l_ni),w9(l_ni),w10(l_ni)
       real(kind=REAL64) :: s1(l_ni),s2(l_ni),s3(l_ni),s4(l_ni),&
                            s5(l_ni),s6(l_ni),s7(l_ni),s8(l_ni)
+      real(kind=REAL64) :: dqx(-2:3), dqy(-2:3), qbz, u, v
       real(kind=REAL64), parameter :: half=0.5d0
 !
 !     ---------------------------------------------------------------
@@ -128,6 +130,88 @@
 
          end do 
       end do
+
+! CODE SUGGESTION FOR 5TH ORDER PROJECT
+      do k=1,G_nk-1
+         km1=max(k-1,1)
+         km2=max(k-2,1)
+         kp2=min(k+2,G_nk)
+         kp3=min(k+3,G_nk)
+         do j= ds_j0, ds_jn
+            do i= ds_i0, ds_in
+               do ii=-2,3
+               dqx(ii) = ext_q(i+ii,j,km2) * QDm2t(1,k)&
+                        +ext_q(i+ii,j,km1) * QDm2t(2,k)&
+                        +ext_q(i+ii,j,k  ) * QDm2t(3,k)&
+                        +ext_q(i+ii,j,k+1) * QDm2t(4,k)&
+                        +ext_q(i+ii,j,kp2) * QDm2t(5,k)&
+                        +ext_q(i+ii,j,kp3) * QDm2t(6,k)
+               dqy(ii) = ext_q(i,j+ii,km2) * QDm2t(1,k)&
+                        +ext_q(i,j+ii,km1) * QDm2t(2,k)&
+                        +ext_q(i,j+ii,k  ) * QDm2t(3,k)&
+                        +ext_q(i,j+ii,k+1) * QDm2t(4,k)&
+                        +ext_q(i,j+ii,kp2) * QDm2t(5,k)&
+                        +ext_q(i,j+ii,kp3) * QDm2t(6,k)
+               end do
+               qbz  = ext_q(i,j,km2) * QWm2t(1,k)&
+                    +ext_q(i,j,km1) * QWm2t(2,k)&
+                    +ext_q(i,j,k  ) * QWm2t(3,k)&
+                    +ext_q(i,j,k+1) * QWm2t(4,k)&
+                    +ext_q(i,j,kp2) * QWm2t(5,k)&
+                    +ext_q(i,j,kp3) * QWm2t(6,k)
+                    
+               dqdzu(i,j,k)= Hstag8(dqx(-2),dqx(-1),dqx(0),dqx(1),dqx(2),dqx (3))
+               dqdzv(i,j,k)= Hstag8(dqy(-2),dqy(-1),dqy(0),dqy(1),dqy(2),dqy (3))
+               Qw(i,j,k)= M_iJzq(i,j,k)*dqx(0) - mu_8*qbz
+            end do
+         end do
+      end do
+      if (Grd_yinyang_L) then
+         call yyg_xchng_8 (dqdzu, YYG_HALO_q2q, l_minx,l_maxx,l_miny,l_maxy, &
+                           l_ni,l_nj, G_nk, .false., 'CUBIC', .true.)
+         call yyg_xchng_8 (dqdzv, YYG_HALO_q2q, l_minx,l_maxx,l_miny,l_maxy, &
+                           l_ni,l_nj, G_nk, .false., 'CUBIC', .true.)
+      else
+         call HLT_split (1, 2*G_nk, HLT_np, HLT_start, HLT_end)
+         call gem_xch_halo_8 (dqdzu(l_minx,l_minx,HLT_start), l_minx,l_maxx,l_miny,l_maxy,HLT_np,-1 )
+      endif
+      do k=2,G_nk
+         km2=max(k-2,1)
+         km3=max(k-3,1)
+         kp1=min(k+1,G_nk)
+         kp2=min(k+2,G_nk)
+         do j= ds_j0, ds_jn
+            do i= ds_i0, ds_in
+               u = dqdzu(i,j,km3) * QWt2m(1,k)&
+                  +dqdzu(i,j,km2) * QWt2m(2,k)&
+                  +dqdzu(i,j,k-1) * QWt2m(3,k)&
+                  +dqdzu(i,j,k  ) * QWt2m(4,k)&
+                  +dqdzu(i,j,kp1) * QWt2m(5,k)&
+                  +dqdzu(i,j,kp2) * QWt2m(6,k)
+               v = dqdzv(i,j,km3) * QWt2m(1,k)&
+                  +dqdzv(i,j,km2) * QWt2m(2,k)&
+                  +dqdzv(i,j,k-1) * QWt2m(3,k)&
+                  +dqdzv(i,j,k  ) * QWt2m(4,k)&
+                  +dqdzv(i,j,kp1) * QWt2m(5,k)&
+                  +dqdzv(i,j,kp2) * QWt2m(6,k)
+               Qu(i,j,k)= Hderiv(ext_q(i-2,j,k),ext_q(i-1,j,k),ext_q(i  ,j,k),&
+                                  ext_q(i+1,j,k),ext_q(i+2,j,k),ext_q(i+3,j,k),geomh_invDX_8(j))&
+                          - M_Jxozu(i,j,k) * u
+               Qv(i,j,k)= Hderiv(ext_q(i,j-2,k),ext_q(i,j-1,k),ext_q(i  ,j,k),&
+                                  ext_q(i,j+1,k),ext_q(i,j+2,k),ext_q(i,j+3,k),geomh_invDY_8)&
+                          - M_Jyozv(i,j,k) * v
+            end do
+         end do
+      end do
+      if (Grd_yinyang_L) then
+         call yyg_xchng_8 (Qu, YYG_HALO_q2q, l_minx,l_maxx,l_miny,l_maxy, &
+                           l_ni,l_nj, G_nk, .false., 'CUBIC', .true.)
+         call yyg_xchng_8 (Qv, YYG_HALO_q2q, l_minx,l_maxx,l_miny,l_maxy, &
+                           l_ni,l_nj, G_nk, .false., 'CUBIC', .true.)
+      else
+         call HLT_split (1, 2*G_nk, HLT_np, HLT_start, HLT_end)
+         call gem_xch_halo_8 (Qu(l_minx,l_minx,HLT_start), l_minx,l_maxx,l_miny,l_maxy,HLT_np,-1 )
+      endif
       
       do k= 2, l_nk
          do j= ds_j0, ds_jn
@@ -184,4 +268,5 @@
 !     ---------------------------------------------------------------
 !     
       return
+      include 'H5th_ope.inc'
       end subroutine matvec

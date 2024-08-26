@@ -28,10 +28,12 @@
       use metric
       use gmm_geof
       use ver
+      use yyg_param
       implicit none
 
-      integer :: i,j,k
+      integer :: i,j,k,km1,km2,km3,kp1,kp2,kp3
       integer :: HLT_start, HLT_end, local_np
+      real(kind=REAL64) :: Jzu, Jzv, Jzq, Jx, Jy
       real, parameter :: one=1.d0, half=.5d0
 !
 !     ---------------------------------------------------------------
@@ -50,15 +52,6 @@
                          fis0u, orolsu, l_minx,l_maxx,l_miny,l_maxy)
       call lvl_heights ( zmomv_8, zthtv_8, &
                          fis0v, orolsv, l_minx,l_maxx,l_miny,l_maxy)
-
-!!$omp do
-      do j=1-G_haloy,l_nj+G_haloy
-         do i=1-G_halox,l_ni+G_halox
-            GVM%lg_pstar_8(i,j,G_nk+1)=log(1.d5)-grav_8*GVM%zmom_8(i,j,G_nk+1)/(rgasd_8*Cstv_Tstr_8)
-         end do
-      end do
-!!$omp enddo
-!!$omp do collapse(2)
       do k=1,G_nk
          do j=1-G_haloy,l_nj+G_haloy
             do i=1-G_halox,l_ni+G_halox
@@ -67,22 +60,13 @@
             end do
          end do
       end do
-!!$omp enddo
 
-! Impossible code in an OMP parallel region
-!!$!$omp single
-!!$      err=0
-!!$      if (minval(dgzm)<0. .or. minval(dgzt)<0. ) err=-1
-!!$      call gem_error (err,'vertical_metric','Heights NOT monotonically decreasing from model top')
-!!$      if (Lun_debug_L) then
-!!$         call glbstat ( dgzm,'DGZM',"metric",l_minx,l_maxx,l_miny,l_maxy,1,l_nk,&
-!!$                        1-G_halox,G_ni+G_halox,1-G_haloy,G_nj+G_haloy,1,l_nk )
-!!$         call glbstat ( dgzt,'DGZT',"metric",l_minx,l_maxx,l_miny,l_maxy,1,l_nk,&
-!!$                        1-G_halox,G_ni+G_halox,1-G_haloy,G_nj+G_haloy,1,l_nk )
-!!$      endif
-!!$!$omp end single
+      do j=1-G_haloy,l_nj+G_haloy
+         do i=1-G_halox,l_ni+G_halox
+            GVM%lg_pstar_8(i,j,G_nk+1)=log(1.d5)-grav_8*GVM%zmom_8(i,j,G_nk+1)/(rgasd_8*Cstv_Tstr_8)
+         end do
+      end do
 
-!!$omp do
       do j=1-G_haloy,l_nj+G_haloy
          do k=G_nk,1,-1
             do i=1-G_halox,l_ni+G_halox
@@ -93,8 +77,85 @@
             GVM%ztht_8(i,j,G_nk)= GVM%zmom_8(i,j,G_nk+1) !temporary for mc_Ix_8 and mc_Iy_8 below
          end do
       end do
-!!$omp enddo
 
+      do k=1,G_nk
+         km1=max(k-1,0)
+         km2=max(k-2,0)
+         km3=max(k-3,0)
+         kp1=min(k+1,G_nk+1)
+         kp2=min(k+2,G_nk+1)
+         kp3=min(k+3,G_nk+1)
+         do j=1-G_haloy+1,l_nj+G_haloy-1
+            do i=1-G_halox+1,l_ni+G_halox-1
+               Jzu = zthtu_8(i,j,km3) * QDt2m(1,k)&
+                    +zthtu_8(i,j,km2) * QDt2m(2,k)&
+                    +zthtu_8(i,j,km1) * QDt2m(3,k)&
+                    +zthtu_8(i,j,k  ) * QDt2m(4,k)&
+                    +zthtu_8(i,j,kp1) * QDt2m(5,k)&
+                    +zthtu_8(i,j,kp2) * QDt2m(6,k)
+               Jzv = zthtv_8(i,j,km3) * QDt2m(1,k)&
+                    +zthtv_8(i,j,km2) * QDt2m(2,k)&
+                    +zthtv_8(i,j,km1) * QDt2m(3,k)&
+                    +zthtv_8(i,j,k  ) * QDt2m(4,k)&
+                    +zthtv_8(i,j,kp1) * QDt2m(5,k)&
+                    +zthtv_8(i,j,kp2) * QDt2m(6,k)
+               Jzq = GVM%zmom_8(i,j,km2) * QDm2t(1,k)&
+                    +GVM%zmom_8(i,j,km1) * QDm2t(2,k)&
+                    +GVM%zmom_8(i,j,k  ) * QDm2t(3,k)&
+                    +GVM%zmom_8(i,j,kp1) * QDm2t(4,k)&
+                    +GVM%zmom_8(i,j,kp2) * QDm2t(5,k)&
+                    +GVM%zmom_8(i,j,kp3) * QDm2t(6,k)
+               Jx= Hderiv8(GVM%zmom_8(i-2,j,k),GVM%zmom_8(i-1,j,k),GVM%zmom_8(i  ,j,k),&
+                           GVM%zmom_8(i+1,j,k),GVM%zmom_8(i+2,j,k),GVM%zmom_8(i+3,j,k),geomh_invDX_8(j))
+               Jy= Hderiv8(GVM%zmom_8(i,j-2,k),GVM%zmom_8(i,j-1,k),GVM%zmom_8(i  ,j,k),&
+                           GVM%zmom_8(i,j+1,k),GVM%zmom_8(i,j+2,k),GVM%zmom_8(i,j+3,k),geomh_invDY_8)
+               M_Jxozu(i,j,k)= Jx  / Jzu ! First  term in matvec portion of eqn 58
+               M_Jyozv(i,j,k)= Jy  / Jzv ! Second term in matvec portion of eqn 58
+               M_iJzq (i,j,k)= one / Jzq ! Third  term in matvec portion of eqn 58
+               M_Jzu(i,j,k) = log(Jzu)
+               M_Jzv(i,j,k) = log(Jzv)
+               M_Jzq(i,j,k) = log(Jzq)
+            end do
+         end do
+      end do
+      if (Grd_yinyang_L) then
+         call yyg_xchng_8 (M_Jzu, YYG_HALO_q2q, l_minx,l_maxx,l_miny,l_maxy, &
+                           l_ni,l_nj, G_nk+2, .false., 'CUBIC', .true.)
+         call yyg_xchng_8 (M_Jzv, YYG_HALO_q2q, l_minx,l_maxx,l_miny,l_maxy, &
+                           l_ni,l_nj, G_nk+2, .false., 'CUBIC', .true.)
+         call yyg_xchng_8 (M_Jzq, YYG_HALO_q2q, l_minx,l_maxx,l_miny,l_maxy, &
+                           l_ni,l_nj, G_nk+2, .false., 'CUBIC', .true.)
+      else
+         call HLT_split (0, 3*(G_nk+1)+2, local_np, HLT_start, HLT_end)
+         call gem_xch_halo_8 (M_Jzu(l_minx,l_minx,HLT_start), l_minx,l_maxx,l_miny,l_maxy,local_np,-1 )
+      endif
+      do k=1,G_nk
+         km1=max(k-1,0)
+         km2=max(k-2,0)
+         km3=max(k-3,0)
+         kp1=min(k+1,G_nk+1)
+         kp2=min(k+2,G_nk+1)
+         do j=1-G_haloy+1,l_nj+G_haloy-1
+            do i=1-G_halox+1,l_ni+G_halox-1
+               ! 5th  term in elliptic RHS portion of eqn 58
+               ! 5th  term in matvec portion of eqn 58
+               M_logJzu(i,j,k)= Hderiv8(M_Jzu(i-2,j,k),M_Jzu(i-1,j,k),M_Jzu(i  ,j,k),&
+                                        M_Jzu(i+1,j,k),M_Jzu(i+2,j,k),M_Jzu(i+3,j,k),geomh_invDX_8(j))
+               ! 6th  term in elliptic RHS portion of eqn 58
+               ! 6th  term in matvec portion of eqn 58
+               M_logJzv(i,j,k)= Hderiv8(M_Jzv(i,j-2,k),M_Jzv(i,j-1,k),M_Jzv(i  ,j,k),&
+                                        M_Jzv(i,j+1,k),M_Jzv(i,j+2,k),M_Jzv(i,j+3,k),geomh_invDY_8)
+               ! 7th and 9th  term in elliptic RHS portion of eqn 58
+               ! 7th  term in matvec portion of eqn 58
+               M_logJzq(i,j,k)= M_Jzq(i,j,km3) * QDt2m(1,k)&
+                               +M_Jzq(i,j,km2) * QDt2m(2,k)&
+                               +M_Jzq(i,j,km1) * QDt2m(3,k)&
+                               +M_Jzq(i,j,k  ) * QDt2m(4,k)&
+                               +M_Jzq(i,j,kp1) * QDt2m(5,k)&
+                               +M_Jzq(i,j,kp2) * QDt2m(6,k)
+            end do
+         end do
+      end do
 !!$omp do collapse(2)
       do k=1,G_nk
          do j=1-G_haloy+1,l_nj+G_haloy-1

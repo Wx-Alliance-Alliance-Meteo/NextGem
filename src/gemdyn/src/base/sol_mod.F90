@@ -36,5 +36,6 @@ module sol_mem
    real(kind=REAL64),dimension(:,:,:,:), contiguous, pointer :: vv, wint_8
    real(kind=REAL64),dimension(:), allocatable :: m_west,m_east,m_south,m_north
    real             ,dimension (:,:,: ), allocatable :: fdg2,ext_q
-
+   real(kind=REAL64),dimension(:), contiguous, pointer :: sol_ws
+   real(kind=REAL64),dimension (:,:,: ), pointer :: dqdzu,dqdzv,Qu,Qv,Qw
 end module sol_mem

@@ -64,8 +64,8 @@
          call inp_data (pw_uu_plus,pw_vv_plus,wt1,pw_tt_plus,qt1       ,&
                         zdt1,p0,trt1,fis0,orols,.false.,Step_runstrt_S,&
                         l_minx,l_maxx,l_miny,l_maxy,G_nk,Tr3d_ntr )
-         do j=1, l_nj
-            do i=1, l_ni
+         do j=1-G_haloy+1,l_nj+G_haloy-1
+            do i=1-G_halox+1,l_ni+G_halox-1
                fis0u (i,j) = (fis0(i+1,j)+fis0(i,j))*0.5
                fis0v (i,j) = (fis0(i,j+1)+fis0(i,j))*0.5
                orolsu(i,j) = (orols(i+1,j)+orols(i,j))*0.5

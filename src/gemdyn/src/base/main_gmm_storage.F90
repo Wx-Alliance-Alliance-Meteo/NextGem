@@ -165,6 +165,18 @@
       sw_f11 (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>sw_frc(10*dim+1:)
       sw_f12 (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>sw_frc(11*dim+1:)
 
+      dim = dimH*(G_nk+2)
+      allocate (M_Jz(3*dim))
+      allocate ( M_Jxozu (l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1),&
+                 M_Jyozv (l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1),&
+                 M_iJzq  (l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1),&
+                 M_logJzu(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1),&
+                 M_logJzv(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1),&
+                 M_logJzq(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1) )
+      M_Jzu(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1) => M_jz(      1:)
+      M_Jzv(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1) => M_jz(  dim+1:)
+      M_Jzq(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1) => M_jz(2*dim+1:)
+
       allocate ( GVM%zmom_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
                  GVM%ztht_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
                  GVM%zmom_u(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &

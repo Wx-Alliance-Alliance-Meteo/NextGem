@@ -39,7 +39,7 @@
       implicit none
 
       type(gmm_metadata) :: meta
-      integer i,j,k,ni,nj,istat
+      integer i,j,k,ni,nj,istat,dim,dimH
       integer :: f1,f2,f3,f4, nx1, nx2, ny1, ny2
       integer :: HLT_start, HLT_end, local_np
       real(kind=REAL64) yg_8(G_nj)
@@ -164,6 +164,15 @@
           if (l_south) m_south(1+pil_s   ) = 0.
           if (l_north) m_north(l_nj-pil_n) = 0.
        endif
+
+       dimH= (l_maxx-l_minx+1)*(l_maxy-l_miny+1)
+       dim = dimH*G_nk
+       allocate (sol_ws(5*dim))
+       dqdzu(l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => sol_ws(      1:)
+       dqdzv(l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => sol_ws(  dim+1:)
+       Qu   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => sol_ws(2*dim+1:)
+       Qv   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => sol_ws(3*dim+1:)
+       Qw   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => sol_ws(4*dim+1:)
 
        ni= Sol_iin-Sol_ii0+1
        nj= Sol_jjn-Sol_jj0+1

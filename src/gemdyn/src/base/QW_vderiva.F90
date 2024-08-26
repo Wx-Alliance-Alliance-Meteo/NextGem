@@ -88,10 +88,12 @@
       QDm2t(4,2) = 1.d0/(Ver_z_8%m(3) - Ver_z_8%m(2))
       QDm2t(4,G_nk-2) = 1.d0/(Ver_z_8%m(G_nk-1) - Ver_z_8%m(G_nk-2))
       QDm2t(4,G_nk-1) = 1.d0/(Ver_z_8%m(G_nk  ) - Ver_z_8%m(G_nk-1))
+      QDm2t(4,G_nk  ) = 1.d0/(Ver_z_8%m(G_nk+1) - Ver_z_8%m(G_nk  ))
       QDm2t(3,1) = -QDm2t(4,1)
       QDm2t(3,2) = -QDm2t(4,2)
       QDm2t(3,G_nk-2) = -QDm2t(4,G_nk-2)
       QDm2t(3,G_nk-1) = -QDm2t(4,G_nk-1)
+      QDm2t(3,G_nk  ) = -QDm2t(4,G_nk  )
 
       do k=4,G_nk-2
          z1 = Ver_a_8%t(k-3)
@@ -145,10 +147,12 @@
          - ((pt - z1)*(pt - z3)*(pt - z4)*(pt - z5)) / l6 &
          - ((pt - z2)*(pt - z3)*(pt - z4)*(pt - z5)) / l6
       end do
+      QDt2m(4,1) = 1.d0/(Ver_z_8%t(1) - Ver_z_8%t(0))
       QDt2m(4,2) = 1.d0/(Ver_z_8%t(2) - Ver_z_8%t(1))
       QDt2m(4,3) = 1.d0/(Ver_z_8%t(3) - Ver_z_8%t(2))
       QDt2m(4,G_nk-1) = 1.d0/(Ver_z_8%t(G_nk-1) - Ver_z_8%t(G_nk-2))
       QDt2m(4,G_nk  ) = 1.d0/(Ver_z_8%t(G_nk  ) - Ver_z_8%t(G_nk-1))
+      QDt2m(3,1) = -QDt2m(4,1)
       QDt2m(3,2) = -QDt2m(4,2)
       QDt2m(3,3) = -QDt2m(4,3)
       QDt2m(3,G_nk-1) = -QDt2m(4,G_nk-1)

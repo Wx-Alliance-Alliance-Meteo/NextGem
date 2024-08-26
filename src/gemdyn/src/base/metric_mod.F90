@@ -35,6 +35,9 @@ module metric
 
    type(Vmetric) :: GVM
 
-   real(kind=REAL64), dimension(:,:), allocatable :: QWm2t, QWt2m, QDm2t, QDt2m
+      real(kind=REAL64), pointer, contiguous, dimension (:) :: M_Jz => null()
+      real(kind=REAL64), dimension(:,:,:), pointer :: M_Jzu , M_Jzv , M_Jzq
+      real(kind=REAL64), dimension(:,:,:), allocatable :: M_Jxozu , M_Jyozv , M_iJzq
+      real(kind=REAL64), dimension(:,:,:), allocatable :: M_logJzu, M_logJzv, M_logJzq
       
 end module metric

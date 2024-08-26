@@ -21,7 +21,7 @@
       use glb_ld
       use gmm_vt0
       use mem_tstp
-      use metric
+      use ver
       implicit none
 
       integer, intent(in) :: Minx, Maxx, Miny, Maxy, Nk
@@ -69,9 +69,9 @@
                     +tt0(i,j+n,kp1) * QWt2m(5,k) + tt0(i,j+n,kp2) * QWt2m(6,k)
             u2q(n) = Hstag(ut0(i-3,j,k),ut0(i-2,j,k),ut0(i-1,j,k),&
                            ut0(i,j,k  ),ut0(i+1,j,k),ut0(i+2,j,k))
+            end do
             F_t2v(i,j,k)= Hstag8(t2q(-2),t2q(-1),t2q(0),t2q(1),t2q(2),t2q(3))/Cstv_Tstr_8-1.d0
             F_u2v(i,j,k)= Hstag8(u2q(-2),u2q(-1),u2q(0),u2q(1),u2q(2),u2q(3))
-           end do
          end do
          end do
       end do
