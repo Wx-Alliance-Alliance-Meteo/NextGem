@@ -46,7 +46,7 @@
       call pw_update_GW ()
 
       if ( (hzd_smago_param > 0.) .or. (hzd_smago_lnr(1) > 0.) ) then
-         call HLT_split (1, 5*G_nk, local_np, HLT_start, HLT_end)
+         call HLT_split (1, 5*(G_nk+3), local_np, HLT_start, HLT_end)
          call gem_xch_halo ( wt1(l_minx,l_miny,HLT_start),&
                    l_minx,l_maxx,l_miny,l_maxy,local_np,-1)
          call hzd_smago_in_split(ut1,vt1,wt1,tt1,zdt1, &
