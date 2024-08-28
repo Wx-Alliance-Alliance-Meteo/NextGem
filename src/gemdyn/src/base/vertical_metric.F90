@@ -34,16 +34,18 @@
       integer :: i,j,k,km1,km2,km3,kp1,kp2,kp3
       integer :: HLT_start, HLT_end, local_np
       real(kind=REAL64) :: Jzu, Jzv, Jzq, Jx, Jy
+      real, dimension (:,:,:), pointer :: oro
       real, parameter :: one=1.d0, half=.5d0
 !
 !     ---------------------------------------------------------------
 !
       if (Grd_yinyang_L) then
-         call yyg_xchng_hlt (orography, l_minx,l_maxx,l_miny,l_maxy, &
+         call yyg_xchng_hlt (fis0, l_minx,l_maxx,l_miny,l_maxy, &
                              l_ni,l_nj, 6, .false., 'CUBIC', .true.)
       else
          call HLT_split (1, 6, local_np, HLT_start, HLT_end)
-         call gem_xch_halo (orography(l_minx,l_minx,HLT_start), l_minx,l_maxx,l_miny,l_maxy,local_np,-1 )
+         oro(l_minx:l_maxx,l_miny:l_maxy,1:6) => orography(1:)
+         call gem_xch_halo (oro(l_minx,l_minx,HLT_start), l_minx,l_maxx,l_miny,l_maxy,local_np,-1 )
       endif
       
       call lvl_heights ( GVM%zmom_8, GVM%ztht_8, &

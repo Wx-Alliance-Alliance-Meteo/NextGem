@@ -58,18 +58,18 @@
          call nest_set_mem
       end if
 
-      call gmm_build_meta3D(meta, &
-                            l_minx,l_maxx,G_halox,G_halox,l_ni, &
-                            l_miny,l_maxy,G_haloy,G_haloy,l_nj, &
-                            1,6,0,0,6, 0,GMM_NULL_FLAGS)
-      istat = gmm_create(gmmk_orography_s ,orography  ,meta,GMM_FLAG_RSTR+GMM_FLAG_IZER)
+      dimh= (l_maxx-l_minx+1) * (l_maxy-l_miny+1)
+      dim = dimh * 6
+
+      call gmm_build_meta1D ( meta, 1,dim,0,0,dim, 0,GMM_NULL_FLAGS )
+      istat = gmm_create(gmmk_orography_s ,orography,meta,GMM_FLAG_RSTR+GMM_FLAG_IZER)
                              
-      fis0  (l_minx:l_maxx,l_miny:l_maxy) => orography(l_minx:l_maxx,l_miny:l_maxy,1:)
-      fis0u (l_minx:l_maxx,l_miny:l_maxy) => orography(l_minx:l_maxx,l_miny:l_maxy,2:)
-      fis0v (l_minx:l_maxx,l_miny:l_maxy) => orography(l_minx:l_maxx,l_miny:l_maxy,3:)
-      orols (l_minx:l_maxx,l_miny:l_maxy) => orography(l_minx:l_maxx,l_miny:l_maxy,4:)
-      orolsu(l_minx:l_maxx,l_miny:l_maxy) => orography(l_minx:l_maxx,l_miny:l_maxy,5:)
-      orolsv(l_minx:l_maxx,l_miny:l_maxy) => orography(l_minx:l_maxx,l_miny:l_maxy,6:)
+      fis0  (l_minx:l_maxx,l_miny:l_maxy) => orography(       1:)
+      fis0u (l_minx:l_maxx,l_miny:l_maxy) => orography(  dimh+1:)
+      fis0v (l_minx:l_maxx,l_miny:l_maxy) => orography(2*dimh+1:)
+      orols (l_minx:l_maxx,l_miny:l_maxy) => orography(3*dimh+1:)
+      orolsu(l_minx:l_maxx,l_miny:l_maxy) => orography(4*dimh+1:)
+      orolsv(l_minx:l_maxx,l_miny:l_maxy) => orography(5*dimh+1:)
       allocate (zthtu_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1),&
                 zmomu_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1),&
                 zthtv_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1),&

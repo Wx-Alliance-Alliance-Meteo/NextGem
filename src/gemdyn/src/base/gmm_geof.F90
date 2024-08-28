@@ -31,7 +31,7 @@ module gmm_geof
 !-----------------------------------------------------------------------
 !
 !
-      real, pointer, contiguous, dimension (:,:,:) :: orography => null()
+      real, pointer, contiguous, dimension (:  ) :: orography => null()
       real, pointer, contiguous, dimension (:,:) :: fis0      => null()
       real, pointer, contiguous, dimension (:,:) :: fis0u     => null()
       real, pointer, contiguous, dimension (:,:) :: fis0v     => null()
