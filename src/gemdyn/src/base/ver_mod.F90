@@ -62,10 +62,10 @@ module ver
 !----------------------------------------------------------------------|
 
       type :: V8_tmx
-         real(kind=REAL64), dimension(:), pointer, contiguous :: t,m,x
+         real(kind=REAL64), dimension(:), pointer, contiguous :: t,m
       end type V8_tmx
 
-      type (V8_tmx) Ver_z_8
+      type (V8_tmx) Ver_z_8, Ver_ext
 
       type (vertical_i) Ver_ip1
       type (vertical_8) Ver_a_8

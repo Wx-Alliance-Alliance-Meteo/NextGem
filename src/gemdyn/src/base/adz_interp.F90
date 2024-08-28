@@ -85,7 +85,7 @@ contains
             stkpntr(n)= c_loc(extended(1,1,1,n))
          end do
 
-         call HLT_split (1, F_nptr*l_nk, HLT_np, HLT_start, HLT_end)
+         call HLT_split (1, F_nptr*(l_nk+3), HLT_np, HLT_start, HLT_end)
          Cpntr= c_loc( extended(Adz_lminx,Adz_lminy,1,1) )
          call C_F_POINTER ( Cpntr, xchg, [Adz_nij,F_nptr*l_nk] )
          call gem_xch_halo ( xchg(1,HLT_start),&

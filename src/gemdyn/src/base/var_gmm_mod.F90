@@ -22,7 +22,6 @@ module var_gmm
    type(gmm_metadata) :: meta2d      ! (l_minx:l_maxx, l_miny:l_maxy          )
    type(gmm_metadata) :: meta3d_nk   ! (l_minx:l_maxx, l_miny:l_maxy, 1:l_nk  )
    type(gmm_metadata) :: meta3d_nk1  ! (l_minx:l_maxx, l_miny:l_maxy, 1:l_nk+1)
-   type(gmm_metadata) :: meta3d_0nk  ! (l_minx:l_maxx, l_miny:l_maxy, 0:l_nk  )
-   type(gmm_metadata) :: meta3d_0nk1 ! (l_minx:l_maxx, l_miny:l_maxy, 0:l_nk+1)
+   type(gmm_metadata) :: meta3d_nk3  ! (l_minx:l_maxx, l_miny:l_maxy, 1:l_nk+3)
 
 end module var_gmm

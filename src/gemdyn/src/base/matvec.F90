@@ -132,11 +132,11 @@
       end do
 
 ! CODE SUGGESTION FOR 5TH ORDER PROJECT
-      do k=1,G_nk-1
+      do k=1,G_nk
          km1=max(k-1,1)
          km2=max(k-2,1)
-         kp2=min(k+2,G_nk)
-         kp3=min(k+3,G_nk)
+         kp2=min(k+2,G_nk+1)
+         kp3=min(k+3,G_nk+1)
          do j= ds_j0, ds_jn
             do i= ds_i0, ds_in
                do ii=-2,3
