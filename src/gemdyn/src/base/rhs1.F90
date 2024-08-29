@@ -34,10 +34,9 @@
       
       integer :: HLT_j0, HLT_jn, HLT_nj, HLT_nk, &
                  HLT_np, HLT_start, HLT_end
-      integer :: i, j, k, km, kp, n
+      integer :: i, j, k, km, kp, n, km2, km1, kp2, kp3
       real, dimension(:,:,:), pointer :: logT1, logT2
-      real(kind=REAL64) :: div, barz, barzp, u_interp, v_interp,&
-               t_interp, w2, w3, w4, invT_8
+      real(kind=REAL64) :: w3, w4, qbzt1, qbzt2
       real(kind=REAL64), parameter :: one=1.d0, half=0.5d0
 !
 !     ---------------------------------------------------------------
@@ -63,7 +62,7 @@
 ! Compute rhs of terms that will be interpolated               *
 !***************************************************************
 
-      w3= half/(cpd_8*Cstv_Tstr_8)
+      w3= one/(cpd_8*Cstv_Tstr_8)
       w4= epsi_8/grav_8
 
       logT1(1:l_ni,1:l_nj,1:l_nk) => WS1(1:)
@@ -84,6 +83,11 @@
          j= n - k*HLT_nj + HLT_j0 - 1
          k= k+1
 
+         km1=max(k-1,1)
+         km2=max(k-2,1)
+         kp2=min(k+2,l_nk)
+         kp3=min(k+3,l_nk)
+
          do i= 1, l_ni
 
             rhsu_bdf_t1(i,j,k) = ut1(i,j,k)
@@ -99,13 +103,35 @@
             rhsf_bdf_t1(i,j,k) = GVM%ztht_8(i,j,k) - Ver_z_8%t(k)
             rhsf_bdf_t2(i,j,k) = rhsf_bdf_t1(i,j,k)
 
-            !---rhs terms of t---
-            rhst_bdf_t1(i,j,k) =  logT1(i,j,k) - w3*(qt1(i,j,k+1)+qt1(i,j,k))  
-            rhst_bdf_t2(i,j,k) =  logT2(i,j,k) - w3*(qt2(i,j,k+1)+qt2(i,j,k))  
-
             !---rhs terms of q---
             rhsc_bdf_t1(i,j,k) = w4*qt1(i,j,k) 
             rhsc_bdf_t2(i,j,k) = w4*qt2(i,j,k) 
+
+            !------------------------------------------------------
+            !---compute vertical staggering of q-term for Rt---
+            !do not use Hstag because the spacing for q is not constant
+
+            !current time
+            qbzt1  = qt1(i,j,km2) * QWm2t(1,k)&
+                   + qt1(i,j,km1) * QWm2t(2,k)&
+                   + qt1(i,j,k  ) * QWm2t(3,k)&
+                   + qt1(i,j,k+1) * QWm2t(4,k)&
+                   + qt1(i,j,kp2) * QWm2t(5,k)&
+                   + qt1(i,j,kp3) * QWm2t(6,k)
+                  
+            !prev time
+            qbzt2  = qt2(i,j,km2) * QWm2t(1,k)&
+                   + qt2(i,j,km1) * QWm2t(2,k)&
+                   + qt2(i,j,k  ) * QWm2t(3,k)&
+                   + qt2(i,j,k+1) * QWm2t(4,k)&
+                   + qt2(i,j,kp2) * QWm2t(5,k)&
+                   + qt2(i,j,kp3) * QWm2t(6,k)
+
+            !---rhs terms of t---
+            rhst_bdf_t1(i,j,k) =  logT1(i,j,k) - w3*qbzt1 
+            rhst_bdf_t2(i,j,k) =  logT2(i,j,k) - w3*qbzt2 
+
+
 
         end do
       end do

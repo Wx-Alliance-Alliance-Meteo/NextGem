@@ -47,6 +47,7 @@
       real(kind=REAL64) :: s1(l_ni),s2(l_ni),s3(l_ni),s4(l_ni),&
                            s5(l_ni),s6(l_ni),s7(l_ni),s8(l_ni)
       real(kind=REAL64) :: dqx(-2:3), dqy(-2:3), qbz, u, v
+      real(kind=REAL64) :: dxQu, dyQv, barxQu, baryQv, barzQw, dzQw
       real(kind=REAL64), parameter :: half=0.5d0
 !
 !     ---------------------------------------------------------------
@@ -132,11 +133,18 @@
       end do
 
 ! CODE SUGGESTION FOR 5TH ORDER PROJECT
-      do k=1,G_nk-1
+
+      !QD mimics linear at the surface 
+      !QW also defined 1:l_nk
+      !loop can be extended to G_nk
+      !also linear at the lid 
+
+      do k=1,G_nk !extend to include last level
          km1=max(k-1,1)
          km2=max(k-2,1)
-         kp2=min(k+2,G_nk)
-         kp3=min(k+3,G_nk)
+         kp1=min(k+1,G_nk+1)
+         kp2=min(k+2,G_nk+1)
+         kp3=min(k+3,G_nk+1)
          do j= ds_j0, ds_jn
             do i= ds_i0, ds_in
                do ii=-2,3
@@ -153,6 +161,7 @@
                         +ext_q(i,j+ii,kp2) * QDm2t(5,k)&
                         +ext_q(i,j+ii,kp3) * QDm2t(6,k)
                end do
+               !do not use Hstag because the spacing for q is not constant
                qbz  = ext_q(i,j,km2) * QWm2t(1,k)&
                     +ext_q(i,j,km1) * QWm2t(2,k)&
                     +ext_q(i,j,k  ) * QWm2t(3,k)&
@@ -160,9 +169,9 @@
                     +ext_q(i,j,kp2) * QWm2t(5,k)&
                     +ext_q(i,j,kp3) * QWm2t(6,k)
                     
-               dqdzu(i,j,k)= Hstag8(dqx(-2),dqx(-1),dqx(0),dqx(1),dqx(2),dqx (3))
+               dqdzu(i,j,k)= Hstag8(dqx(-2),dqx(-1),dqx(0),dqx(1),dqx(2),dqx (3)) !are these values in thermo, u-grid
                dqdzv(i,j,k)= Hstag8(dqy(-2),dqy(-1),dqy(0),dqy(1),dqy(2),dqy (3))
-               Qw(i,j,k)= M_iJzq(i,j,k)*dqx(0) - mu_8*qbz
+               Qw(i,j,k)= M_iJzq(i,j,k)*dqx(0) - mu_8*qbz !Dq for vertical der
             end do
          end do
       end do
@@ -175,6 +184,9 @@
          call HLT_split (1, 2*G_nk, HLT_np, HLT_start, HLT_end)
          call gem_xch_halo_8 (dqdzu(l_minx,l_minx,HLT_start), l_minx,l_maxx,l_miny,l_maxy,HLT_np,-1 )
       endif
+
+      !rhs & matvec should not address k=1&nk
+
       do k=2,G_nk
          km2=max(k-2,1)
          km3=max(k-3,1)
@@ -188,17 +200,20 @@
                   +dqdzu(i,j,k  ) * QWt2m(4,k)&
                   +dqdzu(i,j,kp1) * QWt2m(5,k)&
                   +dqdzu(i,j,kp2) * QWt2m(6,k)
+
                v = dqdzv(i,j,km3) * QWt2m(1,k)&
                   +dqdzv(i,j,km2) * QWt2m(2,k)&
                   +dqdzv(i,j,k-1) * QWt2m(3,k)&
                   +dqdzv(i,j,k  ) * QWt2m(4,k)&
                   +dqdzv(i,j,kp1) * QWt2m(5,k)&
                   +dqdzv(i,j,kp2) * QWt2m(6,k)
+
                Qu(i,j,k)= Hderiv(ext_q(i-2,j,k),ext_q(i-1,j,k),ext_q(i  ,j,k),&
-                                  ext_q(i+1,j,k),ext_q(i+2,j,k),ext_q(i+3,j,k),geomh_invDX_8(j))&
-                          - M_Jxozu(i,j,k) * u
+                                 ext_q(i+1,j,k),ext_q(i+2,j,k),ext_q(i+3,j,k),geomh_invDX_8(j))&
+                          - M_Jxozu(i,j,k) * u !can apply to Hder to Qu/Qv; Horizontal can do Hder/Hstag
+
                Qv(i,j,k)= Hderiv(ext_q(i,j-2,k),ext_q(i,j-1,k),ext_q(i  ,j,k),&
-                                  ext_q(i,j+1,k),ext_q(i,j+2,k),ext_q(i,j+3,k),geomh_invDY_8)&
+                                 ext_q(i,j+1,k),ext_q(i,j+2,k),ext_q(i,j+3,k),geomh_invDY_8)&
                           - M_Jyozv(i,j,k) * v
             end do
          end do
@@ -212,7 +227,69 @@
          call HLT_split (1, 2*G_nk, HLT_np, HLT_start, HLT_end)
          call gem_xch_halo_8 (Qu(l_minx,l_minx,HLT_start), l_minx,l_maxx,l_miny,l_maxy,HLT_np,-1 )
       endif
-      
+
+
+!-----NEW MATVEC OPERATION-----
+      do k=2,G_nk-1
+
+         km1=max(k-1,1)
+         km2=max(k-2,1)
+         kp1=min(k+1,G_nk)
+         kp2=min(k+2,G_nk)
+         kp3=min(k+3,G_nk)
+
+         do j= ds_j0, ds_jn
+            do i= ds_i0, ds_in
+
+              !---x derivative of Qu---
+              dxQu = Hderiv8(Qu(i-2,j,k), Qu(i-1,j,k), Qu(i  ,j,k), &
+                             Qu(i+1,j,k), Qu(i+2,j,k), Qu(i+3,j,k), geomh_invDXM_8(j))
+
+              !---y derivative of Qv---
+              dyQv = Hderiv8( Qv(i,j-2,k)*geomh_cyM_8(j-2), &
+                              Qv(i,j-1,k)*geomh_cyM_8(j-1), &
+                              Qv(i,j  ,k)*geomh_cyM_8(j  ), &
+                              Qv(i,j+1,k)*geomh_cyM_8(j+1), &
+                              Qv(i,j+2,k)*geomh_cyM_8(j+2), &
+                              Qv(i,j+3,k)*geomh_cyM_8(j+3), &
+                              geomh_invDYM_8(j))
+
+              !---x horizontal staggering of Qu---
+              barxQu = Hstag8(Qu(i-2,j,k), Qu(i-1,j,k), Qu(i  ,j,k), &
+                              Qu(i+1,j,k), Qu(i+2,j,k), Qu(i+3,j,k))
+
+              !---y horizontal staggering of Qv---
+              baryQv = Hstag8(Qv(i,j-2,k), Qv(i,j-1,k), Qv(i,j  ,k), &
+                              Qv(i,j+1,k), Qv(i,j+2,k), Qv(i,j+3,k))
+
+              !---vertical staggering of Qw---
+              !thermo -> mom lvl
+              barzQw = Qw(i,j,km3) * QWt2m(1,k)&
+                     + Qw(i,j,km2) * QWt2m(2,k)&
+                     + Qw(i,j,k-1) * QWt2m(3,k)&
+                     + Qw(i,j,k  ) * QWt2m(4,k)&
+                     + Qw(i,j,kp1) * QWt2m(5,k)&
+                     + Qw(i,j,kp2) * QWt2m(6,k)
+
+              !---vertical derivative of Qv---
+              !thermo -> mom lvl
+              dzQw =   Qw(i,j,km3) * QDt2m(1,k)&
+                     + Qw(i,j,km2) * QDt2m(2,k)&
+                     + Qw(i,j,k-1) * QDt2m(3,k)&
+                     + Qw(i,j,k  ) * QDt2m(4,k)&
+                     + Qw(i,j,kp1) * QDt2m(5,k)&
+                     + Qw(i,j,kp2) * QDt2m(6,k)
+
+              !F_prod(i,j,k) = -gg_8*ext_q(i,j,k)                              &
+              !              + dxQu + dyQv + gama_8*dzQw                       &
+              !              + barxQu*M_logJzu(i,j,k) + baryQv*M_logJzv(i,j,k) &
+              !              + gama_8*barzQw*(M_logJzq(i,j,k) - epsi_8)
+
+            end do
+         end do
+      end do
+
+!-----------------------------
       do k= 2, l_nk
          do j= ds_j0, ds_jn
 !DIR$ SIMD
