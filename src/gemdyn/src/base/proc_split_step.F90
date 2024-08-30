@@ -82,7 +82,8 @@
 !!$omp end single
 
       if ( Ctrl_phyms_L.or.Dcmip_physics_L ) then
-         call tt2virt_omp (tt1,.true.,l_minx,l_maxx,l_miny,l_maxy, G_nk)
+         call tt2tvirt (tt1, pw_tt_plus, l_minx,l_maxx,l_miny,l_maxy, &
+                        G_nk+3, G_nk, 1,l_ni, 1,l_nj)
          call itf_phy_UVupdate()
       end if
       call pw_update_GW ()

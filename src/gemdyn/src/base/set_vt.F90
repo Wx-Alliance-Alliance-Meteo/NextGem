@@ -154,23 +154,23 @@
 
       allocate (tracers_P(Tr3d_ntr), tracers_M(Tr3d_ntr), &
                 tracers_t2(Tr3d_ntr))
-      allocate (sumq_8(l_minx:l_maxx,l_miny:l_maxy,1:l_nk))
+      allocate (sumq_8(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3))
       allocate (air_mass(l_minx:l_maxx,l_miny:l_maxy,1:l_nk))
       allocate (w_tr(l_minx:l_maxx,l_miny:l_maxy,1:l_nk))
       
-      dim = (l_maxx-l_minx+1) * (l_maxy-l_miny+1) * (l_nk+3)
+      dim = (l_maxx-l_minx+1) * (l_maxy-l_miny+1) * (l_nk)
       do i=1,Tr3d_ntr
          nullify(tracers_P(i)%pntr)
-         tracers_P(i)%pntr(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3) => trt1((i-1)*dim+1:)
-         tracers_M(i)%pntr(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3) => trt0((i-1)*dim+1:)
-         tracers_t2(i)%pntr(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3) => trt2((i-1)*dim+1:)
+         tracers_P(i)%pntr(l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => trt1((i-1)*dim+1:)
+         tracers_M(i)%pntr(l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => trt0((i-1)*dim+1:)
+         tracers_t2(i)%pntr(l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => trt2((i-1)*dim+1:)
 !     necessary to create those GMM tracers variables for phy_input
          nvar(1:maxlenght)='' ; nvar= 'TR/'//trim(Tr3d_name_S(i))//':M'
-         istat= gmm_create(nvar,tracers_M(i)%pntr,meta3d_nk3,0)
+         istat= gmm_create(nvar,tracers_M(i)%pntr,meta3d_nk,0)
          nvar(1:maxlenght)='' ; nvar= 'TR/'//trim(Tr3d_name_S(i))//':P'
-         istat= gmm_create(nvar,tracers_P(i)%pntr,meta3d_nk3,0)
+         istat= gmm_create(nvar,tracers_P(i)%pntr,meta3d_nk,0)
          nvar(1:maxlenght)='' ; nvar= 'TR/'//trim(Tr3d_name_S(i))//':t2'
-         istat= min(gmm_create(nvar,tracers_t2(i)%pntr,meta3d_nk3,0),istat)
+         istat= min(gmm_create(nvar,tracers_t2(i)%pntr,meta3d_nk,0),istat)
       end do
 
       !Allocation if Bermejo-Conde LAM ZFL
@@ -182,11 +182,11 @@
          istat= gmm_create('TRACERS:B',trtb,mymeta,flag_r_n)
          allocate (tracers_B(Tr3d_ntr))
 
-         dim = (l_maxx-l_minx+1) * (l_maxy-l_miny+1) * (l_nk+3)
+         dim = (l_maxx-l_minx+1) * (l_maxy-l_miny+1) * (l_nk)
          do i=1,Tr3d_ntr
             nullify(tracers_B(i)%pntr)
-            tracers_B(i)%pntr(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3) => trtb((i-1)*dim+1:)
-            istat= gmm_create('TR/'//trim(Tr3d_name_S(i))//':B',tracers_B(i)%pntr,meta3d_nk3,0)
+            tracers_B(i)%pntr(l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => trtb((i-1)*dim+1:)
+            istat= gmm_create('TR/'//trim(Tr3d_name_S(i))//':B',tracers_B(i)%pntr,meta3d_nk,0)
          end do
 
       end if

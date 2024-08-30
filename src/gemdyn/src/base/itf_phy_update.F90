@@ -132,7 +132,7 @@
          end do
 !!$omp end single
       end if
-return
+
       ! Apply horizontal filtering on tendencies if requeted
 
 !!$omp single
@@ -247,7 +247,8 @@ return
          end do
 !!$omp enddo
 
-!!!!!!!!!!!!!!!!!!!!         call tt2virt_omp (tv,.true.,l_minx,l_maxx,l_miny,l_maxy,l_nk)
+         call tt2tvirt (tv, pw_tt_plus, l_minx,l_maxx,l_miny,l_maxy, &
+                        G_nk, G_nk, 1,l_ni, 1,l_nj)
 
 !!$omp do collapse(2)
          do k=1, l_nk
@@ -261,40 +262,41 @@ return
 
       else
 
-!!$         ! Incorporate a component of phy forcing in the rhs of dyn equations
-!!$!!$omp do collapse(2)
-!!$         do k=1, l_nk
-!!$            do j=1,l_nj
-!!$               do i=1, l_ni
-!!$                  tdu(i,j,k)= pw_uu_plus(i,j,k) - pw_uu_plus0(i,j,k)
-!!$                  tdv(i,j,k)= pw_vv_plus(i,j,k) - pw_vv_plus0(i,j,k)
-!!$               end do
-!!$            end do
-!!$         end do
-!!$!!$omp enddo
-!!$
-!!$         call HLT_split (1, G_nk, local_np, HLT_start, HLT_end)
-!!$         call gem_xch_halo ( tdu(l_minx,l_miny,HLT_start),l_minx,l_maxx,l_miny,l_maxy,local_np,-1 )
-!!$         call gem_xch_halo ( tdv(l_minx,l_miny,HLT_start),l_minx,l_maxx,l_miny,l_maxy,local_np,-1 )
-!!$         call hwnd_stag_hlt ( phy_uu_tend,phy_vv_tend,tdu,tdv,&
-!!$                              l_minx,l_maxx,l_miny,l_maxy,G_nk,.true.)
-!!$         call tt2virt_omp (tv,.true.,l_minx,l_maxx,l_miny,l_maxy,l_nk)
-!!$
-!!$!!$omp do collapse(2)
-!!$         do k=1, l_nk
-!!$            do j=1,l_nj
-!!$               do i=1, l_ni
-!!$                  phy_tv_tend(i,j,k) = tv(i,j,k) - tt1(i,j,k)
-!!$                  phy_uu_tend(i,j,k) = phy_uu_tend(i,j,k)/Cstv_dt_8
-!!$                  phy_vv_tend(i,j,k) = phy_vv_tend(i,j,k)/Cstv_dt_8
-!!$                  phy_tv_tend(i,j,k) = phy_tv_tend(i,j,k)/Cstv_dt_8
-!!$                  pw_uu_plus (i,j,k) = pw_uu_plus0(i,j,k)+ phy_cplm(i,j)*(pw_uu_plus(i,j,k)-pw_uu_plus0(i,j,k))
-!!$                  pw_vv_plus (i,j,k) = pw_vv_plus0(i,j,k)+ phy_cplm(i,j)*(pw_vv_plus(i,j,k)-pw_vv_plus0(i,j,k))
-!!$                  pw_tt_plus (i,j,k) = pw_tt_plus0(i,j,k)+ phy_cplt(i,j)*(pw_tt_plus(i,j,k)-pw_tt_plus0(i,j,k))
-!!$               end do
-!!$            end do
-!!$         end do
-!!$!!$omp enddo
+         ! Incorporate a component of phy forcing in the rhs of dyn equations
+!!$omp do collapse(2)
+         do k=1, l_nk
+            do j=1,l_nj
+               do i=1, l_ni
+                  tdu(i,j,k)= pw_uu_plus(i,j,k) - pw_uu_plus0(i,j,k)
+                  tdv(i,j,k)= pw_vv_plus(i,j,k) - pw_vv_plus0(i,j,k)
+               end do
+            end do
+         end do
+!!$omp enddo
+
+         call HLT_split (1, G_nk, local_np, HLT_start, HLT_end)
+         call gem_xch_halo ( tdu(l_minx,l_miny,HLT_start),l_minx,l_maxx,l_miny,l_maxy,local_np,-1 )
+         call gem_xch_halo ( tdv(l_minx,l_miny,HLT_start),l_minx,l_maxx,l_miny,l_maxy,local_np,-1 )
+         call hwnd_stag_hlt ( phy_uu_tend,phy_vv_tend,tdu,tdv,&
+                              l_minx,l_maxx,l_miny,l_maxy,G_nk,.true.)
+         call tt2tvirt (tv, pw_tt_plus, l_minx,l_maxx,l_miny,l_maxy, &
+                        G_nk, G_nk, 1,l_ni, 1,l_nj)
+
+!!$omp do collapse(2)
+         do k=1, l_nk
+            do j=1,l_nj
+               do i=1, l_ni
+                  phy_tv_tend(i,j,k) = tv(i,j,k) - tt1(i,j,k)
+                  phy_uu_tend(i,j,k) = phy_uu_tend(i,j,k)/Cstv_dt_8
+                  phy_vv_tend(i,j,k) = phy_vv_tend(i,j,k)/Cstv_dt_8
+                  phy_tv_tend(i,j,k) = phy_tv_tend(i,j,k)/Cstv_dt_8
+                  pw_uu_plus (i,j,k) = pw_uu_plus0(i,j,k)+ phy_cplm(i,j)*(pw_uu_plus(i,j,k)-pw_uu_plus0(i,j,k))
+                  pw_vv_plus (i,j,k) = pw_vv_plus0(i,j,k)+ phy_cplm(i,j)*(pw_vv_plus(i,j,k)-pw_vv_plus0(i,j,k))
+                  pw_tt_plus (i,j,k) = pw_tt_plus0(i,j,k)+ phy_cplt(i,j)*(pw_tt_plus(i,j,k)-pw_tt_plus0(i,j,k))
+               end do
+            end do
+         end do
+!!$omp enddo
 
       endif PHY_COUPLING
 
@@ -308,28 +310,29 @@ return
              cycle
          trname_S = 'TR/'//trim(Tr3d_name_S(k))//':P'
          ptr3d => tracers_P(k)%pntr(Grd_lphy_i0:Grd_lphy_in,Grd_lphy_j0:Grd_lphy_jn,1:l_nk)
-      !   if ( phy_get ( ptr3d, trim(trname_S), F_npath='V', F_bpath='D',&
-      !                  F_end=iend, F_quiet=.true. ) < 0 ) cycle
+         if ( phy_get ( ptr3d, trim(trname_S), F_npath='V', F_bpath='D',&
+                        F_end=iend, F_quiet=.true. ) < 0 ) cycle
          cnt = cnt + 1
          trindx(cnt) = k
       end do
 !!$omp end single copyprivate(cnt)
 
-!!$      if (Grd_yinyang_L) then
-!!$         do k= 1, cnt
-!!$            call yyg_xchng_hlt (tracers_P(trindx(k))%pntr, l_minx,l_maxx,l_miny,l_maxy,&
-!!$                       l_ni,l_nj, G_nk, .true., 'CUBIC', .false.)
-!!$         end do
-!!$      endif
-!!$
-!!$      if (cnt > 0) then
-!!$         call tt2virt_omp (tt1, .true., l_minx,l_maxx,l_miny,l_maxy,l_nk)
-!!$         if (Grd_yinyang_L) then
-!!$            call yyg_xchng_hlt (tt1, l_minx,l_maxx,l_miny,l_maxy,&
-!!$                       l_ni,l_nj, G_nk, .false., 'CUBIC', .false.)
-!!$        end if
-!!$        call pw_update_T
-!!$      end if
+      if (Grd_yinyang_L) then
+         do k= 1, cnt
+            call yyg_xchng_hlt (tracers_P(trindx(k))%pntr, l_minx,l_maxx,l_miny,l_maxy,&
+                       l_ni,l_nj, G_nk, .true., 'CUBIC', .false.)
+         end do
+      endif
+
+      if (cnt > 0) then
+         call tt2tvirt (tt1, pw_tt_plus, l_minx,l_maxx,l_miny,l_maxy, &
+                        G_nk+3, G_nk, 1,l_ni, 1,l_nj)
+         if (Grd_yinyang_L) then
+            call yyg_xchng_hlt (tt1, l_minx,l_maxx,l_miny,l_maxy,&
+                       l_ni,l_nj, G_nk, .false., 'CUBIC', .false.)
+        end if
+        call pw_update_T
+      end if
 
    end if
 !

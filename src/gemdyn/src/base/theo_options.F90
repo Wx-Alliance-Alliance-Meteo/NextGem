@@ -242,7 +242,8 @@ contains
 
       end if
 
-      call tt2virt ( tt1, .true., l_minx,l_maxx,l_miny,l_maxy, G_nk )
+      call tt2tvirt (tt1, pw_tt_plus, l_minx,l_maxx,l_miny,l_maxy, &
+                     G_nk+3, G_nk, 1,l_ni, 1,l_nj)
 !
 !---------------------------------------------------------------------
       return

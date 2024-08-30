@@ -71,7 +71,8 @@
 !-----Begin Picard Iterations
     
       do iter = 1, Schm_itpc
-
+         
+        ! call fill_Vhalo (wt0,l_minx,l_maxx,l_miny,l_maxy,G_nk+3,6)
          call gem_xch_halo ( wt0(l_minx,l_miny,HLT_start),&
                   l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
 
