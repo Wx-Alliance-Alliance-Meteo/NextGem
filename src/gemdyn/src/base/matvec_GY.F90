@@ -15,8 +15,8 @@
 
 !** matvec - 3D Matrix-vector product
 
-      subroutine matvec ( F_vector, F_minx,F_maxx,F_miny,F_maxy,&
-                          F_prod  , F_i0,F_in,F_j0,F_jn, F_nk )
+      subroutine matvec_GY ( F_vector, F_minx,F_maxx,F_miny,F_maxy,&
+                             F_prod  , F_i0,F_in,F_j0,F_jn, F_nk )
       use geomh
       use dyn_fisl_options
       use HORgrid_options
@@ -52,12 +52,6 @@
 !
 !     ---------------------------------------------------------------
 !
-      if ( Grd_yinyang_L) then
-         call matvec_GY ( F_vector, F_minx,F_maxx,F_miny,F_maxy,&
-                          F_prod  , F_i0,F_in,F_j0,F_jn, F_nk )
-         return
-      endif
-      
       call gtmg_start (91, 'MATVEC1', 29 )
 !!$!      if (F_minx/=ldnh_minx) then
 !!$         i0 = 1+pil_w ; in = l_ni-pil_e
@@ -352,4 +346,4 @@
 !     
       return
       include 'H5th_ope.inc'
-      end subroutine matvec
+      end subroutine matvec_GY
