@@ -87,8 +87,8 @@
       Adz_ioff = l_i0 - 2
       Adz_joff = l_j0 - 2
 
-      ext=1
-      if (Grd_yinyang_L) ext=2
+      ext=3
+      if (Grd_yinyang_L) ext=4
 
       Adz_i0=   1  + pil_w - (ext+1)*west
       Adz_in= l_ni - pil_e +  ext   *east

@@ -34,7 +34,7 @@
       
       integer :: HLT_j0, HLT_jn, HLT_nj, HLT_nk, &
                  HLT_np, HLT_start, HLT_end
-      integer :: i, j, k, km, kp, n, km2, km1, kp2, kp3
+      integer :: i, j, k, km, kp, n, km2, km1, kp1, kp2, kp3
       real, dimension(:,:,:), pointer :: logT1, logT2
       real(kind=REAL64) :: w3, w4, qbzt1, qbzt2
       real(kind=REAL64), parameter :: one=1.d0, half=0.5d0
@@ -85,8 +85,9 @@
 
          km1=max(k-1,1)
          km2=max(k-2,1)
-         kp2=min(k+2,l_nk)
-         kp3=min(k+3,l_nk)
+         kp1=min(k+1,l_nk+1)
+         kp2=min(k+2,l_nk+1)
+         kp3=min(k+3,l_nk+1)
 
          do i= 1, l_ni
 
@@ -103,45 +104,35 @@
             rhsf_bdf_t1(i,j,k) = GVM%ztht_8(i,j,k) - Ver_z_8%t(k)
             rhsf_bdf_t2(i,j,k) = rhsf_bdf_t1(i,j,k)
 
-            !---rhs terms of q---
-            rhsc_bdf_t1(i,j,k) = w4*qt1(i,j,k) 
-            rhsc_bdf_t2(i,j,k) = w4*qt2(i,j,k) 
-
-            !------------------------------------------------------
-            !---compute vertical staggering of q-term for Rt---
-            !do not use Hstag because the spacing for q is not constant
-
-            !current time
+            !---rhs terms of t---
             qbzt1  = qt1(i,j,km2) * QWm2t(1,k)&
                    + qt1(i,j,km1) * QWm2t(2,k)&
                    + qt1(i,j,k  ) * QWm2t(3,k)&
-                   + qt1(i,j,k+1) * QWm2t(4,k)&
+                   + qt1(i,j,kp1) * QWm2t(4,k)&
                    + qt1(i,j,kp2) * QWm2t(5,k)&
                    + qt1(i,j,kp3) * QWm2t(6,k)
-                  
-            !prev time
             qbzt2  = qt2(i,j,km2) * QWm2t(1,k)&
                    + qt2(i,j,km1) * QWm2t(2,k)&
                    + qt2(i,j,k  ) * QWm2t(3,k)&
-                   + qt2(i,j,k+1) * QWm2t(4,k)&
+                   + qt2(i,j,kp1) * QWm2t(4,k)&
                    + qt2(i,j,kp2) * QWm2t(5,k)&
                    + qt2(i,j,kp3) * QWm2t(6,k)
+            rhst_bdf_t1(i,j,k) =  logT1(i,j,k) - w3*qbzt1
+            rhst_bdf_t2(i,j,k) =  logT2(i,j,k) - w3*qbzt2
 
-            !---rhs terms of t---
-            rhst_bdf_t1(i,j,k) =  logT1(i,j,k) - w3*qbzt1 
-            rhst_bdf_t2(i,j,k) =  logT2(i,j,k) - w3*qbzt2 
-
-
-
+            !---rhs terms of q---
+            rhsc_bdf_t1(i,j,k) = w4*qt1(i,j,k) 
+            rhsc_bdf_t2(i,j,k) = w4*qt2(i,j,k) 
         end do
       end do
+
       do j=1, l_nj
          do i= 1, l_ni
             rhsc_bdf_t1(i,j,l_nk+1) = w4*qt1(i,j,l_nk+1)
             rhsc_bdf_t2(i,j,l_nk+1) = w4*qt2(i,j,l_nk+1)
          end do
       end do
-      
+
 !$OMP BARRIER
 
       call HLT_split (1, 12*l_nk+2, HLT_np, HLT_start, HLT_end)

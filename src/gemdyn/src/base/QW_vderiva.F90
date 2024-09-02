@@ -31,7 +31,8 @@
       allocate ( QDm2t(6,0:G_nk+1), QDt2m(6,0:G_nk+1) )
       QDm2t= 0.d0 ; QDt2m= 0.d0
 
-      do k=3,G_nk-3
+!      do k=3,G_nk-3
+      do k=3,G_nk-2 ! this assumes the data is valid at G_nk+1
          z1 = Ver_a_8%m(k-2)
          z2 = Ver_a_8%m(k-1)
          z3 = Ver_a_8%m(k  )
@@ -86,12 +87,12 @@
 
       QDm2t(4,1) = 1.d0/(Ver_z_8%m(2) - Ver_z_8%m(1))
       QDm2t(4,2) = 1.d0/(Ver_z_8%m(3) - Ver_z_8%m(2))
-      QDm2t(4,G_nk-2) = 1.d0/(Ver_z_8%m(G_nk-1) - Ver_z_8%m(G_nk-2))
+!      QDm2t(4,G_nk-2) = 1.d0/(Ver_z_8%m(G_nk-1) - Ver_z_8%m(G_nk-2))
       QDm2t(4,G_nk-1) = 1.d0/(Ver_z_8%m(G_nk  ) - Ver_z_8%m(G_nk-1))
       QDm2t(4,G_nk  ) = 1.d0/(Ver_z_8%m(G_nk+1) - Ver_z_8%m(G_nk  ))
       QDm2t(3,1) = -QDm2t(4,1)
       QDm2t(3,2) = -QDm2t(4,2)
-      QDm2t(3,G_nk-2) = -QDm2t(4,G_nk-2)
+!      QDm2t(3,G_nk-2) = -QDm2t(4,G_nk-2)
       QDm2t(3,G_nk-1) = -QDm2t(4,G_nk-1)
       QDm2t(3,G_nk  ) = -QDm2t(4,G_nk  )
 

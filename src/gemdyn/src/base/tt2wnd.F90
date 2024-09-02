@@ -28,34 +28,22 @@
       integer, intent(in) :: Minx, Maxx, Miny, Maxy, Nk
       real(kind=REAL64), dimension(Minx:Maxx,Miny:Maxy,Nk), intent(OUT) :: F_t2u, F_v2u, F_t2v, F_u2v
       real(kind=REAL64), dimension(Minx:Maxx,Miny:Maxy,Nk), intent(OUT) :: F_dq2u, F_dq2v, F_dq2w
-      real(kind=REAL64), dimension(l_minx:l_maxx,l_miny:l_maxy,1:l_nk) :: dqzv, dqzu
 
       integer :: i, j, k, n
-      integer :: km1,km2,km3,kp1,kp2,kp3,i00,inn,j00,jnn
+      integer :: km1,km2,km3,kp1,kp2,kp3
       real(kind=REAL64), dimension(-2:3) :: t2qv, t2qu, v2q, u2q, dq2u, dq2v
       real(kind=REAL64) :: duu, dvv 
-
+      real(kind=REAL64), dimension(l_minx:l_maxx,l_miny:l_maxy,1:l_nk) :: dqzv, dqzu
 !
 !     ---------------------------------------------------------------
 !
-      i00= ds_i0-1 ; inn= ds_in
-      j00= ds_j0-1 ; jnn= ds_jn
-      if (.not.Grd_yinyang_L) then
-         i00= ds_i0-1+min(pil_w,1)
-         inn= ds_in  -min(pil_e,1)
-         j00= ds_j0-1+min(pil_s,1)
-         jnn= ds_jn  -min(pil_n,1)
-      endif
-      
       do k=1, l_nk
-
          km1=max(k-1,1)
          km2=max(k-2,1)
          km3=max(k-3,1)
          kp1=min(k+1,G_nk)
          kp2=min(k+2,G_nk)
          kp3=min(k+3,G_nk)
- 
          do j= 1, l_nj
            do i= 1, l_ni
              do n=-2,3
@@ -94,19 +82,16 @@
              dqzv(i,j,k)= Hstag8(dq2v(-2),dq2v(-1),dq2v(0),dq2v(1),dq2v(2),dq2v (3)) !values in thermo, v-grid
          end do
          end do
-
       end do
 
       !---now interpolate back to momentum level---
       !Note: dqdzu and dqdzv are already staggered appropriatly from previous loop
       do k=1,l_nk
-
+         km1=max(k-1,1)
          km2=max(k-2,1)
          km3=max(k-3,1)
-         km1=max(k-1,1)
          kp1=min(k+1,G_nk)
          kp2=min(k+2,G_nk)
-
          do j= 1, l_nj
             do i= 1, l_ni
                duu = dqzu(i,j,km3) * QWt2m(1,k)&

@@ -50,7 +50,7 @@
          call elliptic_rhs_GY ( F_dt_8, k0, k0t )
          return
       endif
-
+      
       i00= ds_i0-1 ; inn= ds_in
       j00= ds_j0-1 ; jnn= ds_jn
       if (.not.Grd_yinyang_L) then
