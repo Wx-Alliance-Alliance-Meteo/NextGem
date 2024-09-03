@@ -58,13 +58,6 @@
       endif
 
       call gtmg_start (91, 'MATVEC1', 29 )
-!!$!      if (F_minx/=ldnh_minx) then
-!!$         i0 = 1+pil_w ; in = l_ni-pil_e
-!!$         j0 = 1+pil_s ; jn = l_nj-pil_n
-!!$!      else
-!!$!         i0 = 1 ; in = l_ni
-!!$!         j0 = 1 ; jn = l_nj
-!!$!      endif
 
       do k= 1, l_nk
          do j= ds_j0, ds_jn
@@ -99,9 +92,6 @@
       call gtmg_stop (91)
       call gtmg_start (92, 'MATVEC2', 29 )
        
-!!$      i0 = 1+pil_w ; in = l_ni-pil_e
-!!$      j0 = 1+pil_s ; jn = l_nj-pil_n
-      
       k=1; km=1 ; kp=2
       do j= ds_j0, ds_jn
 !DIR$ SIMD

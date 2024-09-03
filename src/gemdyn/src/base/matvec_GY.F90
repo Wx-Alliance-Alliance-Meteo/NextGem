@@ -53,13 +53,6 @@
 !     ---------------------------------------------------------------
 !
       call gtmg_start (91, 'MATVEC1', 29 )
-!!$!      if (F_minx/=ldnh_minx) then
-!!$         i0 = 1+pil_w ; in = l_ni-pil_e
-!!$         j0 = 1+pil_s ; jn = l_nj-pil_n
-!!$!      else
-!!$!         i0 = 1 ; in = l_ni
-!!$!         j0 = 1 ; jn = l_nj
-!!$!      endif
 
       do k= 1, l_nk
          do j= ds_j0, ds_jn
@@ -70,8 +63,8 @@
       end do
       do j= ds_j0, ds_jn
       do i= ds_i0, ds_in
-         r1(i)=  (GVM%zmom_8(i,j,l_nk+1)-GVM%zmom_8(i,j,l_nk))&
-             /(GVM%zmom_8(i,j,l_nk)-GVM%zmom_8(i,j,l_nk-1))
+         r1(i)=  (GVM%zmom_8(i,j,l_nk+1)-GVM%zmom_8(i,j,l_nk  ))&
+                /(GVM%zmom_8(i,j,l_nk  )-GVM%zmom_8(i,j,l_nk-1))
          r2(i)= (GVM%zmom_8(i,j,1)-ver_z_8%m(0))/(GVM%zmom_8(i,j,2)-GVM%zmom_8(i,j,1))
          ext_q(i,j,l_nk+1)=GVM%mc_alfas_H_8(i,j) * F_vector(i,j,l_nk) &
                           -GVM%mc_betas_H_8(i,j) * F_vector(i,j,l_nk-1)
@@ -94,9 +87,6 @@
       call gtmg_stop (91)
       call gtmg_start (92, 'MATVEC2', 29 )
        
-!!$      i0 = 1+pil_w ; in = l_ni-pil_e
-!!$      j0 = 1+pil_s ; jn = l_nj-pil_n
-      
       k=1; km=1 ; kp=2
       do j= ds_j0, ds_jn
 !DIR$ SIMD
@@ -163,11 +153,11 @@
                end do
                !do not use Hstag because the spacing for q is not constant
                qbz  = ext_q(i,j,km2) * QWm2t(1,k)&
-                    +ext_q(i,j,km1) * QWm2t(2,k)&
-                    +ext_q(i,j,k  ) * QWm2t(3,k)&
-                    +ext_q(i,j,k+1) * QWm2t(4,k)&
-                    +ext_q(i,j,kp2) * QWm2t(5,k)&
-                    +ext_q(i,j,kp3) * QWm2t(6,k)
+                     +ext_q(i,j,km1) * QWm2t(2,k)&
+                     +ext_q(i,j,k  ) * QWm2t(3,k)&
+                     +ext_q(i,j,k+1) * QWm2t(4,k)&
+                     +ext_q(i,j,kp2) * QWm2t(5,k)&
+                     +ext_q(i,j,kp3) * QWm2t(6,k)
                     
                dqdzu(i,j,k)= Hstag8(dqx(-2),dqx(-1),dqx(0),dqx(1),dqx(2),dqx (3)) !are these values in thermo, u-grid
                dqdzv(i,j,k)= Hstag8(dqy(-2),dqy(-1),dqy(0),dqy(1),dqy(2),dqy (3))
@@ -192,8 +182,8 @@
          km3=max(k-3,1)
          kp1=min(k+1,G_nk)
          kp2=min(k+2,G_nk)
-         do j= ds_j0, ds_jn
-            do i= ds_i0, ds_in
+         do j= ds_j0-3, ds_jn+2
+            do i= ds_i0-3, ds_in+2
                u = dqdzu(i,j,km3) * QWt2m(1,k)&
                   +dqdzu(i,j,km2) * QWt2m(2,k)&
                   +dqdzu(i,j,k-1) * QWt2m(3,k)&
@@ -230,7 +220,7 @@
 
 
 !-----NEW MATVEC OPERATION-----
-      do k=2,G_nk-1
+      do k=1,G_nk-1
 
          km1=max(k-1,1)
          km2=max(k-2,1)
@@ -242,25 +232,25 @@
             do i= ds_i0, ds_in
 
               !---x derivative of Qu---
-              dxQu = Hderiv8(Qu(i-2,j,k), Qu(i-1,j,k), Qu(i  ,j,k), &
-                             Qu(i+1,j,k), Qu(i+2,j,k), Qu(i+3,j,k), geomh_invDXM_8(j))
+              dxQu = Hderiv8(Qu(i-3,j,k), Qu(i-2,j,k), Qu(i-1,j,k), &
+                             Qu(i  ,j,k), Qu(i+1,j,k), Qu(i+2,j,k), geomh_invDXM_8(j))
 
               !---y derivative of Qv---
-              dyQv = Hderiv8( Qv(i,j-2,k)*geomh_cyM_8(j-2), &
+              dyQv = Hderiv8( Qv(i,j-3,k)*geomh_cyM_8(j-3), &
+                              Qv(i,j-2,k)*geomh_cyM_8(j-2), &
                               Qv(i,j-1,k)*geomh_cyM_8(j-1), &
                               Qv(i,j  ,k)*geomh_cyM_8(j  ), &
                               Qv(i,j+1,k)*geomh_cyM_8(j+1), &
                               Qv(i,j+2,k)*geomh_cyM_8(j+2), &
-                              Qv(i,j+3,k)*geomh_cyM_8(j+3), &
                               geomh_invDYM_8(j))
 
               !---x horizontal staggering of Qu---
-              barxQu = Hstag8(Qu(i-2,j,k), Qu(i-1,j,k), Qu(i  ,j,k), &
-                              Qu(i+1,j,k), Qu(i+2,j,k), Qu(i+3,j,k))
+              barxQu = Hstag8(Qu(i-3,j,k), Qu(i-2,j,k), Qu(i-1,j,k), &
+                              Qu(i  ,j,k), Qu(i+1,j,k), Qu(i+2,j,k))
 
               !---y horizontal staggering of Qv---
-              baryQv = Hstag8(Qv(i,j-2,k), Qv(i,j-1,k), Qv(i,j  ,k), &
-                              Qv(i,j+1,k), Qv(i,j+2,k), Qv(i,j+3,k))
+              baryQv = Hstag8(Qv(i,j-3,k), Qv(i,j-2,k), Qv(i,j-1,k), &
+                              Qv(i,j  ,k), Qv(i,j+1,k), Qv(i,j+2,k))
 
               !---vertical staggering of Qw---
               !thermo -> mom lvl
@@ -280,10 +270,10 @@
                      + Qw(i,j,kp1) * QDt2m(5,k)&
                      + Qw(i,j,kp2) * QDt2m(6,k)
 
-              !F_prod(i,j,k) = -gg_8*ext_q(i,j,k)                              &
-              !              + dxQu + dyQv + gama_8*dzQw                       &
-              !              + barxQu*M_logJzu(i,j,k) + baryQv*M_logJzv(i,j,k) &
-              !              + gama_8*barzQw*(M_logJzq(i,j,k) - epsi_8)
+!!$              F_prod(i,j,k) = -gg_8*ext_q(i,j,k)                              &
+!!$                            + dxQu + dyQv + gama_8*dzQw                       &
+!!$                            + barxQu*M_logJzu(i,j,k) + baryQv*M_logJzv(i,j,k) &
+!!$                            + gama_8*barzQw*(M_logJzq(i,j,k) - epsi_8)
 
             end do
          end do

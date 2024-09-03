@@ -50,14 +50,14 @@
 !
 !     ---------------------------------------------------------------
 !
-      i00= ds_i0-1 ; inn= ds_in
-      j00= ds_j0-1 ; jnn= ds_jn
-      if (.not.Grd_yinyang_L) then
-         i00= ds_i0-1+min(pil_w,1)
-         inn= ds_in  -min(pil_e,1)
-         j00= ds_j0-1+min(pil_s,1)
-         jnn= ds_jn  -min(pil_n,1)
-      endif
+      i00= ds_i0-3 ; inn= ds_in+2
+      j00= ds_j0-3 ; jnn= ds_jn+2
+!!$      if (.not.Grd_yinyang_L) then
+!!$         i00= ds_i0-1+min(pil_w,1)
+!!$         inn= ds_in  -min(pil_e,1)
+!!$         j00= ds_j0-1+min(pil_s,1)
+!!$         jnn= ds_jn  -min(pil_n,1)
+!!$      endif
       
       tau_8  = (2.d0 * F_dt_8 ) / 3.d0
       invT_8 = 1.d0/tau_8
@@ -174,27 +174,19 @@
            do i= ds_i0, ds_in
 
             Rqq = a*rhsc_mid(i,j,k ) - b*rhsc_dep(i,j,k )
-
-            !dx(Ru): horizontal derivative of Ru -> use Hder function
-            dudx = Hderiv(Ruu(i-2,j,k), Ruu(i-1,j,k), Ruu(i,j,k), &
-                          Ruu(i+1,j,k), Ruu(i+2,j,k), Ruu(i+3,j,k), geomh_invDXM_8(j))
-
-            !dy(Rv): horizonal derivative of Rv -> use Hder function
-            dvdy = Hderiv8(Rvv(i,j-2,k)*geomh_cyM_8(j-2), &
+            dudx = Hderiv(Ruu(i-3,j,k), Ruu(i-2,j,k), Ruu(i-1,j,k), &
+                          Ruu(i  ,j,k), Ruu(i+1,j,k), Ruu(i+2,j,k), geomh_invDXM_8(j))
+            dvdy = Hderiv8(Rvv(i,j-3,k)*geomh_cyM_8(j-3), &
+                           Rvv(i,j-2,k)*geomh_cyM_8(j-2), &
                            Rvv(i,j-1,k)*geomh_cyM_8(j-1), &
-                           Rvv(i,j  ,k)*geomh_cyM_8(j)  , &
+                           Rvv(i,j  ,k)*geomh_cyM_8(j  ), &
                            Rvv(i,j+1,k)*geomh_cyM_8(j+1), &
                            Rvv(i,j+2,k)*geomh_cyM_8(j+2), &
-                           Rvv(i,j+3,k)*geomh_cyM_8(j+3), &
                            geomh_invDYM_8(j))
-
-            !\overbar{Ruu}: horizonal staggering -> use Hder func
-            ubx = Hstag(Ruu(i-2,j,k), Ruu(i-1,j,k), Ruu(i  ,j,k), &
-                        Ruu(i+1,j,k), Ruu(i+2,j,k), Ruu(i+3,j,k))
-
-            !\overbar{Rvv}: horizonal staggering -> use Hder func
-            vby = Hstag(Rvv(i-2,j,k), Rvv(i-1,j,k), Rvv(i  ,j,k), &
-                        Rvv(i+1,j,k), Rvv(i+2,j,k), Rvv(i+3,j,k))
+            ubx = Hstag(Ruu(i-3,j,k), Ruu(i-2,j,k), Ruu(i-1,j,k), &
+                        Ruu(i  ,j,k), Ruu(i+1,j,k), Ruu(i+2,j,k))
+            vby = Hstag(Rvv(i,j-3,k), Rvv(i,j-2,k), Rvv(i,j-1,k), &
+                        Rvv(i,j  ,k), Rvv(i,j+1,k), Rvv(i,j+2,k))
 
             !compute vertical staggering of Rzz: thermo lvl -> mom lvl center point
             zzbz = Rzz(i,j,km3) * QWt2m(1,k) &
@@ -321,7 +313,14 @@
       end do
       
 !---DID NOT UPDATE LOWER BOUNDARY CONDITION---
-
+      i00= ds_i0-1 ; inn= ds_in
+      j00= ds_j0-1 ; jnn= ds_jn
+!!$      if (.not.Grd_yinyang_L) then
+!!$         i00= ds_i0-1+min(pil_w,1)
+!!$         inn= ds_in  -min(pil_e,1)
+!!$         j00= ds_j0-1+min(pil_s,1)
+!!$         jnn= ds_jn  -min(pil_n,1)
+!!$      endif
 ! this exception at k=l_nk will also be removed soon
 ! precomputation of wka,wkb for special lower(l_nk) boundary condition
       wkf= 0. ; wka=0. ; wkb=0. ; k=l_nk
