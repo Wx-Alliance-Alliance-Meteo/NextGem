@@ -29,7 +29,7 @@
       real(kind=REAL64), dimension(Minx:Maxx,Miny:Maxy,Nk), intent(OUT) :: F_t2u, F_v2u, F_t2v, F_u2v
       real(kind=REAL64), dimension(Minx:Maxx,Miny:Maxy,Nk), intent(OUT) :: F_dq2u, F_dq2v, F_dq2w
 
-      integer :: i, j, k, n
+      integer :: i, j, k, n, HLT_np, HLT_start, HLT_end
       integer :: km1,km2,km3,kp1,kp2,kp3
       real(kind=REAL64), dimension(-2:3) :: t2qv, t2qu, v2q, u2q, dq2u, dq2v
       real(kind=REAL64) :: duu, dvv 
@@ -113,7 +113,23 @@
             end do
          end do
       end do
-!
+
+      call HLT_split (1, l_nk, HLT_np, HLT_start, HLT_end)
+      call gem_xch_halo_8 ( F_t2u(l_minx,l_miny,HLT_start),&
+                            l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
+      call gem_xch_halo_8 ( F_v2u(l_minx,l_miny,HLT_start),&
+                            l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
+      call gem_xch_halo_8 ( F_t2v(l_minx,l_miny,HLT_start),&
+                            l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
+      call gem_xch_halo_8 ( F_u2v(l_minx,l_miny,HLT_start),&
+                            l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
+      call gem_xch_halo_8 ( F_dq2u(l_minx,l_miny,HLT_start),&
+                            l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
+      call gem_xch_halo_8 ( F_dq2v(l_minx,l_miny,HLT_start),&
+                            l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
+      call gem_xch_halo_8 ( F_dq2w(l_minx,l_miny,HLT_start),&
+                            l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
+!     
 !     ---------------------------------------------------------------
 !
       return
