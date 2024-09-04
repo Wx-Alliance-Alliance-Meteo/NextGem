@@ -34,6 +34,14 @@
 !
 !     ---------------------------------------------------------------
 !
+
+      ds_i0= 1   +pil_w
+      ds_in= l_ni-pil_e
+      ds_j0= 1   +pil_s
+      ds_jn= l_nj-pil_n
+      ds_k0= 1
+      ds_kn= l_nk
+
       call pw_switch    ()
 
       if (Step_kount.eq.1) then

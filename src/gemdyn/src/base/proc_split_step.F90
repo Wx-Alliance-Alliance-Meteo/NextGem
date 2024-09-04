@@ -20,6 +20,7 @@
       use step_options
       use theo_options
       use dcmip_options
+      use dynkernel_options
       use mem_nest
       use omp_timing
       use gmm_vt1
@@ -42,7 +43,7 @@
          call set_params (.true.)
          call set_sol ()
 !!$omp end single
-         call vertical_metric ()
+         if(.not.Dynamics_sw_L) call vertical_metric ()
       endif
       done =.true.
       

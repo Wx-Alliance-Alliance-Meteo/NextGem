@@ -65,7 +65,8 @@
       invT_m_8 = one/tau_m_8
       invT_nh_8= one/tau_nh_8
 
-      c0 = Dcst_rayt_8**2
+      !c0 = Dcst_rayt_8**2
+      c0 = 1.d0
       w3 = grav_8 * tau_8 / Cstv_Tstr_8
       !print *,"c0 = ", c0
 
