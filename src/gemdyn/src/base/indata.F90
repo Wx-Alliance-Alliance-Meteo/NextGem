@@ -19,6 +19,7 @@
       subroutine indata()
       use gem_options
       use gmm_contiguous
+      use dynkernel_options
       use adz_mem
       use glb_ld
       use gmm_geof
@@ -91,7 +92,7 @@
          call HLT_split (1, 1, local_np, HLT_start, HLT_end)
       end if
       
-      call vertical_metric ()
+      if(.not.Dynamics_sw_L) call vertical_metric ()
 
 !!$omp do
       do j=1-G_haloy+1,l_nj+G_halox-1
