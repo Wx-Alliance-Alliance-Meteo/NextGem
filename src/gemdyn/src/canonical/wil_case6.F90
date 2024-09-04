@@ -44,7 +44,7 @@
       real(kind=REAL64) :: phi0_8,dlon_8,K_Case_8,OMG_8,                   &
               rlon_8,rlat_8,time_8, sint_8,cost_8,phiay_8,phiby_8,phicy_8, &
               s_8(2,2),x_a_8,y_a_8,                                        &
-              phia_8(G_nj),phib_8(G_nj),phic_8(G_nj)
+              phia_8(1-G_haloy:G_nj+G_haloy),phib_8(1-G_haloy:G_nj+G_haloy),phic_8(1-G_haloy:G_nj+G_haloy)
       real :: picll(1-G_halox:G_ni+G_halox,1-G_haloy:G_nj+G_haloy), &
               gzloc(F_minx:F_maxx,F_miny:F_maxy)
 !

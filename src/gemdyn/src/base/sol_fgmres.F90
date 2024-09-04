@@ -29,6 +29,7 @@
       use mem_tstp
       use prec
       use ptopo
+      use stat_mpi, only: statf_dm
       use, intrinsic :: iso_fortran_env
       implicit none
 
@@ -68,11 +69,15 @@
       outiter= 0 ; nbiter= 0 ; conv= 0.d0
 
       ! Residual of the initial iterate
-      call matvec ( Sol_lhs(l_minx,l_miny,1), l_minx,l_maxx, l_miny,l_maxy,&!ldnh_minx,ldnh_maxx,ldnh_miny,ldnh_maxy, &
-                    work_space, sol_imin,sol_imax,sol_jmin,sol_jmax, l_nk )
+      if(.not.Dynamics_sw_L) then
+         call matvec ( Sol_lhs(l_minx,l_miny,1), l_minx,l_maxx, l_miny,l_maxy,&!ldnh_minx,ldnh_maxx,ldnh_miny,ldnh_maxy, &
+                       work_space, sol_imin,sol_imax,sol_jmin,sol_jmax, l_nk )
+      else
+         call SW_matvec ( Sol_lhs(l_minx,l_miny,1), l_minx,l_maxx, l_miny,l_maxy,&!ldnh_minx,ldnh_maxx,ldnh_miny,ldnh_maxy, &
+                       work_space, sol_imin,sol_imax,sol_jmin,sol_jmax, l_nk )
+      endif
 
       !  Compute ||b*b|| to determine the required error for convergence
-
       local_dot(1)=0.d0
 
       do k=k0,kn
@@ -94,6 +99,7 @@
             end do
          end do
          thread_s(1:2,OMP_get_thread_num()) = local_dot(1:2)
+
 
          l_avg_8(1) = sum(thread_s(1,:))
          l_avg_8(2) = sum(thread_s(2,:))
@@ -137,16 +143,16 @@
             if (Sol_precond3D_S == 'RAS') then
                call sol_precond (wint_8(Sol_ii0:Sol_iin,Sol_jj0:Sol_jjn,:,initer), &
                  vv(Sol_ii0:Sol_iin,Sol_jj0:Sol_jjn,:,initer), sol_niloc,sol_njloc,l_nk)
-               if(.not.Dynamics_sw_L) then
+            else
+                 wint_8(Sol_ii0:Sol_iin,Sol_jj0:Sol_jjn,:,initer) = vv(Sol_ii0:Sol_iin,Sol_jj0:Sol_jjn,:,initer)
+            endif
+
+            if(.not.Dynamics_sw_L) then
                   call matvec (wint_8(sol_ii0,sol_jj0,1,initer),Sol_ii0,Sol_iin,Sol_jj0,Sol_jjn,&
                        vv(sol_imin,sol_jmin,1,initer+1),Sol_imin,Sol_imax,Sol_jmin,Sol_jmax,l_nk)
-               else
-                  call SW_matvec (wint_8(sol_ii0,sol_jj0,1,initer),Sol_ii0,Sol_iin,Sol_jj0,Sol_jjn,&
-                      vv(sol_imin,sol_jmin,1,initer+1),Sol_imin,Sol_imax,Sol_jmin,Sol_jmax,l_nk)
-               endif
             else
-               wint_8(Sol_ii0:Sol_iin,Sol_jj0:Sol_jjn,:,initer) = vv(Sol_ii0:Sol_iin,Sol_jj0:Sol_jjn,:,initer)
-               call matvec (vv(sol_imin,sol_jmin,1,initer),Sol_imin,Sol_imax,Sol_jmin,Sol_jmax,vv(sol_imin,sol_jmin,1,initer+1),Sol_imin,Sol_imax,Sol_jmin,Sol_jmax,l_nk)
+                  call SW_matvec (wint_8(sol_ii0,sol_jj0,1,initer),Sol_ii0,Sol_iin,Sol_jj0,Sol_jjn,&
+                       vv(sol_imin,sol_jmin,1,initer+1),Sol_imin,Sol_imax,Sol_jmin,Sol_jmax,l_nk)
             endif
 
             ! Modified Gram-Schmidt from Świrydowicz et al. (2018)

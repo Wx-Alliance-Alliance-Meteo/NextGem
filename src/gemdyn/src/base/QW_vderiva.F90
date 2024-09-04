@@ -17,6 +17,7 @@
 
       subroutine QW_vderiva ( )
       use, intrinsic :: iso_fortran_env
+      use dynkernel_options
       use metric
       use glb_ld
       use ver
@@ -30,6 +31,8 @@
 !
       allocate ( QDm2t(6,0:G_nk+1), QDt2m(6,0:G_nk+1) )
       QDm2t= 0.d0 ; QDt2m= 0.d0
+
+      if(Dynamics_sw_L) return
 
 !      do k=3,G_nk-3
       do k=3,G_nk-2 ! this assumes the data is valid at G_nk+1
