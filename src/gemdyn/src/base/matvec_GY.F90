@@ -129,14 +129,15 @@
       !loop can be extended to G_nk
       !also linear at the lid 
 
+
       do k=1,G_nk !extend to include last level
          km1=max(k-1,1)
          km2=max(k-2,1)
          kp1=min(k+1,G_nk+1)
          kp2=min(k+2,G_nk+1)
          kp3=min(k+3,G_nk+1)
-         do j= ds_j0, ds_jn
-            do i= ds_i0, ds_in
+         do j= ds_j0-3, ds_jn+2    !what if we extended i/j domain for next loop
+            do i= ds_i0-3, ds_in+2 !do have data to do extended scoping
                do ii=-2,3
                dqx(ii) = ext_q(i+ii,j,km2) * QDm2t(1,k)&
                         +ext_q(i+ii,j,km1) * QDm2t(2,k)&
@@ -144,6 +145,7 @@
                         +ext_q(i+ii,j,k+1) * QDm2t(4,k)&
                         +ext_q(i+ii,j,kp2) * QDm2t(5,k)&
                         +ext_q(i+ii,j,kp3) * QDm2t(6,k)
+                        
                dqy(ii) = ext_q(i,j+ii,km2) * QDm2t(1,k)&
                         +ext_q(i,j+ii,km1) * QDm2t(2,k)&
                         +ext_q(i,j+ii,k  ) * QDm2t(3,k)&
@@ -178,22 +180,24 @@
       !rhs & matvec should not address k=1&nk
 
       do k=2,G_nk
+         km1=max(k-1,1) !what if we computed for k=1
          km2=max(k-2,1)
          km3=max(k-3,1)
          kp1=min(k+1,G_nk)
          kp2=min(k+2,G_nk)
          do j= ds_j0-3, ds_jn+2
             do i= ds_i0-3, ds_in+2
+
                u = dqdzu(i,j,km3) * QWt2m(1,k)&
                   +dqdzu(i,j,km2) * QWt2m(2,k)&
-                  +dqdzu(i,j,k-1) * QWt2m(3,k)&
+                  +dqdzu(i,j,km1) * QWt2m(3,k)&
                   +dqdzu(i,j,k  ) * QWt2m(4,k)&
                   +dqdzu(i,j,kp1) * QWt2m(5,k)&
                   +dqdzu(i,j,kp2) * QWt2m(6,k)
 
                v = dqdzv(i,j,km3) * QWt2m(1,k)&
                   +dqdzv(i,j,km2) * QWt2m(2,k)&
-                  +dqdzv(i,j,k-1) * QWt2m(3,k)&
+                  +dqdzv(i,j,km1) * QWt2m(3,k)&
                   +dqdzv(i,j,k  ) * QWt2m(4,k)&
                   +dqdzv(i,j,kp1) * QWt2m(5,k)&
                   +dqdzv(i,j,kp2) * QWt2m(6,k)
@@ -205,9 +209,11 @@
                Qv(i,j,k)= Hderiv(ext_q(i,j-2,k),ext_q(i,j-1,k),ext_q(i  ,j,k),&
                                  ext_q(i,j+1,k),ext_q(i,j+2,k),ext_q(i,j+3,k),geomh_invDY_8)&
                           - M_Jyozv(i,j,k) * v
+
             end do
          end do
       end do
+
       if (Grd_yinyang_L) then
          call yyg_xchng_8 (Qu, YYG_HALO_q2q, l_minx,l_maxx,l_miny,l_maxy, &
                            l_ni,l_nj, G_nk, .false., 'CUBIC', .true.)
@@ -220,7 +226,7 @@
 
 
 !-----NEW MATVEC OPERATION-----
-      do k=1,G_nk-1
+      do k=2,G_nk !certainly not do k=1; only use the original code at k=1; go to gk
 
          km1=max(k-1,1)
          km2=max(k-2,1)
@@ -270,17 +276,26 @@
                      + Qw(i,j,kp1) * QDt2m(5,k)&
                      + Qw(i,j,kp2) * QDt2m(6,k)
 
-!!$              F_prod(i,j,k) = -gg_8*ext_q(i,j,k)                              &
-!!$                            + dxQu + dyQv + gama_8*dzQw                       &
-!!$                            + barxQu*M_logJzu(i,j,k) + baryQv*M_logJzv(i,j,k) &
-!!$                            + gama_8*barzQw*(M_logJzq(i,j,k) - epsi_8)
+
+            !Notes:
+            !- with the old k=1 code from elliptic_rhs and 2nd order dzrtt,
+            !  this crashed at timestep 27, gmres residual NaN
+
+            !- with the new k=1 (most recent elliptic_rhs) and 2nd ordr dzrtt,
+            !   this code has a Picard iteration error of infnity
+            !   at step 2
+
+!!            F_prod(i,j,k) = -gg_8*ext_q(i,j,k)                               &
+!!                           + dxQu + dyQv + gama_8*dzQw                       &
+!!                           + barxQu*M_logJzu(i,j,k) + baryQv*M_logJzv(i,j,k) &
+!!                           + gama_8*barzQw*(M_logJzq(i,j,k) - epsi_8)
 
             end do
          end do
       end do
 
 !-----------------------------
-      do k= 2, l_nk
+      do k= 2, l_nk 
          do j= ds_j0, ds_jn
 !DIR$ SIMD
             do i= ds_i0, ds_in
@@ -311,20 +326,75 @@
                
                w9(i) =r1(i)*Ver_wp_8%m(k  ) + r2(i)*Ver_wm_8%m(k  )
                w10(i)=r2(i)*Ver_wp_8%m(k-1) + r3(i)*Ver_wm_8%m(k-1)
-               
+
+               !---x derivative of Qu---
+               dxQu = Hderiv8(Qu(i-3,j,k), Qu(i-2,j,k), Qu(i-1,j,k), &
+                              Qu(i  ,j,k), Qu(i+1,j,k), Qu(i+2,j,k), geomh_invDXM_8(j))
+
+               !---y derivative of Qv---
+               dyQv = Hderiv8( Qv(i,j-3,k)*geomh_cyM_8(j-3), &
+                               Qv(i,j-2,k)*geomh_cyM_8(j-2), &
+                               Qv(i,j-1,k)*geomh_cyM_8(j-1), &
+                               Qv(i,j  ,k)*geomh_cyM_8(j  ), &
+                               Qv(i,j+1,k)*geomh_cyM_8(j+1), &
+                               Qv(i,j+2,k)*geomh_cyM_8(j+2), &
+                               geomh_invDYM_8(j))
+
+               !---x horizontal staggering of Qu---
+              barxQu = Hstag8(Qu(i-3,j,k), Qu(i-2,j,k), Qu(i-1,j,k), &
+                              Qu(i  ,j,k), Qu(i+1,j,k), Qu(i+2,j,k))
+
+              !---y horizontal staggering of Qv---
+              baryQv = Hstag8(Qv(i,j-3,k), Qv(i,j-2,k), Qv(i,j-1,k), &
+                              Qv(i,j  ,k), Qv(i,j+1,k), Qv(i,j+2,k))
+
+              !---vertical staggering of Qw---
+              !thermo -> mom lvl
+              barzQw = Qw(i,j,km3) * QWt2m(1,k)&
+                     + Qw(i,j,km2) * QWt2m(2,k)&
+                     + Qw(i,j,k-1) * QWt2m(3,k)&
+                     + Qw(i,j,k  ) * QWt2m(4,k)&
+                     + Qw(i,j,kp1) * QWt2m(5,k)&
+                     + Qw(i,j,kp2) * QWt2m(6,k)
+
+              !---vertical derivative of Qv---
+              !thermo -> mom lvl <-- this is the issue infinity w/ picard iteration 
+              dzQw =   Qw(i,j,km3) * QDt2m(1,k)&
+                     + Qw(i,j,km2) * QDt2m(2,k)&
+                     + Qw(i,j,k-1) * QDt2m(3,k)&
+                     + Qw(i,j,k  ) * QDt2m(4,k)&
+                     + Qw(i,j,kp1) * QDt2m(5,k)&
+                     + Qw(i,j,kp2) * QDt2m(6,k)
+
+               !NOTES:
+               ! - original crashes at 26 time steps
+               ! - with dxQu + dyQv:                      crash at 28; gmres NaN
+               ! - with dxQu + dyQv + barxQu + baryQv:    crash at 27; gmres NaN
+               ! - with dxQu dyQv + barxQu baryQv + dzQw: crash at 1; Inifnity error at Picard iter
+
                F_prod(i,j,k)= -gg_8*ext_q(i,j,k) &
-               +geomh_invDX_8 (j)*( (w1(i)-w2(i)) - (GVM%mc_Jx_8(i,j,k)*w5(i)-GVM%mc_Jx_8(i-1,j,k)*w6(i))) &
-               +geomh_invDYM_8(j)*( (geomh_cyv_8(j)*w3(i)-geomh_cyv_8(j-1)*w4(i)) &
-               -GVM%mc_Jy_8(i,j,k)*geomh_cyv_8(j)*w7(i) + GVM%mc_Jy_8(i,j-1,k)*geomh_cyv_8(j-1)*w8(i)) &
-               +gama_8*Ver_idz_8%m(k)*((r1(i)-mu_8*r3(i)) - (r2(i)-mu_8*r4(i))) &
+    
+                !replace with dxQu
+                !+geomh_invDX_8 (j)*( (w1(i)-w2(i)) - (GVM%mc_Jx_8(i,j,k)*w5(i)-GVM%mc_Jx_8(i-1,j,k)*w6(i))) &
+
+                !replace with dyQv
+                !+geomh_invDYM_8(j)*( (geomh_cyv_8(j)*w3(i)-geomh_cyv_8(j-1)*w4(i)) &
+                !-GVM%mc_Jy_8(i,j,k)*geomh_cyv_8(j)*w7(i) + GVM%mc_Jy_8(i,j-1,k)*geomh_cyv_8(j-1)*w8(i)) &
+
+                + dxQu + dyQv + barxQu*M_logJzu(i,j,k) + baryQv*M_logJzv(i,j,k) &
+                + gama_8*dzQw &
+
+                !replace with dzQw
+                !+gama_8*Ver_idz_8%m(k)*((r1(i)-mu_8*r3(i)) - (r2(i)-mu_8*r4(i))) &
                
-               -gama_8*epsi_8*w9(i) &
-!               +gama_8*epsi_8*mu_8*ext_q(i,j,k) &
-               +gama_8*epsi_8* mu_8*half* ( Ver_wm_8%m(k)*ext_q(i,j,k-1) + Ver_wp_8%m(k)*ext_q(i,j,k+1) + ext_q(i,j,k) ) &
-               
-               +(half*(w1(i)+w2(i)) - GVM%mc_Jx_8(i,j,k)*w9(i))*GVM%mc_Ix_8(i,j,k) &
-               +(half*(w3(i)+w4(i)) - GVM%mc_Jy_8(i,j,k)*w9(i))*GVM%mc_Iy_8(i,j,k) &
-               +gama_8* (w9(i)-mu_8*ext_q(i,j,k)) * GVM%mc_Iz_8(i,j,k)
+                -gama_8*epsi_8*w9(i) &
+                +gama_8*epsi_8* mu_8*half* ( Ver_wm_8%m(k)*ext_q(i,j,k-1) + Ver_wp_8%m(k)*ext_q(i,j,k+1) + ext_q(i,j,k) ) &
+              
+                !+(half*(w1(i)+w2(i)) - GVM%mc_Jx_8(i,j,k)*w9(i))*GVM%mc_Ix_8(i,j,k) & !<-- replace with barxQu
+                !+(half*(w3(i)+w4(i)) - GVM%mc_Jy_8(i,j,k)*w9(i))*GVM%mc_Iy_8(i,j,k) & !<-- replace with baryQv
+
+                +gama_8* (w9(i)-mu_8*ext_q(i,j,k)) * GVM%mc_Iz_8(i,j,k)
+      
 
             end do
          end do
