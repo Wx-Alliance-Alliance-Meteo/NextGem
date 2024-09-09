@@ -17,6 +17,7 @@
 
       subroutine QW_vinterp ( )
       use, intrinsic :: iso_fortran_env
+      use dynkernel_options
       use metric
       use glb_ld
       use ver
@@ -29,8 +30,11 @@
 !
       allocate ( QWm2t(6,0:G_nk+1), QWt2m(6,0:G_nk+1) )
       QWm2t= 0.d0 ; QWt2m= 0.d0
+      
+      if(Dynamics_sw_L) return
 
-      do k=3,G_nk-3
+!      do k=3,G_nk-3
+      do k=3,G_nk-2 ! this assumes the data is valid at G_nk+1
          z1 = Ver_a_8%m(k-2)
          z2 = Ver_a_8%m(k-1)
          z3 = Ver_a_8%m(k  )
@@ -55,16 +59,27 @@
       QWm2t(4,2) = ((pt - z1)*(pt - z2)*(pt - z4)) / ((z3 - z1)*(z3 - z2)*(z3 - z4))
       QWm2t(5,2) = ((pt - z1)*(pt - z2)*(pt - z3)) / ((z4 - z1)*(z4 - z2)*(z4 - z3))
       QWm2t(3,1) = 0.5 ; QWm2t(4,1) = 0.5
-      z1 = Ver_a_8%m(G_nk-3)
-      z2 = Ver_a_8%m(G_nk-2)
-      z3 = Ver_a_8%m(G_nk-1)
-      z4 = Ver_a_8%m(G_nk  )      
-      pt = Ver_a_8%t(G_nk-2)
-      QWm2t(2,G_nk-2) = ((pt - z2)*(pt - z3)*(pt - z4)) / ((z1 - z2)*(z1 - z3)*(z1 - z4))
-      QWm2t(3,G_nk-2) = ((pt - z1)*(pt - z3)*(pt - z4)) / ((z2 - z1)*(z2 - z3)*(z2 - z4))
-      QWm2t(4,G_nk-2) = ((pt - z1)*(pt - z2)*(pt - z4)) / ((z3 - z1)*(z3 - z2)*(z3 - z4))
-      QWm2t(5,G_nk-2) = ((pt - z1)*(pt - z2)*(pt - z3)) / ((z4 - z1)*(z4 - z2)*(z4 - z3))
-      QWm2t(3,G_nk-1) = 0.5 ; QWm2t(4,G_nk-1) = 0.5
+!      z1 = Ver_a_8%m(G_nk-3)
+!      z2 = Ver_a_8%m(G_nk-2)
+!      z3 = Ver_a_8%m(G_nk-1)
+!      z4 = Ver_a_8%m(G_nk  )      
+!      pt = Ver_a_8%t(G_nk-2)
+!      QWm2t(2,G_nk-2) = ((pt - z2)*(pt - z3)*(pt - z4)) / ((z1 - z2)*(z1 - z3)*(z1 - z4))
+!      QWm2t(3,G_nk-2) = ((pt - z1)*(pt - z3)*(pt - z4)) / ((z2 - z1)*(z2 - z3)*(z2 - z4))
+!      QWm2t(4,G_nk-2) = ((pt - z1)*(pt - z2)*(pt - z4)) / ((z3 - z1)*(z3 - z2)*(z3 - z4))
+!      QWm2t(5,G_nk-2) = ((pt - z1)*(pt - z2)*(pt - z3)) / ((z4 - z1)*(z4 - z2)*(z4 - z3))
+!      QWm2t(3,G_nk-1) = 0.5 ; QWm2t(4,G_nk-1) = 0.5
+!      QWm2t(3,G_nk  ) = 0.5 ; QWm2t(4,G_nk  ) = 0.5 ! temporary
+      z1 = Ver_a_8%m(G_nk-2)
+      z2 = Ver_a_8%m(G_nk-1)
+      z3 = Ver_a_8%m(G_nk  )
+      z4 = Ver_a_8%m(G_nk+1)      
+      pt = Ver_a_8%t(G_nk-1)
+      QWm2t(2,G_nk-1) = ((pt - z2)*(pt - z3)*(pt - z4)) / ((z1 - z2)*(z1 - z3)*(z1 - z4))
+      QWm2t(3,G_nk-1) = ((pt - z1)*(pt - z3)*(pt - z4)) / ((z2 - z1)*(z2 - z3)*(z2 - z4))
+      QWm2t(4,G_nk-1) = ((pt - z1)*(pt - z2)*(pt - z4)) / ((z3 - z1)*(z3 - z2)*(z3 - z4))
+      QWm2t(5,G_nk-1) = ((pt - z1)*(pt - z2)*(pt - z3)) / ((z4 - z1)*(z4 - z2)*(z4 - z3))
+      QWm2t(3,G_nk  ) = 0.5 ; QWm2t(4,G_nk  ) = 0.5
       
       do k=4,G_nk-2
          z1 = Ver_a_8%t(k-3)
