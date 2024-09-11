@@ -114,6 +114,8 @@
             G_nk, .false., 'CUBIC', .false.)
          end if
 
+!         call blocstat (.false.)
+
 !---  check convergence---
          if (picard_stop(dt_8,iter,print_conv)) exit
 

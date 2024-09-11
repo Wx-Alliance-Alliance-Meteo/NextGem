@@ -93,7 +93,6 @@
             end do
          end do
       end do
-      
       inv_dt_8 = 1.0/F_dt_8
       err = -huge(1.) ; total_sum = 0.d0 ; lenght=0.d0
       N = ((G_ni-Glb_pil_e)-(1+Glb_pil_w)+1)*((G_nj-Glb_pil_n)-(1+Glb_pil_s)+1)*G_nk
@@ -115,7 +114,7 @@
                s3(i) = Ver_z_8%m(k) + F_dt_8*ww_arr(i,j,k)
                kk1 = (s3(i) - ver_z_8%m(0)  ) * adz_ovdzm_8 + 1.d0
                kk1 = min(max(1,kk1),ubound(adz_search_m,1))
-               kk1 = adz_search_m(kk1)
+               kk1 = min(adz_search_m(kk1),G_nk-1)
                s3(i) = kk1+(Ver_z_8%m(kk1)-s3(i))/(Ver_z_8%m(kk1)-Ver_z_8%m(kk1+1))
                lenght(i)= sqrt((r1(i) - s1(i))**2. + (r2(i) - s2(i))**2. + (r3(i) - s3(i))**2.)
            end do
