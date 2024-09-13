@@ -119,6 +119,13 @@
                           G_niu, G_nj , G_halox,G_haloy   , &
                           G_niu, G_nj , &
                           G_ni , G_njv  )
+      call yyg_initcomm ( YYG_PILT_u2u        , &
+                          YYG_xgu_8, YYG_yg_8 , &
+                          YYG_xgu_8, YYG_yg_8 , &
+                          YYG_xgu_8, YYG_yg_8, &
+                          G_niu, G_nj , G_halox,G_haloy   , &
+                          G_niu, G_nj , &
+                          G_niu, G_nj  )
 
 ! set range of indices for me for V
       YYG_i0 = l_i0  - west *G_halox
@@ -133,6 +140,13 @@
                           G_ni, G_njv , G_halox,G_haloy   , &
                           G_niu, G_nj , &
                           G_ni , G_njv  )
+      call yyg_initcomm ( YYG_PILT_v2v       , &
+                          YYG_xg_8, YYG_ygv_8, &
+                          YYG_xg_8, YYG_ygv_8, &
+                          YYG_xg_8, YYG_ygv_8, &
+                          G_ni, G_njv , G_halox,G_haloy   , &
+                          G_ni, G_njv , &
+                          G_ni, G_njv  )
 
 !for yyg_xchng_vec_uv2uv
       sendlen= max( YYG_PILT_uv2u%maxsend,YYG_PILT_uv2v%maxsend,&
@@ -154,15 +168,19 @@
 
 !for yyg_xchng_sca_q2q and yyg_xchng_vec_q2q
       sendlen= max( YYG_PILT_q2q%maxsend    , YYG_BLEN_q2q%maxsend    ,&
-                    YYG_HALO_q2q%maxsend    , YYG_NEAR_q2q%maxsend     )
+                    YYG_HALO_q2q%maxsend    , YYG_NEAR_q2q%maxsend    ,&
+                    YYG_PILT_u2u%maxsend    , YYG_PILT_v2v%maxsend     )
       maxproc= max( YYG_PILT_q2q%sendmaxproc, YYG_BLEN_q2q%sendmaxproc,&
-                    YYG_HALO_q2q%sendmaxproc, YYG_NEAR_q2q%sendmaxproc )
+                    YYG_HALO_q2q%sendmaxproc, YYG_NEAR_q2q%sendmaxproc,&
+                    YYG_PILT_u2u%sendmaxproc, YYG_PILT_v2v%sendmaxproc )
       if (sendlen > 0) allocate (YYG_uvsend(sendlen*(G_nk+1)*2,maxproc))
 
       recvlen= max( YYG_PILT_q2q%maxrecv    , YYG_BLEN_q2q%maxrecv    ,&
-                    YYG_HALO_q2q%maxrecv    , YYG_NEAR_q2q%maxrecv     )
+                    YYG_HALO_q2q%maxrecv    , YYG_NEAR_q2q%maxrecv    ,&
+                    YYG_PILT_u2u%maxrecv    , YYG_PILT_v2v%maxrecv     )
       maxproc= max( YYG_PILT_q2q%recvmaxproc, YYG_BLEN_q2q%recvmaxproc,&
-                    YYG_HALO_q2q%recvmaxproc, YYG_NEAR_q2q%recvmaxproc )
+                    YYG_HALO_q2q%recvmaxproc, YYG_NEAR_q2q%recvmaxproc,&
+                    YYG_PILT_u2u%recvmaxproc, YYG_PILT_v2v%recvmaxproc )
       if (recvlen > 0) allocate (YYG_uvrecv(recvlen*(G_nk+1)*2,maxproc))
 
       wb = 1-G_halox ; eb = l_ni+G_halox

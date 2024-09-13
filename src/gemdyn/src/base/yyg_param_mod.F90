@@ -39,6 +39,7 @@ module yyg_param
    end type YYG_comm_param
 
    type(YYG_comm_param) :: YYG_PILT_q2q, YYG_PILT_uv2u, YYG_PILT_uv2v
+   type(YYG_comm_param) :: YYG_PILT_u2u, YYG_PILT_v2v
    type(YYG_comm_param) :: YYG_BLEN_q2q, YYG_BLEN_uv2u, YYG_BLEN_uv2v
    type(YYG_comm_param) :: YYG_HALO_q2q, YYG_NEAR_q2q
 
