@@ -109,8 +109,8 @@
 
       if (.not. synthetic_data_L) then
 !!$omp single
-         call tt2virt2 (tt1, .true., l_minx,l_maxx,l_miny,l_maxy, G_nk,&
-                         1-G_halox,l_ni+G_halox, 1-G_haloy,l_nj+G_haloy)
+         call tt2tvirt (tt1, pw_tt_plus, l_minx,l_maxx,l_miny,l_maxy, G_nk+3, G_nk,&
+                               1-G_halox,l_ni+G_halox, 1-G_haloy,l_nj+G_haloy)
 !!$omp end single
          call HLT_split (1, G_nk, local_np, HLT_start, HLT_end)
          call gem_xch_halo (pw_uu_plus(l_minx,l_miny,HLT_start),l_minx,l_maxx,l_miny,l_maxy,local_np,-1)

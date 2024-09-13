@@ -78,7 +78,8 @@
                                 tmp_meta%l(2)%low,tmp_meta%l(2)%high,&
                                 tmp_meta%l(3)%low,tmp_meta%l(3)%high,&
                                 i0,in-inn,j0,jn-jnn                 ,&
-                                tmp_meta%l(3)%low,tmp_meta%l(3)%high)
+                                tmp_meta%l(3)%low,G_nk)
+                             !   tmp_meta%l(3)%low,tmp_meta%l(3)%high)
                end if
             end if
             else

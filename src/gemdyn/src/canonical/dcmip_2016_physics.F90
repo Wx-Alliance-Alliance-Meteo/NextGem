@@ -308,7 +308,8 @@
          phy_vv_tend = 0.
          phy_tv_tend = 0.
 
-         call tt2virt (tv_plus,.true.,l_minx,l_maxx,l_miny,l_maxy,l_nk)
+         call tt2tvirt (tv_plus, pw_tt_plus, l_minx,l_maxx,l_miny,l_maxy, &
+                        G_nk, G_nk, 1,l_ni, 1,l_nj)
          phy_tv_tend(1:l_ni,1:l_nj,1:l_nk) = tv_plus(1:l_ni,1:l_nj,1:l_nk) - tt1(1:l_ni,1:l_nj,1:l_nk)
          phy_tv_tend = phy_tv_tend/Cstv_dt_8
 

@@ -98,8 +98,8 @@
                                      -1,1,ind0,1, Outd_nbit(ii,set),.false. )
             else
                istat = gmm_get(GMM_tbl%vname(i),tr3,tmp_meta)
-               NK= tmp_meta%l(3)%high ; WNK= nko
-               if ((tmp_meta%l(3)%high>G_nk).and.write_diag_lev) WNK= nko+1
+               NK= G_nk ; WNK= nko
+               !if ((tmp_meta%l(3)%high>G_nk).and.write_diag_lev) WNK= nko+1
                call out_fstecr (tr3, tmp_meta%l(1)%low,tmp_meta%l(1)%high,&
                                      tmp_meta%l(2)%low,tmp_meta%l(2)%high,&
                                   level_type,nomvar,Outd_convmult(ii,set),&

@@ -55,7 +55,7 @@
       
       call gtmg_start (20, 'TSTPDYN', 10)
 
-      call HLT_split (1, 6*l_nk+2, HLT_np, HLT_start, HLT_end)
+      call HLT_split (1, 6*(l_nk+3), HLT_np, HLT_start, HLT_end)
 
       if(Step_kount.le.2) then
          call set_dync ( .true., dt_8 )
@@ -71,7 +71,8 @@
 !-----Begin Picard Iterations
     
       do iter = 1, Schm_itpc
-
+         
+        ! call fill_Vhalo (wt0,l_minx,l_maxx,l_miny,l_maxy,G_nk+3,6)
          call gem_xch_halo ( wt0(l_minx,l_miny,HLT_start),&
                   l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
 

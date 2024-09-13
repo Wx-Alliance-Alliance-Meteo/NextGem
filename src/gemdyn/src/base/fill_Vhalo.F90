@@ -13,15 +13,30 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
 
-module var_gmm
-   use rmn_gmm
-   implicit none
-   public
-   save
+!**s/r fill_Vhalo - Fill vertical bottom halo
 
-   type(gmm_metadata) :: meta2d      ! (l_minx:l_maxx, l_miny:l_maxy          )
-   type(gmm_metadata) :: meta3d_nk   ! (l_minx:l_maxx, l_miny:l_maxy, 1:l_nk  )
-   type(gmm_metadata) :: meta3d_nk1  ! (l_minx:l_maxx, l_miny:l_maxy, 1:l_nk+1)
-   type(gmm_metadata) :: meta3d_nk3  ! (l_minx:l_maxx, l_miny:l_maxy, 1:l_nk+3)
+      subroutine fill_Vhalo (F_dst,Minx,Maxx,Miny,Maxy,NK,F_nf)
+      use gem_options
+      use glb_ld
+      implicit none
 
-end module var_gmm
+      integer, intent(IN) :: Minx,Maxx,Miny,Maxy,NK,F_nf
+      real, dimension(Minx:Maxx,Miny:Maxy,NK,F_nf), intent(INOUT) :: F_dst
+      integer :: i,j,n
+!
+!     ---------------------------------------------------------------
+!
+      do n=1,F_nf
+      do j=1-G_haloy+1,l_nj+G_haloy-1
+         do i=1-G_halox+1,l_ni+G_halox-1
+            F_dst(i,j,G_nk+1,n) = F_dst(i,j,G_nk  ,n)
+            F_dst(i,j,G_nk+2,n) = F_dst(i,j,G_nk-1,n)
+            F_dst(i,j,G_nk+3,n) = F_dst(i,j,G_nk-2,n)
+         end do
+      end do
+      end do
+!
+!     ---------------------------------------------------------------
+!
+      return
+      end subroutine fill_Vhalo

@@ -65,7 +65,7 @@
                           Level_momentum , indo,nko,write_diag_lev )
 
 !!$omp parallel private (HLT_start, HLT_end, local_np)
-         call HLT_split (1, 2*G_nk, local_np, HLT_start, HLT_end)
+         call HLT_split (1, 2*(G_nk+3), local_np, HLT_start, HLT_end)
          call gem_xch_halo ( ut1(l_minx,l_miny,HLT_start),&
                    l_minx,l_maxx,l_miny,l_maxy,local_np,-1)
 !!$omp end parallel

@@ -247,7 +247,8 @@
          end do
 !!$omp enddo
 
-         call tt2virt_omp (tv,.true.,l_minx,l_maxx,l_miny,l_maxy,l_nk)
+         call tt2tvirt (tv, pw_tt_plus, l_minx,l_maxx,l_miny,l_maxy, &
+                        G_nk, G_nk, 1,l_ni, 1,l_nj)
 
 !!$omp do collapse(2)
          do k=1, l_nk
@@ -278,7 +279,8 @@
          call gem_xch_halo ( tdv(l_minx,l_miny,HLT_start),l_minx,l_maxx,l_miny,l_maxy,local_np,-1 )
          call hwnd_stag_hlt ( phy_uu_tend,phy_vv_tend,tdu,tdv,&
                               l_minx,l_maxx,l_miny,l_maxy,G_nk,.true.)
-         call tt2virt_omp (tv,.true.,l_minx,l_maxx,l_miny,l_maxy,l_nk)
+         call tt2tvirt (tv, pw_tt_plus, l_minx,l_maxx,l_miny,l_maxy, &
+                        G_nk, G_nk, 1,l_ni, 1,l_nj)
 
 !!$omp do collapse(2)
          do k=1, l_nk
@@ -323,7 +325,8 @@
       endif
 
       if (cnt > 0) then
-         call tt2virt_omp (tt1, .true., l_minx,l_maxx,l_miny,l_maxy,l_nk)
+         call tt2tvirt (tt1, pw_tt_plus, l_minx,l_maxx,l_miny,l_maxy, &
+                        G_nk+3, G_nk, 1,l_ni, 1,l_nj)
          if (Grd_yinyang_L) then
             call yyg_xchng_hlt (tt1, l_minx,l_maxx,l_miny,l_maxy,&
                        l_ni,l_nj, G_nk, .false., 'CUBIC', .false.)

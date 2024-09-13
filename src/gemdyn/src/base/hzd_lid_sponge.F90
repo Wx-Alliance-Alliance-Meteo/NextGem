@@ -39,8 +39,8 @@
       jnv = l_njv - 1 + G_haloy * (1 - north)
       available= 0
       
-      call HLT_split (1, 2*G_nk, lcl2, HLT_start2, HLT_end)
-      call HLT_split (1, 5*G_nk, lcl5, HLT_start5, HLT_end)
+      call HLT_split (1, 2*(G_nk+3), lcl2, HLT_start2, HLT_end)
+      call HLT_split (1, 5*(G_nk+3), lcl5, HLT_start5, HLT_end)
 
       do iter= 1, Vspng_niter
          if (available<1)   then

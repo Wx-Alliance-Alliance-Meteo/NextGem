@@ -12,16 +12,29 @@
 ! along with this library; if not, write to the Free Software Foundation, Inc.,
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
+!s/r tt2tvirt - Compute virtual temperature from temperature+wload
 
-module var_gmm
-   use rmn_gmm
-   implicit none
-   public
-   save
+      subroutine tt2tvirt ( F_tv, F_tt, Minx, Maxx, Miny, Maxy, &
+                            Nktv, Nktt, F_i0,F_in,F_j0,F_nj )
+      use dyn_fisl_options
+      use glb_ld
+      use tr3d
+      use mem_tracers
+      implicit none
 
-   type(gmm_metadata) :: meta2d      ! (l_minx:l_maxx, l_miny:l_maxy          )
-   type(gmm_metadata) :: meta3d_nk   ! (l_minx:l_maxx, l_miny:l_maxy, 1:l_nk  )
-   type(gmm_metadata) :: meta3d_nk1  ! (l_minx:l_maxx, l_miny:l_maxy, 1:l_nk+1)
-   type(gmm_metadata) :: meta3d_nk3  ! (l_minx:l_maxx, l_miny:l_maxy, 1:l_nk+3)
+      integer, intent(in) :: Minx,Maxx,Miny,Maxy, Nktv, Nktt, F_i0,F_in,F_j0,F_nj
+      real, dimension(Minx:Maxx, Miny:Maxy, Nktt), intent(in ) :: F_tt
+      real, dimension(Minx:Maxx, Miny:Maxy, Nktv), intent(out) :: F_tv
+!
+!     ________________________________________________________________
+!
+      call sumhydro ( sumq_8, l_minx,l_maxx,l_miny,l_maxy, &
+                      G_nk, Tr3d_ntr, trt1, Schm_wload_L )
 
-end module var_gmm
+      call mfottvh2 (F_tt, F_tv, tracers_P(Tr3d_hu)%pntr, real(sumq_8),&
+           minx, maxx, miny, maxy, l_nk, F_i0,F_in,F_j0,F_nj, .true.)
+!
+!     ________________________________________________________________
+!
+      return
+      end subroutine tt2tvirt
