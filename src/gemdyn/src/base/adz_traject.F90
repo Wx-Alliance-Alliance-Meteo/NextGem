@@ -35,6 +35,7 @@
       include "tricublin_f90.inc"
       include 'mpif.h'
       
+      logical :: print_conv
       integer :: iter,i,j,k,kk1,nb,k00,dim,ierr
       integer :: HLT_np, HLT_start, HLT_end
       integer,dimension(l_ni) :: kk
@@ -61,6 +62,7 @@
       end if
       tau= half_dt_8
       if (F_euler_L) tau= quarter_dt_8
+      print_conv = (Ptopo_couleur == 0) .and. (Lun_out > 0)
       
       call adz_prepareWinds (itpc)
 
@@ -132,7 +134,7 @@
             rate=1.d0
             if (iter > 1) rate= (sucsv_err(iter-1)-sucsv_err(iter))/&
                                  sucsv_err(iter-1)
-            if (Lun_out>0) write(Lun_out,1001) iter,maxval(err),err2nrm,rate
+            if (print_conv) write(Lun_out,1001) iter,maxval(err),err2nrm,rate
             if ((err2nrm < Schm_tolSL).or.(rate<Schm_rateSL)) exit
          endif
       

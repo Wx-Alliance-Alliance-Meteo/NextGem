@@ -4,12 +4,12 @@
 cp -r ${SRC_TESTS}/RSTRT_cfgs_* . 2> /dev/null
 
 for i in RSTRT_cfgs_* ; do
-  echo TREATING: $i
   CFG=$i
   if [ -z "${NORUN_GEM}" ] ; then
     /bin/rm -f RESULTS/$EXP/listings/${CFG}_prep.lis RESULTS/$EXP/listings/${CFG}_mod.lis
     printf "couleur_model=red\n" > RESULTS/$EXP/status/${CFG}_MODEL
     . $CFG/cfg_0000/configexp.cfg
+    echo TREATING: $i $GEMTEST_ptopo
     _status="ABORT"
     . r.call.dot runprep.sh -dircfg $CFG 1> RESULTS/$EXP/listings/${CFG}_prep.lis_1 2>&1
     if [ "${_status}" == "ED" ] ; then

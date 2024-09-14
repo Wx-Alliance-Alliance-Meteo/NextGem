@@ -13,12 +13,12 @@ if (MPI_FOUND)
    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${MPI_COMPILER_FLAGS}")
 endif()
 
-add_executable(model model.F90)
+add_executable(mainmodel mainmodel.F90)
 
 # Debug: generate linker map file
-target_link_options(model PRIVATE "-Wl,-Map=model.map")
+target_link_options(mainmodel PRIVATE "-Wl,-Map=mainmodel.map")
 
-target_link_libraries(model
+target_link_libraries(mainmodel
    ${GEMMOD_OBJ_FILES}
    gemdyn
    ${phy_LIBRARIES}
@@ -39,4 +39,4 @@ target_link_libraries(model
    ${BLAS_LIBRARIES}
 )
 
-install(TARGETS model RUNTIME DESTINATION bin)
+install(TARGETS mainmodel RUNTIME DESTINATION bin)

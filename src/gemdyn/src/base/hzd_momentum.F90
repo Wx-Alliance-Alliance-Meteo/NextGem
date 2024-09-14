@@ -31,7 +31,7 @@
       if (Schm_hzdadw_L) then
 
          call hzd_exp_deln (zdt0, Hzd_pwr, Hzd_lnR, WS1, &
-                            l_minx,l_maxx,l_miny,l_maxy,3*G_nk)
+                            l_minx,l_maxx,l_miny,l_maxy,3*(G_nk+3))
 
          if (Grd_yinyang_L) then
             call yyg_xchng_hlt (zdt0,l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&

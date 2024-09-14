@@ -63,7 +63,7 @@ if [ -e ${PREP_dir}/IAUREP ] ; then
   iaurep=${PREP_dir}/IAUREP
 fi
 
-ATMMOD=$(which maingemdm)
+ATMMOD=$(which mainmodel)
 BINMOD=$(dirname ${ATMMOD})
 
 if [ -n "$gem_cfgfile" ] ; then
@@ -86,7 +86,7 @@ if [ -n "$gem_cfgfile" ] ; then
   PHYTB=${GEM_phy_intable:-${phytbl}}
   CACHEDIR=${GEM_cache:-$CACHEDIR}
   BINMOD=${GEM_ovbin:-${BINMOD}}
-  ATMMOD=${BINMOD}/maingemdm
+  ATMMOD=${BINMOD}/mainmodel
 else
   config='<no value>'
 fi

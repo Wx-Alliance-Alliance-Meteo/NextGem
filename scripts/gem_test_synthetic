@@ -4,13 +4,13 @@
 cp -r ${SRC_TESTS}/THEO_cfgs_* . 2> /dev/null
 
 for i in $(ls -1d THEO_cfgs* 2>/dev/null) ; do
-  echo TREATING: $i
   /bin/rm -rf PREP/* RUNMOD/* 
   CFG=$i
   if [ -z "${NORUN_GEM}" ] ; then
     /bin/rm -f RESULTS/$EXP/listings/${CFG}_mod.lis
     printf "couleur_model=red\n" > RESULTS/$EXP/status/${CFG}_MODEL
     . $CFG/cfg_0000/configexp.cfg
+    echo TREATING: $i $GEMTEST_ptopo
     printf "couleur=red\n" > RESULTS/$EXP/status/${CFG}_couleur
     _status="ABORT"
     . r.call.dot runmod.sh -dircfg $CFG -ptopo $GEMTEST_ptopo -inorder 1> RESULTS/$EXP/listings/${CFG}_mod.lis 2>&1
@@ -28,13 +28,13 @@ done
 cp -r ${SRC_TESTS}/CANO_cfgs_* . 2> /dev/null
 
 for i in $(ls -1d CANO_cfgs_* 2>/dev/null) ; do
-  echo TREATING: $i
   /bin/rm -rf PREP/* RUNMOD/* 
   CFG=$i
   if [ -z "${NORUN_GEM}" ] ; then
     /bin/rm -f RESULTS/$EXP/listings/${CFG}_prep.lis RESULTS/$EXP/listings/${CFG}_mod.lis
     printf "couleur_model=red\n" > RESULTS/$EXP/status/${CFG}_MODEL
     . $CFG/cfg_0000/configexp.cfg
+    echo TREATING: $i $GEMTEST_ptopo
     _status="ABORT"
     . r.call.dot runprep.sh -dircfg $CFG 1> RESULTS/$EXP/listings/${CFG}_prep.lis 2>&1
     if [ "${_status}" == "ED" ] ; then

@@ -14,6 +14,7 @@
 !---------------------------------- LICENCE END ---------------------------------
 
       subroutine adz_cfl
+      use HORgrid_options
       use adz_mem
       use lun
       use, intrinsic :: iso_fortran_env
@@ -35,7 +36,8 @@
                                           cfl_i(3,2),sngl(cfl_8(2))
       if (lun_out > 0) write (output_unit,99) '3D' ,cfl_i(1,3),cfl_i(2,3), &
                                           cfl_i(3,3),sngl(cfl_8(3))
-
+      if ((cfl_8(1)>Grd_maxcfl).or.(cfl_8(2)>10.).and.(lun_out > 0)) &
+                    print*, 'CFL WARNING: Flow is too large for current configuration'
  99   format(' MAX COURANT NUMBER:  ', a3,&
              ': [(',i4,',',i4,',',i4,') ',f12.5,']')
 !
