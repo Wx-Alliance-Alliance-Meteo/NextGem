@@ -23,7 +23,9 @@
       use geomh
       use glb_ld
       use tdpack
+      use ptopo
       implicit none
+
 
       logical  F_absvor_L
       integer  F_filtqq, Minx,Maxx,Miny,Maxy,Nk
@@ -33,6 +35,10 @@
                F_vv (Minx:Maxx,Miny:Maxy,Nk), F_coefqq
 
       integer i, j, k, i0, in, j0, jn
+      include 'mpif.h'
+      integer :: err,comm
+      real(kind=REAL64) sum_8, sumqq_8, sumqr_8
+      real(kind=REAL64) :: gathS(Ptopo_numproc*Ptopo_ncolors)
       real deg2rad
 !
 !----------------------------------------------------------------------
@@ -70,6 +76,36 @@
             F_QQ(:,1:j0-1,k) = 0. ; F_QQ(:,jn+1:l_nj,k)= 0.
          end do
       end if
+
+      sum_8=0.
+      do k = 1 , Nk
+         do j = j0, jn
+            do i = i0, in
+            sum_8 = sum_8 + F_QR(i,j,k)**2* geomh_mask_8(i,j)
+            end do
+         end do
+      end do
+
+      comm = COMM_multigrid
+
+      call MPI_Allgather(sum_8,1,MPI_DOUBLE_PRECISION,gathS,1,MPI_DOUBLE_PRECISION,comm,err)
+       
+      sumqr_8 = sum(gathS) 
+
+      sum_8=0.
+      do k = 1 , Nk
+         do j = j0, jn
+            do i = i0, in
+            sum_8 = sum_8 + F_QQ(i,j,k)**2* geomh_mask_8(i,j)
+            end do
+         end do
+      end do
+
+      call MPI_Allgather(sum_8,1,MPI_DOUBLE_PRECISION,gathS,1,MPI_DOUBLE_PRECISION,comm,err)
+
+      sumqq_8 = sum(gathS) 
+
+      if(Ptopo_myproc.eq.0) print * , 'sumqq_8,sumqr_8',sumqq_8,sumqr_8
 !
 !----------------------------------------------------------------------
 !

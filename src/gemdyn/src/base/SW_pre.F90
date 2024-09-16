@@ -62,6 +62,7 @@
       invT_nh_8= one/tau_nh_8
 
       w3 = grav_8 * tau_8/ Cstv_Tstr_8
+      Cstv_h0inv_8 = 1./Cstv_h0_8
 
 !*************************************
 ! Combination of governing equations *
