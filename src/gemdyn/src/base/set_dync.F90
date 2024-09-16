@@ -43,6 +43,7 @@
       gama_8=one/(Cstv_tau_m_8*Cstv_invT_nh_8+Nstr2_8*Cstv_tau_8*Cstv_tau_m_8)
       mu_8=Nstr2_8/grav_8
       epsi_8=grav_8/cstr2_8
+      Cstv_h0inv_8 = 1./Cstv_h0_8
       gg_8=epsi_8/(grav_8*Cstv_tau_8*Cstv_tau_m_8)
       gg_sw_8=1.d0/(Cstv_tau_8**2)*Cstv_h0inv_8/grav_8
 
