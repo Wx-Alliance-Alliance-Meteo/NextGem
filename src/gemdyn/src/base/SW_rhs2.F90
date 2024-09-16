@@ -68,7 +68,7 @@
               rhsv(i,j,k) = (4.0/3.0)*invT_n_8*rhsv_mid(i,j,k) - (one/3.0)*invT_n_8*rhsv_dep(i,j,k) 
 
               !---rhsc---
-              rhsc(i,j,k) = (4.0/3.0)*invT_n_8*rhsc_mid(i,j,k) - (one/3.0)*invT_n_8*rhsc_dep(i,j,k) 
+              rhsc(i,j,k) = (4.0/3.0)*invT_n_8*rhsc_mid(i,j,k) - (one/3.0)*invT_n_8*rhsc_dep(i,j,k) + invT_n_8*fis0(i,j)
 
             end do
          end do
