@@ -117,6 +117,9 @@
          end do
          end do
 
+
+!         print *, i00, inn, j00, jnn
+
          do j= ds_j0, ds_jn
          do i= i00, inn
             dqdx = Hderiv(qt0(i-2,j,k), qt0(i-1,j,k), qt0(i,j,k), &
@@ -146,7 +149,8 @@
             w1= a*rhst_mid(i,j,k) - b*rhst_dep(i,j,k)
             w2= a*rhsw_mid(i,j,k) - b*rhsw_dep(i,j,k)
             w3= invT_8*( logT(i,j,k) - (one-one/tots(i,j,k)) )
-            w4= w0*(dqz2w(i,j,k) - grav_8*(one-one/tots(i,j,k)))
+            !w4= w0*(dqz2w(i,j,k) - grav_8*(one-one/tots(i,j,k)))
+            w4= w0*(GVM%mc_iJz_8(i,j,k)*(qt0(i,j,k+1)-qt0(i,j,k)) - grav_8*(one-one/tots(i,j,k)))
 
             Rtt(i,j,k)= w1 - w3
             Rww(i,j,k)= w2 - w4
@@ -239,8 +243,8 @@
             Sol_rhs(i,j,k) = -invT_8*Rqq + dudx + dvdy + invT_8*dzrzz   &
                             + ubx*M_logJzu(i,j,k) + vby*M_logJzv(i,j,k) &
                             + invT_8*M_logJzq(i,j,k)* zzbz              &
-                            !+ dzrtt & ! that vertical derivative is not working for now
-                            + (Rtt(i,j,k) - Rtt(i,j,km))*Ver_idz_8%m(k) & ! re-visit that vertical derivative
+                            + dzrtt & ! that vertical derivative is not working for now
+                            !+ (Rtt(i,j,k) - Rtt(i,j,km))*Ver_idz_8%m(k) & ! re-visit that vertical derivative
                             + ttbz*(M_logJzq(i,j,k) - epsi_8)
 
 ! this exception at k=1 will be removed soon and km should be replaced with simply k-1
