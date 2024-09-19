@@ -30,15 +30,8 @@ module dyn_fisl_options
    namelist /dyn_fisl  / Cstv_Tstr_8
    namelist /dyn_fisl_p/ Cstv_Tstr_8
 
-   !# basic state geopotential 
-   real(kind=REAL64) :: Cstv_Phistr_8 = 29400.0d0
-   namelist /dyn_fisl  / Cstv_Phistr_8
-   namelist /dyn_fisl_p/ Cstv_Phistr_8
-
    !# Inverse of mean height (m^-1) for Shallow-water
-   real(kind=REAL64) :: Cstv_h0_8 = 10000.d0
-   namelist /dyn_fisl  / Cstv_h0_8
-   namelist /dyn_fisl_p/ Cstv_h0_8
+   real(kind=REAL64) :: Cstv_h0inv_8 
 
    !# Fraction of adjustment to be given to the ocean
    real(kind=REAL64) :: Cstv_psadj_8 = 1.d0
@@ -156,7 +149,6 @@ module dyn_fisl_options
 
    logical Schm_opentop_L
    integer Schm_nith
-   real(kind=REAL64) :: Cstv_h0inv_8 
 
 contains
 
