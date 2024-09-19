@@ -150,6 +150,8 @@
       Ver_ext%m(G_nk+2) = -Ver_z_8%m(G_nk-1)
       Ver_ext%m(G_nk+3) = -Ver_z_8%m(G_nk-2)
 
+      Cstv_h0inv_8 = 1.d0/Ver_z_8%m(1)
+
       Ver_z_8%t (0) = Ver_z_8%m(0)
       Ver_dqdz_8(0) = half*(Ver_z_8%m(0)+Ver_z_8%m(1))
       do k = 1, G_nk+1
