@@ -41,7 +41,7 @@
       integer i, j, k, i0, in, j0, jn
       include 'mpif.h'
       integer :: err,comm
-      real(kind=REAL64) sum_8, summa_8, sumet_8, sumqq_8, sumqr_8
+      real(kind=REAL64) sum_8, summa_8, sumet_8, sumen_8
       real(kind=REAL64) :: gathS(Ptopo_numproc*Ptopo_ncolors)
       real deg2rad
 !
@@ -81,34 +81,23 @@
          end do
       end if
 
-      sum_8=0.
-      do k = 1 , Nk
-         do j = j0, jn
-            do i = i0, in
-            sum_8 = sum_8 + F_QR(i,j,k)**2* geomh_mask_8(i,j)
-            end do
-         end do
-      end do
-
       comm = COMM_multigrid
 
-      call MPI_Allgather(sum_8,1,MPI_DOUBLE_PRECISION,gathS,1,MPI_DOUBLE_PRECISION,comm,err)
-       
-      sumqr_8 = sum(gathS) 
-
+!potential enstrophy
       sum_8=0.
       do k = 1 , Nk
          do j = j0, jn
             do i = i0, in
-            sum_8 = sum_8 + F_QQ(i,j,k)**2* geomh_mask_8(i,j)
+            sum_8 = sum_8 + 0.5*F_QQ(i,j,k)**2/(qt0(i,j,k)-fis0(i,j)+1./Cstv_h0inv_8) * geomh_mask_8(i,j)
             end do
          end do
       end do
 
       call MPI_Allgather(sum_8,1,MPI_DOUBLE_PRECISION,gathS,1,MPI_DOUBLE_PRECISION,comm,err)
 
-      sumqq_8 = sum(gathS) 
+      sumen_8 = sum(gathS) 
 
+!total energy 
       sum_8=0.
       do k = 1 , Nk
          do j = j0, jn
@@ -123,6 +112,7 @@
 
       sumet_8 = sum(gathS) 
       
+!total mass 
       sum_8=0.
       do k = 1 , Nk
          do j = j0, jn
@@ -136,12 +126,11 @@
 
       summa_8 = sum(gathS) 
 
-      #if(Ptopo_myproc.eq.0) print * , 'summa_8,sumet_8,sumqq_8,sumqr_8', summa_8,sumet_8,sumqq_8,sumqr_8
       if(Ptopo_myproc.eq.0) then
-         write(Lun_out,1001) 'summa,sumet,sumqq,sumqr',summa_8,sumet_8,sumqq_8,sumqr_8
+         write(Lun_out,1001) 'summa,sumet,sumen',summa_8,sumet_8,sumen_8
       endif
 
- 1001 format(1X,A24,1X,1E19.8,1X,1E19.8,1X,1E19.8,1X,1E19.8)
+ 1001 format(1X,A24,1X,1E19.8,1X,1E19.8,1X,1E19.8)
 !
 !----------------------------------------------------------------------
 !
