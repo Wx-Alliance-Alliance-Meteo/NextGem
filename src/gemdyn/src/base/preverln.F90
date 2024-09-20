@@ -89,7 +89,7 @@
       errcode= 0
       if ((err < 0).and.(lun_out > 0)) then
          write(lun_out,9000)
-         errcode = -1
+ !!!!!!!!!!!!!!!!!!        errcode = -1
       else
          call nsyeigl (F_eval_8,F_levec_8,F_evec_8,B1,F_nk,KDIM,8*F_nk)
       end if

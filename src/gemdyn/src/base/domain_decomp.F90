@@ -45,7 +45,7 @@
           G_nj,l_miny,l_maxy,lnjs,G_lnjmax,G_haloy,l_j0,.false.,.true.,&
           F_npey, (Grd_extension+1), F_checkparti_L, 0 ))              &
           errno = 0
-      call gem_error ( errno,'domain_decomp','ILLEGAL DOMAIN PARTITIONING')
+      if (.not.F_checkparti_L) call gem_error ( errno,'domain_decomp','ILLEGAL DOMAIN PARTITIONING')
       domain_decomp= errno
       G_maxldim = max(G_lnimax,G_lnjmax)
       G_maxhalo = max(G_halox,G_haloy)

@@ -95,14 +95,18 @@
 
       dimH= (l_maxx-l_minx+1)*(l_maxy-l_miny+1)
       dim = dimH*G_nk
-      allocate (LT  (5*dim+2*dimH)) ; LT =0.
       
-      Ruu  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>LT(      1:)
-      Rvv  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>LT(  dim+1:)
-      Rww  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>LT(2*dim+1:)
-      Rtt  (l_minx:l_maxx,l_miny:l_maxy,0:l_nk)=>LT(3*dim+1:)
-      Rzz  (l_minx:l_maxx,l_miny:l_maxy,0:l_nk)=>LT(4*dim+diMH+1:)
-      
+!!$      allocate (LT  (5*dim+2*dimH)) ; LT =0.
+!!$      Ruu  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>LT(      1:)
+!!$      Rvv  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>LT(  dim+1:)
+!!$      Rww  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>LT(2*dim+1:)
+!!$      Rtt  (l_minx:l_maxx,l_miny:l_maxy,0:l_nk)=>LT(3*dim+1:)
+!!$      Rzz  (l_minx:l_maxx,l_miny:l_maxy,0:l_nk)=>LT(4*dim+diMH+1:)
+      allocate (Ruu(l_minx:l_maxx,l_miny:l_maxy,1:l_nk))
+      allocate (Rvv(l_minx:l_maxx,l_miny:l_maxy,1:l_nk))
+      allocate (Rww(l_minx:l_maxx,l_miny:l_maxy,1:l_nk))
+      allocate (Rtt(l_minx:l_maxx,l_miny:l_maxy,0:l_nk))
+      allocate (Rzz(l_minx:l_maxx,l_miny:l_maxy,0:l_nk))
       allocate (Nuu(l_minx:l_maxx,l_miny:l_maxy,1:l_nk))
       allocate (Nvv(l_minx:l_maxx,l_miny:l_maxy,1:l_nk))
       Nuu= 0. ; Nvv= 0.

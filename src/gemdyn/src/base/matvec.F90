@@ -51,8 +51,8 @@
 !
 !     ---------------------------------------------------------------
 !
-      if ( Grd_yinyang_L) then
-         call matvec_GY ( F_vector, F_minx,F_maxx,F_miny,F_maxy,&
+      if (Schm_POSO == 5) then
+         call matvec5th ( F_vector, F_minx,F_maxx,F_miny,F_maxy,&
                           F_prod  , F_i0,F_in,F_j0,F_jn, F_nk )
          return
       endif
@@ -81,11 +81,11 @@
       end do
 
       if ( Grd_yinyang_L) then
-         call yyg_xchng_hlt (ext_q, l_minx,l_maxx,l_miny,l_maxy, &
+         call yyg_xchng_8 (ext_q, YYG_HALO_q2q,l_minx,l_maxx,l_miny,l_maxy, &
                     l_ni,l_nj, l_nk+2, .false., 'CUBIC', .true.)
       else
          call HLT_split (0, (l_nk+1), HLT_np, HLT_start, HLT_end)
-         call gem_xch_halo ( ext_q(l_minx,l_miny,HLT_start),&
+         call gem_xch_halo_8 ( ext_q(l_minx,l_miny,HLT_start),&
                     l_minx,l_maxx,l_miny,l_maxy, HLT_np, 1)
       endif
 
@@ -181,5 +181,5 @@
 !     ---------------------------------------------------------------
 !     
       return
-      include 'H5th_ope.inc'
+!      include 'H5th_ope.inc'
       end subroutine matvec

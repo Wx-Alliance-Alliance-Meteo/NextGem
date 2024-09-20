@@ -131,7 +131,7 @@
       
       sol_niloc=Sol_iin-Sol_ii0+1
       sol_njloc=Sol_jjn-Sol_jj0+1
-      sol_nloc = sol_niloc*sol_njloc*Schm_nith
+      sol_nloc = sol_niloc*sol_njloc*G_nk
       
       allocate (Prec_xevec_8(sol_niloc,sol_niloc)  ,&
                 Prec_xeval_8(sol_niloc)            ,&
@@ -141,7 +141,7 @@
                 Prec_ci_8(sol_niloc,sol_njloc,G_nk))
        call eigenabc_local (Prec_xeval_8,Prec_xevec_8,Prec_ai_8,&
                             Prec_bi_8,Prec_invbi_8,Prec_ci_8   ,&
-                            sol_niloc,sol_njloc,Schm_nith)
+                            sol_niloc,sol_njloc,G_nk)
 
        allocate (gg(1:sol_im+1),rot_cos(1:sol_im+1), rot_sin(1:sol_im+1), IPIV_arr(1:sol_im+1))
        allocate (v_lcl_sum(1:sol_im+1,1:2),rr(1:sol_im+1,1:sol_im+1),&
@@ -167,12 +167,13 @@
 
        dimH= (l_maxx-l_minx+1)*(l_maxy-l_miny+1)
        dim = dimH*G_nk
-       allocate (sol_ws(5*dim))
+       allocate (sol_ws(6*dim))
        dqdzu(l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => sol_ws(      1:)
        dqdzv(l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => sol_ws(  dim+1:)
        Qu   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => sol_ws(2*dim+1:)
        Qv   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => sol_ws(3*dim+1:)
        Qw   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => sol_ws(4*dim+1:)
+       Qq   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => sol_ws(5*dim+1:)
 
        ni= Sol_iin-Sol_ii0+1
        nj= Sol_jjn-Sol_jj0+1

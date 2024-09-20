@@ -12,7 +12,7 @@
 ! along with this library; if not, write to the Free Software Foundation, Inc.,
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
-!**s/r elliptic_rhs - Compute right hand side of the elliptic problem
+!**s/r tt2wnd - Pre-compute stuff for elliptic_rhs
 
       subroutine tt2wnd ( F_t2u, F_v2u, F_t2v, F_u2v, F_dq2u, F_dq2v, F_dq2w, Minx, Maxx, Miny, Maxy, Nk )
       use, intrinsic :: iso_fortran_env

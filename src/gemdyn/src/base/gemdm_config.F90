@@ -147,8 +147,6 @@
 
       call vertical_struc ( hyb_H, G_nk)
 
-      Schm_nith = G_nk
-
       err = 0
       err = min( timestr2step (Grdc_ndt,   Grdc_nfe    , Step_dt), err)
       err = min( timestr2step (Grdc_start, Grdc_start_S, Step_dt), err)
@@ -209,6 +207,8 @@
 !!$!        call msg_set_minMessageLevel(MSG_DEBUG)
 !!$         call handle_error_setdebug(Lun_debug_L)
 !!$      end if
+
+      if ( .not. Grd_yinyang_L) Schm_POSO = 2
 
       if (Hzd_lnr_theta < 0.) then
          Hzd_lnr_theta = Hzd_lnr

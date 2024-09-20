@@ -45,7 +45,6 @@
   &dyn_fisl
   Cstv_tstr_8     = 240.0      ,
   Schm_wload_L    = .true.     ,
-  Schm_hzdadw_L   = .false.    , 
   Schm_advec      = 2
 /
  &hvdif2

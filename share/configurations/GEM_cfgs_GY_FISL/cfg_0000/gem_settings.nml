@@ -58,8 +58,8 @@ Lam_gbpil_t=20
   Cstv_tstr_8     = 240.0
   Schm_nblendyy   = 1
   Schm_wload_L      = .true.
-  Schm_hzdadw_L     = .true.
   Schm_psadj= 1
+  Schm_POSO = 5
 /
 
  &hvdif

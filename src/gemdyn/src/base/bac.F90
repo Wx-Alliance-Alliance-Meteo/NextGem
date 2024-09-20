@@ -13,7 +13,7 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END --------------------------------
 
-!**s/r  bac_H- backsubstitution: obtain new values for variables:u,v,w,t,q,zd
+!**s/r bac - backsubstitution: obtain new values for variables:u,v,w,t,q,zd
 !                                using Sol_lhs
 
       subroutine bac ( F_dt_8 )
@@ -30,16 +30,19 @@
       use metric
       use yyg_param
       use ctrl
+      use theo_options
+      use glb_pil
+      use ldnh
+      use stat_mpi
       use, intrinsic :: iso_fortran_env
       implicit none
 
       real(kind=REAL64), intent(IN) :: F_dt_8
 
-      integer :: i, j, k
+      integer :: i, j, k,ni,nj
       integer :: HLT_start, HLT_end, local_np
-      real(kind=REAL64) :: w5, tau_8, invT_8,&
-                           Buoy, wp_8(G_nk), wm_8(G_nk)
-      real(kind=REAL64), parameter :: one=1.d0, half=0.5d0
+      real(kind=REAL64) :: w5, tau_8, invT_8, Buoy
+      real(kind=REAL64), parameter :: one=1.d0
 !
 !     ---------------------------------------------------------------
 !
@@ -49,12 +52,6 @@
 !!$omp end single
          return
       end if
-      
-      do k=1,G_nk
-         wm_8(k) = (Ver_dqdz_8(k)-Ver_z_8%m(k))/&
-                   (Ver_dqdz_8(k)-Ver_dqdz_8(k-1))
-         wp_8(k) = one-wm_8(k)
-      end do
 
       tau_8 = (2.d0*F_dt_8) / 3.d0 
       invT_8= one/tau_8
@@ -77,14 +74,7 @@
       enddo
 !!$omp end do
 
-      if ( Grd_yinyang_L) then
-         call yyg_xchng_8 (Sol_lhs, YYG_HALO_q2q,l_minx,l_maxx,l_miny,l_maxy, &
-                           l_ni,l_nj, l_nk+2, .false., 'CUBIC', .true.)
-      else
-         call HLT_split (0, G_nk+1, local_np, HLT_start, HLT_end)
-         call gem_xch_halo_8 ( Sol_lhs(l_minx,l_miny,HLT_start),l_minx,l_maxx,&
-                               l_miny,l_maxy,local_np,-1 )
-      endif
+      call delQ (Sol_lhs, l_minx,l_maxx,l_miny,l_maxy, Qu,Qv,Qw,Qq,0,l_nk+1)
 
 !!$omp do collapse(2)
       do k=1, l_nk+1
@@ -100,60 +90,19 @@
       do k=ds_k0, l_nk
          do j= ds_j0, ds_jn
             do i= ds_i0, l_niu-pil_e
-
-   !           Compute U
-   !           ~~~~~~~~~
-               ut0(i,j,k) = tau_8*(Ruu(i,j,k)  &
-                          - (Sol_lhs(i+1,j,k)-Sol_lhs(i,j,k))*geomh_invDX_8(j) + &
-                             GVM%mc_Jx_8(i,j,k) * ( &
-                             wp_8(k)*half*( (Sol_lhs(i+1,j,k+1)-Sol_lhs(i+1,j,k ))*GVM%mc_iJz_8(i+1,j,k )  &
-                                          + (Sol_lhs(i  ,j,k+1)-Sol_lhs(i  ,j,k ))*GVM%mc_iJz_8(i  ,j,k ) )&
-                            +wm_8(k)*half*( (Sol_lhs(i+1,j,k  )-Sol_lhs(i+1,j,k-1))*GVM%mc_iJz_8(i+1,j,k-1)&
-                                          + (Sol_lhs(i  ,j,k  )-Sol_lhs(i  ,j,k-1))*GVM%mc_iJz_8(i  ,j,k-1) ) ))
+               ut0(i,j,k) = tau_8*(Ruu(i,j,k) - Qu(i,j,k))
             end do
          end do
-      end do
-!!$omp enddo nowait
-      
-!!$omp do collapse(2)
-      do k=ds_k0, l_nk
          do j= ds_j0, l_njv-pil_n
             do i= ds_i0, ds_in
-
-   !           Compute V
-   !           ~~~~~~~~~
-               vt0(i,j,k) = tau_8*(Rvv(i,j,k) &
-                          - (Sol_lhs(i,j+1,k)-Sol_lhs(i,j,k))*geomh_invDYMv_8(j) + &
-                            GVM%mc_Jy_8(i,j,k) * ( &
-                             wp_8(k)*half*( (Sol_lhs(i,j+1,k+1)-Sol_lhs(i,j+1,k ))*GVM%mc_iJz_8(i,j+1,k )  &
-                                          + (Sol_lhs(i,j  ,k+1)-Sol_lhs(i,j  ,k ))*GVM%mc_iJz_8(i,j  ,k ) )&
-                            +wm_8(k)*half*( (Sol_lhs(i,j+1,k  )-Sol_lhs(i,j+1,k-1))*GVM%mc_iJz_8(i,j+1,k-1)&
-                                          + (Sol_lhs(i,j  ,k  )-Sol_lhs(i,j  ,k-1))*GVM%mc_iJz_8(i,j  ,k-1) ) ))
+               vt0(i,j,k) = tau_8*(Rvv(i,j,k) - Qv(i,j,k))
             end do
          end do
-      end do
-!!$omp enddo nowait
-
-!!$omp do collapse(2)
-      do k=ds_k0, l_nk
          do j= ds_j0, ds_jn
             do i= ds_i0, ds_in
-
-   !           Compute w
-   !           ~~~~~~~~~
-               wt0(i,j,k) = tau_8*(Rtt(i,j,k) &
-                          - gama_bdf_8*(GVM%mc_iJz_8(i,j,k)*(Sol_lhs(i,j,k+1)-Sol_lhs(i,j,k)) &
-                          - half*mu_8*(Sol_lhs(i,j,k+1)+Sol_lhs(i,j,k))))
-
-   !           Compute zdot
-   !           ~~~~~~~~~~~~
+               wt0 (i,j,k) = tau_8*(Rtt(i,j,k) - gama_bdf_8*Qw(i,j,k))
                zdt0(i,j,k) = (Rzz(i,j,k) + wt0(i,j,k))
-
-
-   !           Compute T
-   !           ~~~~~~~~~
-               Buoy = (Sol_lhs(i,j,k+1)-Sol_lhs(i,j,k))*GVM%mc_iJz_8(i,j,k)  &
-                    + wt0(i,j,k)*invT_8 - Rww(i,j,k)
+               Buoy = Qq(i,j,k) + wt0(i,j,k)*invT_8 - Rww(i,j,k)
                tt0(i,j,k) = Cstv_Tstr_8 / (one - Buoy / grav_8 )
 ! or alternatively
 !!$               a = 4.d0*invT_8/3.d0
@@ -162,11 +111,10 @@
 !!$                   - invT_8* ( log(tt0(i,j,k)/Cstv_Tstr_8) - (one-Cstv_Tstr_8/tt0(i,j,k) ))
 !!$               Buoy = half*(Sol_lhs(i,j,k+1)+Sol_lhs(i,j,k))/(cpd_8*Cstv_Tstr_8) + tau_8*(w5-mu_8*wt0(i,j,k))
 !!$               tt0(i,j,k) = Cstv_Tstr_8 / (one - Buoy)
-
             end do
          end do
       end do
-!!$omp enddo
+!!$omp enddo nowait
 !     
 !     ---------------------------------------------------------------
 !

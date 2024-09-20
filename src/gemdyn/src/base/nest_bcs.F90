@@ -22,7 +22,7 @@
       implicit none
 
       integer, intent(in) :: Minx, Maxx, Miny, Maxy, Nk
-      real, dimension(Minx:Maxx,Miny:Maxy,Nk), intent(out) :: &
+      real(kind=REAL64), dimension(Minx:Maxx,Miny:Maxy,Nk), intent(out) :: &
                                                F_rhsu, F_rhsv
       real(kind=REAL64), intent(IN) :: F_dt_8
       real(kind=REAL64) :: invT_8

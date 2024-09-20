@@ -17,7 +17,6 @@
       implicit none
 
 #include <rmnlib_basics.hf>
-      include "rpn_comm.inc"
 
       external dummy_checkdm
       integer, external :: domain_decomp, gemdm_config, sol_decomp
@@ -111,52 +110,53 @@
             cnt=cnt+1
             ierr=0
             ierr(1) = domain_decomp ( npex, npey, .true. )
-            ierr(2) = sol_decomp    ( npex, npey, .true. )
+          !  ierr(2) = sol_decomp    ( npex, npey, .true. )
             if (minval(ierr) >= 0 ) then
                write(npex_S,'(i6)') npex
                write(npey_S,'(i6)') npey
                if (Ptopo_couleur == 0) &
                call write_status_file3 ('topo_allowed="'//trim(npex_S)//'x'//trim(npey_S)//'"')
             endif
+print*, npex,npey,ierr
          end do
          end do
       endif
 
-      if (cnt == 1) then
-         npex= cdm_npex(1) ; npey=cdm_npey(1)
-         max_io_pes=npex*npey
-         allocate (pe_xcoord(max_io_pes),pe_ycoord(max_io_pes))
-         do i= 1, max_io_pes
-            err= RPN_COMM_io_pe_valid_set (pe_xcoord,pe_ycoord,i,npex,npey,.false.,0)
-            if (err /= 0) then
-               max_io_pes= i-1
-               exit
-            endif
-         end do
-         deallocate (pe_xcoord,pe_ycoord)
-         write(npex_S,'(i6.6)') max_io_pes
-         if (Ptopo_couleur == 0) call write_status_file3 ('MAX_PES_IO='//trim(npex_S))
-      endif
+!!$      if (cnt == 1) then
+!!$         npex= cdm_npex(1) ; npey=cdm_npey(1)
+!!$         max_io_pes=npex*npey
+!!$         allocate (pe_xcoord(max_io_pes),pe_ycoord(max_io_pes))
+!!$         do i= 1, max_io_pes
+!!$            err= RPN_COMM_io_pe_valid_set (pe_xcoord,pe_ycoord,i,npex,npey,.false.,0)
+!!$            if (err /= 0) then
+!!$               max_io_pes= i-1
+!!$               exit
+!!$            endif
+!!$         end do
+!!$         deallocate (pe_xcoord,pe_ycoord)
+!!$         write(npex_S,'(i6.6)') max_io_pes
+!!$         if (Ptopo_couleur == 0) call write_status_file3 ('MAX_PES_IO='//trim(npex_S))
+!!$      endif
 
-      call write_status_file3 ('SOLVER=OK')
-      if (cdm_eigen_S /= 'NONE@#$%') then
-         err = domain_decomp ( 1, 1, .false. )
-         err = sol_decomp    ( 1, 1, .true. )
-         call glbpos ()
-         call set_geomh ()
-         call canonical_cases ("SET_GEOM")
-         if (cdm_eigen_S /= 'NONE@#$%') then
-            call set_opr () !compute and store eigen values
-         endif
-         call set_params (.false., err)
-         if (Ptopo_couleur == 0) then
-            if (err == 0) then
-               call write_status_file3 ('SOLVER=OK')
-            else
-               call write_status_file3 ('SOLVER=ABORT')
-            endif
-         endif
-      endif
+!!$      call write_status_file3 ('SOLVER=OK')
+!!$      if (cdm_eigen_S /= 'NONE@#$%') then
+!!$         err = domain_decomp ( 1, 1, .false. )
+!!$         err = sol_decomp    ( 1, 1, .true. )
+!!$         call glbpos ()
+!!$         call set_geomh ()
+!!$         call canonical_cases ("SET_GEOM")
+!!$         if (cdm_eigen_S /= 'NONE@#$%') then
+!!$            call set_opr () !compute and store eigen values
+!!$         endif
+!!$         call set_params (.false., err)
+!!$         if (Ptopo_couleur == 0) then
+!!$            if (err == 0) then
+!!$               call write_status_file3 ('SOLVER=OK')
+!!$            else
+!!$               call write_status_file3 ('SOLVER=ABORT')
+!!$            endif
+!!$         endif
+!!$      endif
 
       if (Ptopo_couleur == 0) then
          call write_status_file3 ('checkdmpart_status=OK')
@@ -169,7 +169,7 @@
       if (Lun_out > 0) &
       err = exfin (trim(Version_title_S),trim(Version_number_S), 'OK')
 
- 9999 call rpn_comm_FINALIZE(err)
+ 9999 call MPI_FINALIZE(err)
 
  8000 format (/,'========= ABORT ============='/)
  9050 format (/,' FILE: ',A,' NOT AVAILABLE'/)

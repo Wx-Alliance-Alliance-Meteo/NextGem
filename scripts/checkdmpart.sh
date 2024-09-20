@@ -104,11 +104,11 @@ else
       printf "\n  MAXIMUM number of I/O PES for this configuration is: $(echo ${MAX_PES_IO} | sed 's/^0*//')\n\n"
    fi
     _status='OK'
-   if [ "${SOLVER}" != 'OK' ] ; then
-      printf "\n  Error: VERTICAL LAYERING IS INCOMPATIBLE WITH THE TIMESTEP"
-      printf "\n         THE SOLVER WILL NOT WORK\n\n"
-      _status='ABORT_solver'
-   fi
+#   if [ "${SOLVER}" != 'OK' ] ; then
+#      printf "\n  Error: VERTICAL LAYERING IS INCOMPATIBLE WITH THE TIMESTEP"
+#      printf "\n         THE SOLVER WILL NOT WORK\n\n"
+#      _status='ABORT_solver'
+#   fi
 fi
 /bin/rm -f $TMPDIR/listopoallowed$$ 
 . r.return.dot

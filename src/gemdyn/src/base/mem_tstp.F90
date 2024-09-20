@@ -59,8 +59,9 @@ module mem_tstp
       real, allocatable, target, dimension (:) :: rhs_dep
       real, allocatable, target, dimension (:) :: sw_frc, sw_rhs
       
-      real, dimension (:,:,:), pointer :: Ruu,Rvv,Rww,Rtt,Rzz
-      real, dimension (:,:,:), pointer :: Nuu,Nvv
+      real(kind=REAL64), dimension (:,:,:), allocatable :: Ruu,Rvv,Rww,Rtt,Rzz,Nuu,Nvv
+!      real, dimension (:,:,:), pointer :: Ruu,Rvv,Rww,Rtt,Rzz
+!      real, dimension (:,:,:), pointer :: Nuu,Nvv
       
       real, dimension (:,:,:), pointer :: &
          rhsu,rhsv,rhst,rhsc,rhsw,rhsf                             ,&

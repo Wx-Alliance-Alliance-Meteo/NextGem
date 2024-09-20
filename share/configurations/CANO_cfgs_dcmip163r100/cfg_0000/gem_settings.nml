@@ -26,7 +26,6 @@
   Cstv_tstr_8     = 240.0 ,
   Schm_nblendyy   = -1
   Schm_wload_L    = .false.
-  Schm_hzdadw_L   = .false.
 /
 
  &hvdif

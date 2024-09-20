@@ -47,10 +47,10 @@ module dyn_fisl_options
 
    !Schm
 
-   !# True-> horizontal diffusion of momentum at each CN iteration
-   logical :: Schm_hzdadw_L = .false.
-   namelist /dyn_fisl  / Schm_hzdadw_L
-   namelist /dyn_fisl_p/ Schm_hzdadw_L
+   !# Precicion order for 3D spacial operators
+   integer :: Schm_POSO = 2
+   namelist /dyn_fisl  / Schm_POSO
+   namelist /dyn_fisl_p/ Schm_POSO
 
    !# Maximum iterations to solve trajectories
    integer :: Schm_itSL  = 6
@@ -155,7 +155,6 @@ module dyn_fisl_options
    namelist /dyn_fisl_p/ Schm_wload_L
 
    logical Schm_opentop_L
-   integer Schm_nith
 
 contains
 
