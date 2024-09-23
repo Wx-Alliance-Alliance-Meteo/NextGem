@@ -15,7 +15,7 @@
 
 !**s/r out_thm - output  temperature, humidity and mass fields
 
-      subroutine out_thm_hlt ( levset, set )
+      subroutine out_thm ( levset, set )
       use dynkernel_options
       use metric
       use vertical_interpolation
@@ -75,7 +75,7 @@
       real w1(l_minx:l_maxx,l_miny:l_maxy), w2(l_minx:l_maxx,l_miny:l_maxy),&
            p0(l_minx:l_maxx,l_miny:l_maxy), deg2rad, zd2etad
 
-      real, dimension(:,:,:), pointer    :: gmm_hut1, wlnph_m, wlnph_ta
+      real, dimension(:,:,:), pointer    :: gmm_hut1, wlnph_m, wlnph_ta,www
       real ,dimension(:,:,:), allocatable:: px_pres,hu_pres,td_pres    ,&
                                             tt_pres,vt_pres,w5,w6,cible,&
                                             gzm,gzt,ttx,htx,ffwe       ,&
@@ -296,7 +296,7 @@
       end if
 
       if (pnww /= 0) then
-         call calomeg_w(myomega,orols,wt1,tt1,wlnph_ta,l_minx,l_maxx,l_miny,l_maxy,G_nk)
+         call calomeg_w(myomega,orols,wt1(l_minx,l_miny,1),tt1(l_minx,l_miny,1),wlnph_ta,l_minx,l_maxx,l_miny,l_maxy,G_nk)
       end if
 
       if (pnth /= 0) then
@@ -586,7 +586,7 @@
          end if
 
          if (pnzz /= 0) then
-            call out_fstecr(wt1,l_minx,l_maxx,l_miny,l_maxy,hybt_w, &
+            call out_fstecr(wt1(l_minx,l_miny,1),l_minx,l_maxx,l_miny,l_maxy,hybt_w, &
                  'ZZ  ',Outd_convmult(pnzz,set),Outd_convadd(pnzz,set),&
                  knd,-1,G_nk,indo,nko,Outd_nbit(pnzz,set),.false. )
          end if
@@ -792,7 +792,8 @@
         end if
 
          if (pnzz /= 0) then
-           call vertint2 ( w5,cible,nko, wt1,wlnph_ta,G_nk         ,&
+           www(l_minx:,l_miny:,1:) => wt1(l_minx:,l_miny:,1:)
+           call vertint2 ( w5,cible,nko, www,wlnph_ta,G_nk         ,&
                             l_minx,l_maxx,l_miny,l_maxy, 1,l_ni,1,l_nj,&
                             inttype=Out3_vinterp_type_S )
             if (Outd_filtpass(pnzz,set) > 0) &
@@ -813,4 +814,4 @@
 !-------------------------------------------------------------------
 !
       return
-      end subroutine out_thm_hlt
+      end subroutine out_thm

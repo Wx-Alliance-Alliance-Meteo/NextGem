@@ -20,16 +20,6 @@ module gem_options
 
    integer,parameter  :: STAT_MAXN = 500
 
-   !# number of points for the halo on X
-   integer :: G_halox = 6
-   namelist /gem_cfgs  / G_halox
-   namelist /gem_cfgs_p/ G_halox
-
-   !# number of points for the halo on Y
-   integer :: G_haloy = 6
-   namelist /gem_cfgs  / G_haloy
-   namelist /gem_cfgs_p/ G_haloy
-
    !# Heap memory will be painted to NaN using an array wrk01(G_ni,G_nj,Heap_nk)
    integer :: Heap_nk = -1
    namelist /gem_cfgs  / Heap_nk
@@ -110,7 +100,7 @@ module gem_options
    namelist /gem_cfgs_p/ Vtopo_length_S
 
    logical :: Vtopo_L= .false., Vtopo_mustadj_L= .false.
-   integer stat_nombre
+   integer G_halox, G_haloy, stat_nombre
    real(kind=REAL64) :: Vtopo_start_8, Vtopo_ndt_8
 
 contains

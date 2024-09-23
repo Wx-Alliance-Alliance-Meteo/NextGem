@@ -184,14 +184,15 @@ contains
            .or. Theo_case_S == 'MTN_PINTYNL' &
            .or. Theo_case_S == 'NOFLOW' ) then
 
-         call mtn_data ( pw_uu_plus, pw_vv_plus, pw_tt_plus, qt1, fis0, orols, orols, &
+         call mtn_data ( pw_uu_plus, pw_vv_plus, pw_tt_plus, qt1(l_minx:l_maxx,l_miny:l_maxy,1:G_nk+1), fis0, orols, orols, &
                          l_minx, l_maxx, l_miny, l_maxy, G_nk, Theo_case_S )
          
 !!$omp parallel private (local_np, HLT_start, HLT_end)
-         call HLT_split (1, 2*G_nk, local_np, HLT_start, HLT_end)
+         call HLT_split (-2, G_nk+3, local_np, HLT_start, HLT_end)
          call gem_xch_halo ( ut1(l_minx,l_miny,HLT_start),l_minx,l_maxx,l_miny,l_maxy,local_np,-1 )
-         call hwnd_stag_hlt ( ut1,vt1, pw_uu_plus,pw_vv_plus,&
-                          l_minx,l_maxx,l_miny,l_maxy,G_nk,.true. )
+         call gem_xch_halo ( vt1(l_minx,l_miny,HLT_start),l_minx,l_maxx,l_miny,l_maxy,local_np,-1 )
+         call hwnd_stag_hlt ( ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1), pw_uu_plus,pw_vv_plus,&
+                              l_minx,l_maxx,l_miny,l_maxy,G_nk,.true. )
 !!$omp end parallel
       do i=1,Tr3d_ntr
          if (trim(Tr3d_name_S(i))=='BLOB') then
@@ -242,10 +243,10 @@ contains
 
       end if
 
-      call tt2tvirt (tt1, pw_tt_plus, l_minx,l_maxx,l_miny,l_maxy, &
-                     G_nk+3, G_nk, 1,l_ni, 1,l_nj)
+      call tt2tvirt (tt1(l_minx,l_miny,1), pw_tt_plus, 1,l_ni, 1,l_nj)
 !
 !---------------------------------------------------------------------
+!
       return
       end subroutine theo_data
 

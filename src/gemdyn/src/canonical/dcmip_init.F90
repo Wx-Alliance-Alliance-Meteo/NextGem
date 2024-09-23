@@ -139,14 +139,14 @@
          Moist = Dcmip_moist !Moist=1/Dry=0 Initial conditions
          !--------------------------------------------------------------------------
 
-         call dcmip_baroclinic_wave_2016 (ut1,vt1,wt1,zdt1,tt1,qv,fis0,st1,ps,cl,cl2, &
+         call dcmip_baroclinic_wave_2016 (ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1),wt1(l_minx,l_miny,1),zdt1(l_minx,l_miny,1),tt1(l_minx,l_miny,1),qv,fis0,st1,ps,cl,cl2, &
                                           l_minx,l_maxx,l_miny,l_maxy,G_nk,Deep,Moist,Pertt,Dcmip_X,.true.)
 
       !DCMIP 2016: Tropical cyclone
       !----------------------------
       else if (Dcmip_case==162) then
 
-         call dcmip_tropical_cyclone (ut1,vt1,wt1,zdt1,tt1,qv,fis0,st1,ps,l_minx,l_maxx,l_miny,l_maxy,G_nk,.true.)
+         call dcmip_tropical_cyclone (ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1),wt1(l_minx,l_miny,1),zdt1(l_minx,l_miny,1),tt1(l_minx,l_miny,1),qv,fis0,st1,ps,l_minx,l_maxx,l_miny,l_maxy,G_nk,.true.)
 
       !DCMIP 2016: Supercell (Small planet)
       !------------------------------------
@@ -156,7 +156,7 @@
          Pert = 1 !Thermal perturbation included (0 = no / 1 = yes)
          !---------------------------------------------------------
 
-         call dcmip_supercell (ut1,vt1,wt1,zdt1,tt1,qv,fis0,st1,ps,Pert,thbase,l_minx,l_maxx,l_miny,l_maxy,G_nk,.true.)
+         call dcmip_supercell (ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1),wt1(l_minx,l_miny,1),zdt1(l_minx,l_miny,1),tt1(l_minx,l_miny,1),qv,fis0,st1,ps,Pert,thbase,l_minx,l_maxx,l_miny,l_maxy,G_nk,.true.)
 
          !----------------------------------------------------------------------
          !Initialize u,v,zd,w,tv,qv,qc,rw,theta REFERENCE for Vertical diffusion
@@ -180,7 +180,7 @@
 
          !Set initial conditions according to prescribed mountain
          !-------------------------------------------------------
-         call dcmip_steady_state_mountain (ut1,vt1,wt1,zdt1,tt1,qv,fis0,st1,ps,l_minx,l_maxx,l_miny,l_maxy,G_nk,.true.,.true.)
+         call dcmip_steady_state_mountain (ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1),wt1(l_minx,l_miny,1),zdt1(l_minx,l_miny,1),tt1(l_minx,l_miny,1),qv,fis0,st1,ps,l_minx,l_maxx,l_miny,l_maxy,G_nk,.true.,.true.)
 
          if (Vtopo_L) then
 
@@ -194,7 +194,7 @@
 
             !Reset initial conditions according to topo_low
             !----------------------------------------------
-            call dcmip_steady_state_mountain (ut1,vt1,wt1,zdt1,tt1,qv,fis0,st1,ps,l_minx,l_maxx,l_miny,l_maxy,G_nk,.false.,.true.)
+            call dcmip_steady_state_mountain (ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1),wt1(l_minx,l_miny,1),zdt1(l_minx,l_miny,1),tt1(l_minx,l_miny,1),qv,fis0,st1,ps,l_minx,l_maxx,l_miny,l_maxy,G_nk,.false.,.true.)
 
          else
 
@@ -226,17 +226,17 @@
 
          !3D deformational flow
          !---------------------
-         if (Dcmip_case==11) call dcmip_tracers11_transport (ut1,vt1,wt1,zdt1,tt1,qv,fis0,st1,ps,q1,q2,q3,q4, &
+         if (Dcmip_case==11) call dcmip_tracers11_transport (ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1),wt1(l_minx,l_miny,1),zdt1(l_minx,l_miny,1),tt1(l_minx,l_miny,1),qv,fis0,st1,ps,q1,q2,q3,q4, &
                                                              l_minx,l_maxx,l_miny,l_maxy,G_nk,.true.)
 
          !3D Hadley-like meridional circulation
          !-------------------------------------
-         if (Dcmip_case==12) call dcmip_tracers12_transport (ut1,vt1,wt1,zdt1,tt1,qv,fis0,st1,ps,q1,&
+         if (Dcmip_case==12) call dcmip_tracers12_transport (ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1),wt1(l_minx,l_miny,1),zdt1(l_minx,l_miny,1),tt1(l_minx,l_miny,1),qv,fis0,st1,ps,q1,&
                                                              l_minx,l_maxx,l_miny,l_maxy,G_nk,.true.)
 
          !2D solid-body rotation of thin cloud-like tracer in the presence of orography
          !-----------------------------------------------------------------------------
-         if (Dcmip_case==13) call dcmip_tracers13_transport (ut1,vt1,wt1,zdt1,tt1,qv,fis0,st1,ps,q1,q2,q3,q4, &
+         if (Dcmip_case==13) call dcmip_tracers13_transport (ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1),wt1(l_minx,l_miny,1),zdt1(l_minx,l_miny,1),tt1(l_minx,l_miny,1),qv,fis0,st1,ps,q1,q2,q3,q4, &
                                                              l_minx,l_maxx,l_miny,l_maxy,G_nk,.true.)
 
          !Store REFERENCE at initial time
@@ -269,7 +269,7 @@
          if (Dcmip_case==21) Shear = 0 !Without wind shear
          if (Dcmip_case==22) Shear = 1 !With    wind shear
 
-         call dcmip_Schaer_mountain (ut1,vt1,wt1,zdt1,tt1,qv,fis0,orols,st1,ps, &
+         call dcmip_Schaer_mountain (ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1),wt1(l_minx,l_miny,1),zdt1(l_minx,l_miny,1),tt1(l_minx,l_miny,1),qv,fis0,orols,st1,ps, &
                                      l_minx,l_maxx,l_miny,l_maxy,G_nk,Shear,.true.,.true.)
 
          !Replace Large-scale topography orols  
@@ -289,7 +289,7 @@
 
             !Reset initial conditions according to topo_low
             !----------------------------------------------
-            call dcmip_Schaer_mountain (ut1,vt1,wt1,zdt1,tt1,qv,fis0,orols,st1,ps, &
+            call dcmip_Schaer_mountain (ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1),wt1(l_minx,l_miny,1),zdt1(l_minx,l_miny,1),tt1(l_minx,l_miny,1),qv,fis0,orols,st1,ps, &
                                         l_minx,l_maxx,l_miny,l_maxy,G_nk,Shear,.false.,.true.)
 
          else
@@ -305,7 +305,7 @@
       !------------------------------------------------------------
       else if (Dcmip_case==31) then
 
-         call dcmip_gravity_wave (ut1,vt1,wt1,zdt1,tt1,qv,fis0,st1,ps,thbase,thfull,l_minx,l_maxx,l_miny,l_maxy,G_nk,.true.)
+         call dcmip_gravity_wave (ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1),wt1(l_minx,l_miny,1),zdt1(l_minx,l_miny,1),tt1(l_minx,l_miny,1),qv,fis0,st1,ps,thbase,thfull,l_minx,l_maxx,l_miny,l_maxy,G_nk,.true.)
 
       !DCMIP 2012: Dry Baroclinic Instability on a Small Planet with dynamic tracers
       !------------------------------------------------------------------------------------
@@ -329,7 +329,7 @@
 
          if (err(1)<=0.or.err(2)<=0) call handle_error(-1,'DCMIP_INIT','Tracers Q1/Q2 required when Dcmip_case=41X')
 
-         call dcmip_baroclinic_wave_2012 (ut1,vt1,wt1,zdt1,tt1,qv,fis0,st1,ps,q1,q2, &
+         call dcmip_baroclinic_wave_2012 (ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1),wt1(l_minx,l_miny,1),zdt1(l_minx,l_miny,1),tt1(l_minx,l_miny,1),qv,fis0,st1,ps,q1,q2, &
                                           l_minx,l_maxx,l_miny,l_maxy,G_nk,Moist,Dcmip_X,Tracers,.true.)
 
       !DCMIP 2012: Moist Baroclinic Instability driven by Simple Physics
@@ -341,7 +341,7 @@
          Tracers = 0           ! Tracers=1/No Tracers=0
          !-------------------------------------------------------
 
-         call dcmip_baroclinic_wave_2012 (ut1,vt1,wt1,zdt1,tt1,qv,fis0,st1,ps,empty,empty, &
+         call dcmip_baroclinic_wave_2012 (ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1),wt1(l_minx,l_miny,1),zdt1(l_minx,l_miny,1),tt1(l_minx,l_miny,1),qv,fis0,st1,ps,empty,empty, &
                                           l_minx,l_maxx,l_miny,l_maxy,G_nk,Moist,Dcmip_X,Tracers,.true.)
 
       else
@@ -459,7 +459,7 @@
 
       !Estimate U-V on scalar grids and Real Temperature in PW comdeck
       !---------------------------------------------------------------
-      call hwnd_stag2( pw_uu_plus,pw_vv_plus,ut1,vt1      ,&
+      call hwnd_stag2( pw_uu_plus,pw_vv_plus,ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1),&
                        l_minx,l_maxx,l_miny,l_maxy,G_nk   ,&
                        1-G_halox*west ,l_niu+G_halox*east ,&
                        1-G_haloy*south,l_njv+G_haloy*north, .false. )

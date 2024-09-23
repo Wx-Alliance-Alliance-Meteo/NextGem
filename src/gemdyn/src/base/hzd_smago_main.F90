@@ -46,17 +46,17 @@
       call pw_update_GW ()
 
       if ( (hzd_smago_param > 0.) .or. (hzd_smago_lnr(1) > 0.) ) then
-         call HLT_split (1, 5*(G_nk+3), local_np, HLT_start, HLT_end)
+         call HLT_split (-2, 5*(G_nk+6)-3, local_np, HLT_start, HLT_end)
          call gem_xch_halo ( wt1(l_minx,l_miny,HLT_start),&
                    l_minx,l_maxx,l_miny,l_maxy,local_np,-1)
-         call hzd_smago_in_split(ut1,vt1,wt1,tt1,zdt1, &
+         call hzd_smago_in_split(ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1),wt1(l_minx,l_miny,1),tt1(l_minx,l_miny,1),zdt1(l_minx,l_miny,1), &
                l_minx,l_maxx,l_miny,l_maxy,G_nk,.false.)
       endif
 
       if (Grd_yinyang_L) then
-         call yyg_xchng_vec_uv2uv (ut1,vt1,l_minx,l_maxx,l_miny,l_maxy,G_nk)
+         call yyg_xchng_vec_uv2uv (ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1),l_minx,l_maxx,l_miny,l_maxy,G_nk)
          if (switch_on_THETA) then
-            call yyg_xchng_hlt (tt1 , l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,G_nk,&
+            call yyg_xchng_hlt (tt1(l_minx,l_miny,1) , l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,G_nk,&
                             .false., 'CUBIC', .false.)
          end if
 
@@ -66,9 +66,9 @@
          end if
 
          if (switch_on_wzd) then
-            call yyg_xchng_hlt (zdt1, l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,G_nk,&
+            call yyg_xchng_hlt (zdt1(l_minx,l_miny,1), l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,G_nk,&
                             .false., 'CUBIC', .false.)
-            call yyg_xchng_hlt (wt1 , l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,G_nk,&
+            call yyg_xchng_hlt (wt1 (l_minx,l_miny,1), l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,G_nk,&
                             .false., 'CUBIC', .false.)
          end if
 

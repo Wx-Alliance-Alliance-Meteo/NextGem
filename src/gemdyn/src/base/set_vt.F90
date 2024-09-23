@@ -48,7 +48,7 @@
       flag_r_n = GMM_FLAG_RSTR+GMM_FLAG_IZER
 
       dimh= (l_maxx-l_minx+1) * (l_maxy-l_miny+1)
-      dim = dimH * 6*(l_nk + 3)
+      dim = dimH * 6*(l_nk + 6)
 
       call gmm_build_meta1D ( mymeta, 1,dim,0,0,dim, &
                               0,GMM_NULL_FLAGS )
@@ -60,14 +60,14 @@
 
       allocate (timlvl2(7),timlvl1(7),timlvl0(7))
 
-      dim = dimH * (l_nk+3)
+      dim = dimH * (l_nk+6)
 
-      timlvl2(1)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3) => dynt2(      1:)
-      timlvl2(2)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3) => dynt2(  dim+1:)
-      timlvl2(3)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3) => dynt2(2*dim+1:)
-      timlvl2(4)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3) => dynt2(3*dim+1:)
-      timlvl2(5)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3) => dynt2(4*dim+1:)
-      timlvl2(6)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3) => dynt2(5*dim+1:)
+      timlvl2(1)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt2(      1:)
+      timlvl2(2)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt2(  dim+1:)
+      timlvl2(3)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt2(2*dim+1:)
+      timlvl2(4)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt2(3*dim+1:)
+      timlvl2(5)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt2(4*dim+1:)
+      timlvl2(6)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt2(5*dim+1:)
 
       istat= gmm_create(gmmk_wt2_s  ,timlvl2(1)%pntr_3d,meta3d_nk3 ,0)
       istat= gmm_create(gmmk_zdt2_s ,timlvl2(2)%pntr_3d,meta3d_nk3 ,0)
@@ -82,12 +82,12 @@
       gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)=gmmk_wt2_s  ; GMM_tbl%ara(gmm_cnt)='QQ' ; GMM_tbl%cn(gmm_cnt)='TH' ; GMM_tbl%fst(gmm_cnt)=gmmk_wt2_s
       gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)=gmmk_zdt2_s ; GMM_tbl%ara(gmm_cnt)='QQ' ; GMM_tbl%cn(gmm_cnt)='TH' ; GMM_tbl%fst(gmm_cnt)=gmmk_zdt2_s
 
-      timlvl1(1)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3) => dynt1(      1:)
-      timlvl1(2)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3) => dynt1(  dim+1:)
-      timlvl1(3)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3) => dynt1(2*dim+1:)
-      timlvl1(4)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3) => dynt1(3*dim+1:)
-      timlvl1(5)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3) => dynt1(4*dim+1:)
-      timlvl1(6)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3) => dynt1(5*dim+1:)
+      timlvl1(1)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt1(      1:)
+      timlvl1(2)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt1(  dim+1:)
+      timlvl1(3)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt1(2*dim+1:)
+      timlvl1(4)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt1(3*dim+1:)
+      timlvl1(5)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt1(4*dim+1:)
+      timlvl1(6)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt1(5*dim+1:)
 
       istat= gmm_create(gmmk_wt1_s  ,timlvl1(1)%pntr_3d,meta3d_nk3 ,0)
       istat= gmm_create(gmmk_zdt1_s ,timlvl1(2)%pntr_3d,meta3d_nk3 ,0)
@@ -102,12 +102,12 @@
       gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)=gmmk_wt1_s  ; GMM_tbl%ara(gmm_cnt)='QQ' ; GMM_tbl%cn(gmm_cnt)='TH' ; GMM_tbl%fst(gmm_cnt)=gmmk_wt1_s
       gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)=gmmk_zdt1_s ; GMM_tbl%ara(gmm_cnt)='QQ' ; GMM_tbl%cn(gmm_cnt)='TH' ; GMM_tbl%fst(gmm_cnt)=gmmk_zdt1_s
 
-      timlvl0(1)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3) => dynt0(      1:)
-      timlvl0(2)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3) => dynt0(  dim+1:)
-      timlvl0(3)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3) => dynt0(2*dim+1:)
-      timlvl0(4)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3) => dynt0(3*dim+1:)
-      timlvl0(5)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3) => dynt0(4*dim+1:)
-      timlvl0(6)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3) => dynt0(5*dim+1:)
+      timlvl0(1)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt0(      1:)
+      timlvl0(2)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt0(  dim+1:)
+      timlvl0(3)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt0(2*dim+1:)
+      timlvl0(4)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt0(3*dim+1:)
+      timlvl0(5)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt0(4*dim+1:)
+      timlvl0(6)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt0(5*dim+1:)
 
       istat= gmm_create(gmmk_wt0_s  ,timlvl0(1)%pntr_3d,meta3d_nk3 ,0)
       istat= gmm_create(gmmk_zdt0_s ,timlvl0(2)%pntr_3d,meta3d_nk3 ,0)
@@ -154,7 +154,7 @@
 
       allocate (tracers_P(Tr3d_ntr), tracers_M(Tr3d_ntr), &
                 tracers_t2(Tr3d_ntr))
-      allocate (sumq_8(l_minx:l_maxx,l_miny:l_maxy,1:l_nk+3))
+      allocate (sumq_8(l_minx:l_maxx,l_miny:l_maxy,1:l_nk))
       allocate (air_mass(l_minx:l_maxx,l_miny:l_maxy,1:l_nk))
       allocate (w_tr(l_minx:l_maxx,l_miny:l_maxy,1:l_nk))
       

@@ -41,7 +41,7 @@
       real   , dimension(:), allocatable :: rf
       real, dimension(:), pointer, contiguous :: vorticity
       real, dimension(:,:,:), pointer :: uu_pres,vv_pres,cible, &
-                                         div,vor,qr
+                                         div,vor,qr,uu,vv
 !
 !----------------------------------------------------------------------
 !
@@ -65,14 +65,14 @@
                           Level_momentum , indo,nko,write_diag_lev )
 
 !!$omp parallel private (HLT_start, HLT_end, local_np)
-         call HLT_split (1, 2*(G_nk+3), local_np, HLT_start, HLT_end)
+         call HLT_split (-2, 2*(G_nk+6)-3, local_np, HLT_start, HLT_end)
          call gem_xch_halo ( ut1(l_minx,l_miny,HLT_start),&
                    l_minx,l_maxx,l_miny,l_maxy,local_np,-1)
 !!$omp end parallel
 
          if (pndd > 0) then
             allocate ( div(l_minx:l_maxx,l_miny:l_maxy,G_nk) )
-            call cal_div ( div, ut1, vt1 , Outd_filtpass(pndd,set),&
+            call cal_div ( div, ut1(l_minx,l_miny,1), vt1(l_minx,l_miny,1) , Outd_filtpass(pndd,set),&
                            Outd_filtcoef(pndd,set)                ,&
                            l_minx,l_maxx,l_miny,l_maxy, G_nk )
             if ( .not. OUTs_server_L) then
@@ -100,7 +100,7 @@
             else
                pnxx=pnqr
             endif
-            call cal_vor ( qr, vor, ut1, vt1 , Outd_filtpass(pnxx,set),&
+            call cal_vor ( qr, vor, ut1(l_minx,l_miny,1), vt1(l_minx,l_miny,1) , Outd_filtpass(pnxx,set),&
                            Outd_filtcoef(pnxx,set),(pnqq > 0)        ,&
                            l_minx,l_maxx,l_miny,l_maxy, G_nk )
             if ( .not. OUTs_server_L) then
@@ -141,10 +141,12 @@
             cible(:,:,i)= log(rf(i) * 100.0)
          enddo
 
-         call vertint2 ( uu_pres,cible,nko, ut1,pw_log_pm,G_nk      ,&
+         uu(l_minx:,l_miny:,1:) => ut1(l_minx:,l_miny:,1:)
+         vv(l_minx:,l_miny:,1:) => vt1(l_minx:,l_miny:,1:)
+         call vertint2 ( uu_pres,cible,nko, uu,pw_log_pm,G_nk       ,&
                          l_minx,l_maxx,l_miny,l_maxy, 1,l_niu,1,l_nj,&
                          inttype=Out3_vinterp_type_S )
-         call vertint2 ( vv_pres,cible,nko, vt1,pw_log_pm,G_nk      ,&
+         call vertint2 ( vv_pres,cible,nko, vv,pw_log_pm,G_nk       ,&
                          l_minx,l_maxx,l_miny,l_maxy, 1,l_ni,1,l_njv,&
                          inttype=Out3_vinterp_type_S )
 

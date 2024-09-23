@@ -36,12 +36,12 @@
 !     LAM with same (constant) pilot conditions
 
          !---original---
-         nest_u  = ut1
-         nest_v  = vt1
-         nest_t  = tt1
-         nest_w  = wt1
-         nest_q  = qt1
-         nest_zd = zdt1
+         nest_u(:,:,1:G_nk)  = ut1(:,:,1:G_nk)
+         nest_v(:,:,1:G_nk)  = vt1(:,:,1:G_nk)
+         nest_t(:,:,1:G_nk)  = tt1(:,:,1:G_nk)
+         nest_w(:,:,1:G_nk)  = wt1(:,:,1:G_nk)
+         nest_q(:,:,1:G_nk+1)  = qt1(:,:,1:G_nk+1)
+         nest_zd(:,:,1:G_nk) = zdt1(:,:,1:G_nk)
          nest_fullme(:,:,1) = fis0 (:,:)
          nest_fullme(:,:,2) = orols(:,:)
 
@@ -52,12 +52,12 @@
 
       else
 !     ordinary LAM with future pilot conditions
-         nest_u_fin  = ut1
-         nest_v_fin  = vt1
-         nest_t_fin  = tt1
-         nest_w_fin  = wt1
-         nest_q_fin  = qt1
-         nest_zd_fin = zdt1
+         nest_u_fin(:,:,1:G_nk)  = ut1(:,:,1:G_nk)
+         nest_v_fin(:,:,1:G_nk)  = vt1(:,:,1:G_nk)
+         nest_t_fin(:,:,1:G_nk)  = tt1(:,:,1:G_nk)
+         nest_w_fin(:,:,1:G_nk)  = wt1(:,:,1:G_nk)
+         nest_q_fin(:,:,1:G_nk+1)  = qt1(:,:,1:G_nk+1)
+         nest_zd_fin(:,:,1:G_nk) = zdt1(:,:,1:G_nk)
          nest_fullme_fin(:,:,1) = fis0 (:,:)
          nest_fullme_fin(:,:,2) = orols(:,:)
          do n=1,Tr3d_ntr

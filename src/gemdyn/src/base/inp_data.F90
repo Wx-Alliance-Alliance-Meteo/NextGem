@@ -39,8 +39,8 @@
       character(len=*), intent(in):: F_datev
       logical, intent(in) :: F_stag_L
       integer, intent(in) :: Mminx, Mmaxx, Mminy, Mmaxy, Nk, Ntr
-      real, dimension(Mminx:Mmaxx,Mminy:Mmaxy,Nk),   intent(out) :: F_u, F_v, F_w, F_t, F_zd
-      real, dimension(Mminx:Mmaxx,Mminy:Mmaxy,Nk+1), intent(out) :: F_q
+      real, dimension(Mminx:Mmaxx,Mminy:Mmaxy,Nk),   intent(out) :: F_u, F_v, F_t
+      real, dimension(*), intent(out) :: F_w, F_q, F_zd
       real, dimension(Mminx:Mmaxx,Mminy:Mmaxy),      intent(out) :: F_s, F_topo, F_orols
       real, dimension(Mminx:Mmaxx,Mminy:Mmaxy,Nk*Ntr),intent(out) :: F_tracers
 

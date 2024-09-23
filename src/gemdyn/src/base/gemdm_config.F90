@@ -105,15 +105,10 @@
       if (Ctrl_theoc_L) Lam_blend_Hy = 0
       Lam_tdeb = huge(Lam_tdeb) ;  Lam_tfin = -1.d0
 
-!      if (.not.Grd_yinyang_L) then
-!         Lam_gbpil_T = max(0,Lam_gbpil_T)
-!         Lam_blend_T = max(0,Lam_blend_T)
-!      else
-         Lam_gbpil_T = 0
-         Lam_blend_T = 0
-!      end if
-
       deg_2_rad = pi_8/180.
+      
+      Lam_gbpil_T = 0
+      Lam_blend_T = 0
 
       P_lmvd_high_lat = min(90.,abs(P_lmvd_high_lat))
       P_lmvd_low_lat  = min(P_lmvd_high_lat,abs(P_lmvd_low_lat))
@@ -207,9 +202,7 @@
 !!$!        call msg_set_minMessageLevel(MSG_DEBUG)
 !!$         call handle_error_setdebug(Lun_debug_L)
 !!$      end if
-
-      if ( .not. Grd_yinyang_L) Schm_POSO = 2
-
+      
       if (Hzd_lnr_theta < 0.) then
          Hzd_lnr_theta = Hzd_lnr
          if (lun_out>0) write (Lun_out, 6200)

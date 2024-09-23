@@ -103,7 +103,7 @@
          
             call out_tracer (levset, kk)
 
-            call out_thm_hlt (levset, kk)
+            call out_thm    (levset, kk)
 
             call out_uv     (levset, kk)
 

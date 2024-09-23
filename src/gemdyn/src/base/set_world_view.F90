@@ -88,9 +88,9 @@
          err(10) = inp_nml         (unf)
          err(11) = lam_nml         (unf)
          err(12) = out_nml         (unf)
-         err(14) = dyn_fisl_nml (unf)
-         err(15) = adz_nml      (unf)
-         err(16) = hvdif_nml    (unf)
+         err(14) = dyn_fisl_nml    (unf)
+         err(15) = adz_nml         (unf)
+         err(16) = hvdif_nml       (unf)
          err(17) = sol_nml        (unf)
          istat= fclos(unf)
       else

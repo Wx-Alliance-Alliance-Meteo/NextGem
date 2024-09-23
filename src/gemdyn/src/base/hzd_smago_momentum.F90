@@ -37,7 +37,7 @@
       switch_on_wzd   = (Hzd_lnr <= 0.)
 
       if ( (hzd_smago_param > 0.) .or. (hzd_smago_lnr(1) > 0.) ) then
-         call HLT_split (1, 5*(G_nk+3), local_np, HLT_start, HLT_end)
+         call HLT_split (-2, 5*(G_nk+6)-3, local_np, HLT_start, HLT_end)
          call gem_xch_halo ( wt0(l_minx,l_miny,HLT_start),&
                    l_minx,l_maxx,l_miny,l_maxy,local_np,-1)
          call hzd_smago_in_split(ut0,vt0,wt0,tt0,zdt0, &

@@ -21,11 +21,8 @@
       use theo_options
       use dcmip_options
       use mem_nest
-      use metric
       use omp_timing
-      use gmm_contiguous
       use gmm_vt1
-      use gmm_geof
       use gmm_pw
       implicit none
 
@@ -82,8 +79,7 @@
 !!$omp end single
 
       if ( Ctrl_phyms_L.or.Dcmip_physics_L ) then
-         call tt2tvirt (tt1, pw_tt_plus, l_minx,l_maxx,l_miny,l_maxy, &
-                        G_nk+3, G_nk, 1,l_ni, 1,l_nj)
+         call tt2tvirt (tt1(l_minx,l_miny,1), pw_tt_plus, 1,l_ni, 1,l_nj)
          call itf_phy_UVupdate()
       end if
       call pw_update_GW ()

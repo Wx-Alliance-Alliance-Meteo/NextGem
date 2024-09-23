@@ -100,7 +100,7 @@
                istat = gmm_get(GMM_tbl%vname(i),tr3,tmp_meta)
                NK= G_nk ; WNK= nko
                !if ((tmp_meta%l(3)%high>G_nk).and.write_diag_lev) WNK= nko+1
-               call out_fstecr (tr3, tmp_meta%l(1)%low,tmp_meta%l(1)%high,&
+               call out_fstecr (tr3(l_minx,l_miny,1), tmp_meta%l(1)%low,tmp_meta%l(1)%high,&
                                      tmp_meta%l(2)%low,tmp_meta%l(2)%high,&
                                   level_type,nomvar,Outd_convmult(ii,set),&
                                       Outd_convadd(ii,set),Level_kind_ip1,&

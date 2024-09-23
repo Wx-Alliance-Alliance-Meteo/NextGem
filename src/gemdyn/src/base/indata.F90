@@ -61,9 +61,10 @@
          call get_topo ()
 
          Inp_src_GZ_L= .false. ; Inp_gtmg= (/82,71/)
-         call inp_data (pw_uu_plus,pw_vv_plus,wt1,pw_tt_plus,qt1       ,&
-                        zdt1,p0,trt1,fis0,orols,.false.,Step_runstrt_S,&
-                        l_minx,l_maxx,l_miny,l_maxy,G_nk,Tr3d_ntr )
+         call inp_data (pw_uu_plus,pw_vv_plus,wt1(l_minx,l_miny,1),&
+             pw_tt_plus,qt1(l_minx,l_miny,1),zdt1(l_minx,l_miny,1),&
+             p0,trt1,fis0,orols,.false.,Step_runstrt_S,&
+             l_minx,l_maxx,l_miny,l_maxy,G_nk,Tr3d_ntr )
          do j=1-G_haloy+1,l_nj+G_haloy-1
             do i=1-G_halox+1,l_ni+G_halox-1
                fis0u (i,j) = (fis0(i+1,j)+fis0(i,j))*0.5
@@ -84,7 +85,7 @@
 !!$omp parallel private (local_np, HLT_start, HLT_end)
       if (Grd_yinyang_L) then
          if (.not.synthetic_data_L) call yyg_xchng_hlt (p0, l_minx,l_maxx,l_miny,l_maxy, &
-                         l_ni,l_nj, 1, .false., 'CUBIC', .true.)
+                                                 l_ni,l_nj, 1, .false., 'CUBIC', .true.)
          call yyg_xchng_all()
       else
          call HLT_split (1, 1, local_np, HLT_start, HLT_end)
@@ -109,90 +110,27 @@
 
       if (.not. synthetic_data_L) then
 !!$omp single
-         call tt2tvirt (tt1, pw_tt_plus, l_minx,l_maxx,l_miny,l_maxy, G_nk+3, G_nk,&
-                               1-G_halox,l_ni+G_halox, 1-G_haloy,l_nj+G_haloy)
-!!$omp end single
+         call tt2tvirt (tt1(l_minx,l_miny,1), pw_tt_plus, -G_halox,l_ni+G_halox, 1-G_haloy,l_nj+G_haloy)
+!!$omp end sin
          call HLT_split (1, G_nk, local_np, HLT_start, HLT_end)
          call gem_xch_halo (pw_uu_plus(l_minx,l_miny,HLT_start),l_minx,l_maxx,l_miny,l_maxy,local_np,-1)
          call gem_xch_halo (pw_vv_plus(l_minx,l_miny,HLT_start),l_minx,l_maxx,l_miny,l_maxy,local_np,-1)
 
-         call hwnd_stag2 ( ut1,vt1, pw_uu_plus,pw_vv_plus   ,&
+         call hwnd_stag2 ( ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1), pw_uu_plus,pw_vv_plus   ,&
                          l_minx,l_maxx,l_miny,l_maxy,G_nk   ,&
                          1-G_halox*west ,l_niu+G_halox*east ,&
                          1-G_haloy*south,l_njv+G_haloy*north, .true. )
-
-                          call derivate_data (zdt1,wt1, ut1,vt1,tt1,p0,qt1,fis0,orols,&
-                              GVM%zmom_8,GVM%ztht_8,l_minx,l_maxx,l_miny,l_maxy, G_nk,&
-                             .not.Inp_zd_L, .not.Inp_w_L, .not.Inp_qt_L )
+         call derivate_data (zdt1(l_minx,l_miny,1),wt1(l_minx,l_miny,1), &
+                              ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1), &
+                           tt1(l_minx,l_miny,1),p0,qt1(l_minx,l_miny,1), &
+                         fis0,orols,GVM%zmom_8,GVM%ztht_8,l_minx,l_maxx, &
+          l_miny,l_maxy, G_nk,.not.Inp_zd_L, .not.Inp_w_L, .not.Inp_qt_L )
       endif
       call pressure ( pw_pm_plus,pw_pt_plus,pw_p0_plus,pw_log_pm,&
                       pw_log_pt, pw_pm_plus_8,pw_p0_plus_8      ,&
                       l_minx,l_maxx,l_miny,l_maxy,l_nk,1 )
       call pw_update_GW ()
       call psadj_init()
-      
-!!$      i=l_ni/2
-!!$      j=l_nj/2
-!!$      do k=1,G_nk-1
-!!$         km1=max(k-1,1)
-!!$         km2=max(k-2,1)
-!!$         kp2=min(k+2,G_nk)
-!!$         kp3=min(k+3,G_nk)
-!!$         retval = ut1(i,j,km2) * QWm2t(1,k)&
-!!$                 +ut1(i,j,km1) * QWm2t(2,k)&
-!!$                 +ut1(i,j,k  ) * QWm2t(3,k)&
-!!$                 +ut1(i,j,k+1) * QWm2t(4,k)&
-!!$                 +ut1(i,j,kp2) * QWm2t(5,k)&
-!!$                 +ut1(i,j,kp3) * QWm2t(6,k)
-!!$!         write(6,'(i4,5f15.5)') k,GVM%zmom_8(i,j,k),ut1(i,j,k),GVM%ztht_8(i,j,k),retval,(ut1(i  ,j,k)+ut1(i  ,j,k+1))*0.5
-!!$      end do
-!!$!      write(6,'(i4,5f15.5)') G_nk,GVM%zmom_8(i,j,G_nk),ut1(i,j,G_nk)
-!!$
-!!$      write(6,'(i4,5f15.5)') 1,GVM%ztht_8(i,j,1),tt1(i,j,1)
-!!$      do k=2,G_nk
-!!$         km2=max(k-2,1)
-!!$         km3=max(k-3,1)
-!!$         kp1=min(k+1,G_nk)
-!!$         kp2=min(k+2,G_nk)
-!!$         retval = tt1(i,j,km3) * QWt2m(1,k)&
-!!$                 +tt1(i,j,km2) * QWt2m(2,k)&
-!!$                 +tt1(i,j,k-1) * QWt2m(3,k)&
-!!$                 +tt1(i,j,k  ) * QWt2m(4,k)&
-!!$                 +tt1(i,j,kp1) * QWt2m(5,k)&
-!!$                 +tt1(i,j,kp2) * QWt2m(6,k)
-!!$         write(6,'(i4,5f15.5)') k,GVM%ztht_8(i,j,k),tt1(i,j,k),GVM%zmom_8(i,j,k),retval,Ver_wp_8%m(k)*tt1(i  ,j,k)+Ver_wm_8%m(k)*tt1(i  ,j,k-1)
-!!$      end do
-!!$      
-!!$      i=l_ni/2
-!!$      j=l_nj/2
-!!$      do k=1,G_nk-1
-!!$         km1=max(k-1,1)
-!!$         km2=max(k-2,1)
-!!$         kp2=min(k+2,G_nk)
-!!$         kp3=min(k+3,G_nk)
-!!$         retval = ut1(i,j,km2) * QDm2t(1,k)&
-!!$                 +ut1(i,j,km1) * QDm2t(2,k)&
-!!$                 +ut1(i,j,k  ) * QDm2t(3,k)&
-!!$                 +ut1(i,j,k+1) * QDm2t(4,k)&
-!!$                 +ut1(i,j,kp2) * QDm2t(5,k)&
-!!$                 +ut1(i,j,kp3) * QDm2t(6,k)
-!!$!         write(6,'(i4,5f15.5)') k,retval,(ut1(i  ,j,k+1)-ut1(i  ,j,k))*Ver_idz_8%t(k)
-!!$      end do
-!!$      do k=2,G_nk
-!!$         km1=max(k-1,1)
-!!$         km2=max(k-2,1)
-!!$         km3=max(k-3,1)
-!!$         kp1=min(k+1,G_nk)
-!!$         kp2=min(k+2,G_nk)
-!!$         kp3=min(k+3,G_nk)
-!!$         retval = tt1(i,j,km3) * QDt2m(1,k)&
-!!$                 +tt1(i,j,km2) * QDt2m(2,k)&
-!!$                 +tt1(i,j,k-1) * QDt2m(3,k)&
-!!$                 +tt1(i,j,k  ) * QDt2m(4,k)&
-!!$                 +tt1(i,j,kp1) * QDt2m(5,k)&
-!!$                 +tt1(i,j,kp2) * QDt2m(6,k)
-!!$         write(6,'(i4,5f15.5)') k,retval,(tt1(i  ,j,k)-tt1(i  ,j,k-1))*Ver_idz_8%m(k)
-!!$      end do
 
 !!$omp do collapse(2)
       do k=1, G_nk
@@ -237,8 +175,9 @@
       
       dynt0= dynt1
       dynt2= dynt1
+      allocate (var_init(ubound(dynt1,1)))
       var_init= dynt1
-      
+
 !     call nest_glbstat ((/'now','deb','fin'/),3)
 !
 !     ---------------------------------------------------------------

@@ -272,15 +272,15 @@
 
          if (Dcmip_case>=11.and.Dcmip_case<=13) then
 
-             if (Dcmip_case==11) call dcmip_tracers11_transport (ut0,vt0,wt0,zdt0,bidon,bidon,bidon,bidon, &
+             if (Dcmip_case==11) call dcmip_tracers11_transport (ut0(l_minx,l_miny,1),vt0(l_minx,l_miny,1),wt0(l_minx,l_miny,1),zdt0(l_minx,l_miny,1),bidon,bidon,bidon,bidon, &
                                                                  bidon,bidon,bidon,bidon,bidon,            &
                                                                  l_minx,l_maxx,l_miny,l_maxy,G_nk,.true.)
 
-             if (Dcmip_case==12) call dcmip_tracers12_transport (ut0,vt0,wt0,zdt0,bidon,bidon,bidon,bidon, &
+             if (Dcmip_case==12) call dcmip_tracers12_transport (ut0(l_minx,l_miny,1),vt0(l_minx,l_miny,1),wt0(l_minx,l_miny,1),zdt0(l_minx,l_miny,1),bidon,bidon,bidon,bidon, &
                                                                  bidon,bidon,                              &
                                                                  l_minx,l_maxx,l_miny,l_maxy,G_nk,.true.)
 
-             if (Dcmip_case==13) call dcmip_tracers13_transport (ut0,vt0,wt0,zdt0,bidon,bidon,bidon,bidon, &
+             if (Dcmip_case==13) call dcmip_tracers13_transport (ut0(l_minx,l_miny,1),vt0(l_minx,l_miny,1),wt0(l_minx,l_miny,1),zdt0(l_minx,l_miny,1),bidon,bidon,bidon,bidon, &
                                                                  bidon,bidon,bidon,bidon,bidon,            &
                                                                  l_minx,l_maxx,l_miny,l_maxy,G_nk,.true.)
              goto 999

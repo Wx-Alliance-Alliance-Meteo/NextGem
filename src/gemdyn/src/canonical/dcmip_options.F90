@@ -152,7 +152,6 @@ contains
       use dcst
       use step_options
       use tdpack, only : rayt_8, omega_8
-      use dyn_fisl_options
       use hvdif_options
       use ctrl
       use glb_ld

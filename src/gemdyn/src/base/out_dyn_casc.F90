@@ -136,15 +136,15 @@
       end if
 
       Out_stag_S= 'MT '
-      call out_fstecr ( wt1 ,l_minx,l_maxx,l_miny,l_maxy, hybt,&
+      call out_fstecr ( wt1(l_minx,l_miny,1) ,l_minx,l_maxx,l_miny,l_maxy, hybt,&
                          'WT1 ',1., 0.,Level_kind_ip1,-1,G_nk  ,&
                           indo,G_nk,nbits,.false. )
-      call out_fstecr ( zdt1,l_minx,l_maxx,l_miny,l_maxy, hybt,&
+      call out_fstecr ( zdt1(l_minx,l_miny,1),l_minx,l_maxx,l_miny,l_maxy, hybt,&
                          'ZDT1',1., 0.,Level_kind_ip1,-1,G_nk  ,&
                          indo,G_nk,nbits,.false. )
 
       Out_stag_S= 'MM '
-      call out_fstecr ( qt1,l_minx,l_maxx,l_miny,l_maxy, hybm,&
+      call out_fstecr ( qt1(l_minx,l_miny,1),l_minx,l_maxx,l_miny,l_maxy, hybm,&
                        'QT1 ',1., 0.,Level_kind_ip1,-1,G_nk+1 ,&
                          indo,G_nk+1,nbits,.false. )
 

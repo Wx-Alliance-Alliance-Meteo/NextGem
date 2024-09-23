@@ -86,12 +86,12 @@
       if ( switch_on_UVW ) then
          call gtmg_start (64, 'HZD_bkgrnd', 60)
          call hzd_exp_deln ( wt1, Hzd_pwr, Hzd_lnR, WS1,&
-                             l_minx,l_maxx,l_miny,l_maxy,4*(G_nk+3))
+                             l_minx,l_maxx,l_miny,l_maxy,4*(G_nk+6))
          call gtmg_stop (64)
       end if
       if ( switch_on_WZD ) then
          call hzd_exp_deln ( wt1, Hzd_pwr_wzd, Hzd_lnR_wzd, WS1,&
-                             l_minx,l_maxx,l_miny,l_maxy,2*(G_nk+3))
+                             l_minx,l_maxx,l_miny,l_maxy,2*(G_nk+6))
       endif
         
 !********************

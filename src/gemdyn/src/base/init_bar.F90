@@ -64,8 +64,10 @@
       !-------------------------------------------------------------------------
       if (Williamson_case==7) then
 
-         call inp_data ( ut1, vt1, wt1, tt1, qt1, zdt1,p0,trt1,&
-                         fis0, orols, .true., Step_runstrt_S   ,&
+         call inp_data ( ut1(l_minx,l_miny,1), vt1(l_minx,l_miny,1), &
+                         wt1(l_minx,l_miny,1), tt1(l_minx,l_miny,1), &
+                         qt1(l_minx,l_miny,1),zdt1(l_minx,l_miny,1), &
+                         p0,trt1,fis0, orols, .true., Step_runstrt_S,&
                          l_minx,l_maxx,l_miny,l_maxy,G_nk,Tr3d_ntr)
 
          !Initialize PHI perturbation in q
@@ -94,7 +96,7 @@
 
       !Prepare initial conditions (staggered u-v,gz,s,topo) for Williamson cases
       !-------------------------------------------------------------------------
-      call wil_init (ut1,vt1,gz_t,p0,fis0,qt1,l_minx,l_maxx,l_miny,l_maxy,G_nk,.true.)
+      call wil_init (ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1),gz_t,p0,fis0,qt1(l_minx,l_miny,1),l_minx,l_maxx,l_miny,l_maxy,G_nk,.true.)
 
       !Required for CASE5 LAM version (NESTING)
       !----------------------------------------
@@ -106,15 +108,16 @@
       !Estimate U-V and T on scalar grids
       !----------------------------------
 !!$omp parallel private (local_np, HLT_start, HLT_end)
-      call HLT_split (1, 2*(G_nk+3), local_np, HLT_start, HLT_end)
+      call HLT_split (-2, G_nk+3, local_np, HLT_start, HLT_end)
       call gem_xch_halo (ut1(l_minx,l_miny,HLT_start),l_minx,l_maxx,l_miny,l_maxy,local_np,-1)
-      call hwnd_stag2( pw_uu_plus,pw_vv_plus,ut1,vt1      ,&
+      call gem_xch_halo (vt1(l_minx,l_miny,HLT_start),l_minx,l_maxx,l_miny,l_maxy,local_np,-1)
+      call hwnd_stag2( pw_uu_plus,pw_vv_plus,ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1),&
                        l_minx,l_maxx,l_miny,l_maxy,G_nk   ,&
                        1-G_halox*west ,l_niu+G_halox*east ,&
                        1-G_haloy*south,l_njv+G_haloy*north, .false. )
 !!$omp end parallel
 
-      pw_tt_plus = tt1
+      pw_tt_plus(:,:,1:G_nk) = tt1(:,:,1:G_nk) 
 !
 !-------------------------------------------------------------------
 !

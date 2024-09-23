@@ -13,8 +13,6 @@
   Grd_maxcfl = 4
 /
 &gem_cfgs
-  G_halox=6
-  G_haloy=6
   lctl_rxstat_s   = 'GLB_8',
   stat_liste= 'ALL_DYN_T1','ALL_TR_T1','ALL_DYN_T0','ALL_TR_T0'
 /

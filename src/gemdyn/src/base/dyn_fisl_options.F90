@@ -161,6 +161,9 @@ contains
 !**s/r dyn_fisl_nml - Read namelist dyn_fisl
 
       integer function dyn_fisl_nml (F_unf)
+      use HORgrid_options
+      use gem_options
+!      use gem_options
       use lun
       use, intrinsic :: iso_fortran_env
       implicit none
@@ -170,7 +173,7 @@ contains
 
       character(len=64) :: nml_S
       logical nml_must
-      integer :: err
+      integer :: err!,G_halox,G_haloy
 !
 !-------------------------------------------------------------------
 !
@@ -204,7 +207,13 @@ contains
       dyn_fisl_nml= 1
 
       err = clib_toupper(Schm_orols_ftype_S)
-
+      
+      if ( .not. Grd_yinyang_L) Schm_POSO = 2
+      G_halox=4
+      if (Schm_POSO==3) G_halox=5
+      if (Schm_POSO==5) G_halox=6
+      G_haloy=G_halox
+      
  6002 format (' Skipping reading of namelist ',A)
  6004 format (' Reading of namelist ',A,' is successful')
  6005 format (' Namelist ',A,' NOT AVAILABLE')

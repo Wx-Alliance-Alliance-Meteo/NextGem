@@ -431,8 +431,7 @@ subroutine iau_apply (F_kount)
             if (iname0_S == 'p0') then
               
                if (.not.associated(vt)) allocate(vt(l_minx:l_maxx, l_miny:l_maxy, G_nk))
-               call tt2tvirt (vt, pw_tt_plus, l_minx,l_maxx,l_miny,l_maxy, &
-                             G_nk, G_nk, 1,l_ni, 1,l_nj)
+               call tt2tvirt (vt, pw_tt_plus, 1,l_ni, 1,l_nj)
                ! Adjusting the surface value of qt1
                myptr0(1:l_ni,1:l_nj,l_nk+1) = &
                        myptr0(1:l_ni,1:l_nj,l_nk+1) + rgasd_8*Cstv_Tstr_8* &

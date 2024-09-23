@@ -19,8 +19,6 @@
       use ISO_C_BINDING
       use step_options
       use theo_options
-      use gmm_vt1
-      use gmm_vt2
       use gmm_pw
       use gmm_contiguous
       use mem_tstp
@@ -29,8 +27,8 @@
       use tr3d
       implicit none
 
-      integer i,j,k,n,icn,np
-      integer :: HLT_start, HLT_end, local_np
+      logical :: flag=.false.
+      integer :: n
 !
 !     ---------------------------------------------------------------
 !
@@ -82,10 +80,11 @@
       if ( Schm_psadj > 0 ) call psadj ( Step_kount )
 
       call adz_tracers_massfixing ()
- 
+      
       if (Grd_yinyang_L) then
          do n=1, Tr3d_ntr
-            call yyg_xchng_hlt (tracers_M(n)%pntr, l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,G_nk, .true., 'CUBIC', .false.)
+            call yyg_xchng_hlt (tracers_M(n)%pntr, l_minx,l_maxx,&
+               l_miny,l_maxy,l_ni,l_nj,G_nk, .true., 'CUBIC', .false.)
          end do
       else
          call nest_HOR_gwa ()
@@ -95,7 +94,6 @@
       endif
 
       call t02t1 ()
-!
 !     ---------------------------------------------------------------
 !
       return

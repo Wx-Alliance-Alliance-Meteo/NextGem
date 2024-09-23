@@ -14,17 +14,16 @@
 !---------------------------------- LICENCE END ---------------------------------
 !s/r tt2tvirt - Compute virtual temperature from temperature+wload
 
-      subroutine tt2tvirt ( F_tv, F_tt, Minx, Maxx, Miny, Maxy, &
-                            Nktv, Nktt, F_i0,F_in,F_j0,F_nj )
+      subroutine tt2tvirt ( F_tv, F_tt, F_i0,F_in,F_j0,F_nj )
       use dyn_fisl_options
       use glb_ld
       use tr3d
       use mem_tracers
       implicit none
 
-      integer, intent(in) :: Minx,Maxx,Miny,Maxy, Nktv, Nktt, F_i0,F_in,F_j0,F_nj
-      real, dimension(Minx:Maxx, Miny:Maxy, Nktt), intent(in ) :: F_tt
-      real, dimension(Minx:Maxx, Miny:Maxy, Nktv), intent(out) :: F_tv
+      integer, intent(in) :: F_i0,F_in,F_j0,F_nj
+      real, dimension(*), intent(in ) :: F_tt
+      real, dimension(*), intent(out) :: F_tv
 !
 !     ________________________________________________________________
 !
@@ -32,7 +31,7 @@
                       G_nk, Tr3d_ntr, trt1, Schm_wload_L )
 
       call mfottvh2 (F_tt, F_tv, tracers_P(Tr3d_hu)%pntr, real(sumq_8),&
-           minx, maxx, miny, maxy, l_nk, F_i0,F_in,F_j0,F_nj, .true.)
+         l_minx,l_maxx,l_miny,l_maxy, G_nk, F_i0,F_in,F_j0,F_nj, .true.)
 !
 !     ________________________________________________________________
 !

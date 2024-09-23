@@ -38,7 +38,7 @@
 
       logical, external :: picard_stop
       logical :: print_conv, first_time_L=.true.
-      integer i,j,k, itpc, iter, ni,nj
+      integer itpc, iter, ni,nj
       integer :: HLT_np, HLT_start, HLT_end
       real(kind=REAL64), parameter :: zero=0.d0, one=1.d0
       real(kind=REAL64) :: dt_8, invT_m_8
@@ -54,8 +54,7 @@
       first_time_L= (Step_kount.le.1).and.first_time_L
       
       call gtmg_start (20, 'TSTPDYN', 10)
-
-      call HLT_split (1, 6*(l_nk+3), HLT_np, HLT_start, HLT_end)
+      call HLT_split (-2, 6*(G_nk+6)-3, HLT_np, HLT_start, HLT_end)
 
       if(Step_kount.le.2) then
          call set_dync ( .true., dt_8 )
@@ -83,7 +82,7 @@
          call gtmg_start (27, 'PRE', 20)
          
          call oro_adj ()
-         
+
          call elliptic_rhs (dt_8, ds_k0, ds_k0)
          
          call gtmg_stop (27)
@@ -103,15 +102,15 @@
          call gtmg_stop (30)
 
          if (Grd_yinyang_L) then
-            call yyg_xchng_vec_uv2uv (ut0, vt0,&
+            call yyg_xchng_vec_uv2uv (ut0(l_minx,l_miny,1), vt0(l_minx,l_miny,1),&
             l_minx,l_maxx,l_miny,l_maxy,G_nk)
-            call yyg_xchng_hlt (tt0, l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
+            call yyg_xchng_hlt (tt0(l_minx,l_miny,1), l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
             G_nk, .false., 'CUBIC', .false.)
-            call yyg_xchng_hlt (zdt0,l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
+            call yyg_xchng_hlt (zdt0(l_minx,l_miny,1),l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
             G_nk, .false., 'CUBIC', .false.)
-            call yyg_xchng_hlt (qt0, l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
+            call yyg_xchng_hlt (qt0(l_minx,l_miny,1), l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
             G_nk+1, .false., 'CUBIC', .false.)
-            call yyg_xchng_hlt (wt0, l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
+            call yyg_xchng_hlt (wt0(l_minx,l_miny,1), l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
             G_nk, .false., 'CUBIC', .false.)
          end if
 

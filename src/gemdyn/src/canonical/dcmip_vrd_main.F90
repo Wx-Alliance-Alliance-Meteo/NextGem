@@ -39,7 +39,7 @@
 
       !Diffuse Winds, Potential temperature and Tracers
       !------------------------------------------------
-      call dcmip_vrd_drv (ut1,vt1,zdt1,wt1,tt1,pw_pt_plus,l_minx,l_maxx,l_miny,l_maxy,l_nk)
+      call dcmip_vrd_drv (ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1),zdt1(l_minx,l_miny,1),wt1(l_minx,l_miny,1),tt1(l_minx,l_miny,1),pw_pt_plus,l_minx,l_maxx,l_miny,l_maxy,l_nk)
 
       return
 
