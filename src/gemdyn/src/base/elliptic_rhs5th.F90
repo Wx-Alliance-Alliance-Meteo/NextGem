@@ -94,8 +94,8 @@
          end do
       end do
       
-      !---added my code to Michel's existing to compute vertical derivative of q to u,q,w points---
-      call tt2wnd(t2u, v2u, t2v, u2v, dqz2u, dqz2v, dqz2w, l_minx,l_maxx,l_miny,l_maxy,G_nk)
+      call prerhs5th (t2u, v2u, t2v, u2v, dqz2u, dqz2v, dqz2w,&
+                      l_minx,l_maxx,l_miny,l_maxy,G_nk)
 
       do k=1, l_nk
          km=max(k-1,1)

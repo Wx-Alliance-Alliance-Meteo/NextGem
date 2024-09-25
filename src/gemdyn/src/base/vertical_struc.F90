@@ -163,6 +163,8 @@
       Ver_zmin_8 = Ver_z_8%m(G_nk+1)
       Ver_zmax_8 = Ver_z_8%m(0)
 
+      call CW_vinterp ()
+      call CW_vderiva ()
       call QW_vinterp ()
       call QW_vderiva ()
 

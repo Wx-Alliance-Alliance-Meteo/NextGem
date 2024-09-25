@@ -12,9 +12,9 @@
 ! along with this library; if not, write to the Free Software Foundation, Inc.,
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
-!**s/r elliptic_rhs_schar - Compute right hand side of the elliptic problem
+!**s/r elliptic_rhs - Compute right hand side of the elliptic problem
 
-      subroutine elliptic_rhs ( F_dt_8, k0, k0t )
+      subroutine elliptic_rhs3rd ( F_dt_8, k0, k0t )
       use, intrinsic :: iso_fortran_env
       use dyn_fisl_options
       use HORgrid_options
@@ -34,34 +34,30 @@
       real(kind=REAL64), intent(IN) :: F_dt_8
 
       integer :: i, j, k, HLT_np, HLT_start, HLT_end
-      integer :: km,i00,inn,j00,jnn,dim,ub
+      integer :: km, km3, km2, km1, kp1,kp2,i00,inn,j00,jnn,dim,ub
       real, dimension(:,:,:), pointer :: wkf
       real, dimension(:,:,:), pointer :: tots, logT, logQ, Rt
+      real(kind=REAL64), dimension(:,:,:), pointer :: t2u, v2u, t2v, u2v
+      real(kind=REAL64), dimension(:,:,:), pointer :: dqz2u, dqz2v, dqz2w
       real(kind=REAL64) :: Rqq,tau_8,invT_8,a,b,c,barz,barzp
-      real(kind=REAL64) :: w0,w1,w2,w3,w4,w5,w6,w7, dudx,dvdy,ubx,vby
-      real(kind=REAL64) :: Nwww,Nttt,t_interp,u_interp,v_interp
-      real(kind=REAL64) :: wka(l_minx:l_maxx,l_miny:l_maxy),&
+      real(kind=REAL64) :: w0,w1,w2,w3,w4,w5,w7, dudx,dvdy,ubx,vby
+      real(kind=REAL64) :: dqdx, dqdy, ttbz, zzbz, dzrtt
+      real(kind=REAL64) :: Ntttdz, Ntttbz, Nzzzdz, Nzzzbz
+      real(kind=REAL64) :: wka(l_minx:l_maxx,l_miny:l_maxy), &
                            wkb(l_minx:l_maxx,l_miny:l_maxy)
-      real(kind=REAL128) :: d1
+      real(kind=REAL128) :: dzrzz,rtm(l_nk)
+      real(kind=REAL64), dimension(1:6) :: Nttt, Nwww, w6
       real(kind=REAL64), parameter :: zero=0.d0, one=1.d0, half=0.5d0
 !
 !     ---------------------------------------------------------------
 !
-      if (Schm_POSO == 5) then
-         call elliptic_rhs5th ( F_dt_8, k0, k0t )
-         return
-      else if (Schm_POSO == 3) then
-         call elliptic_rhs3rd ( F_dt_8, k0, k0t )
-         return
-      endif
-
-      i00= ds_i0-1 ; inn= ds_in
-      j00= ds_j0-1 ; jnn= ds_jn
+      i00= ds_i0-3 ; inn= ds_in+2
+      j00= ds_j0-3 ; jnn= ds_jn+2
       if (.not.Grd_yinyang_L) then
-         i00= ds_i0-1+min(pil_w,1)
-         inn= ds_in  -min(pil_e,1)
-         j00= ds_j0-1+min(pil_s,1)
-         jnn= ds_jn  -min(pil_n,1)
+         i00= ds_i0-(1-min(pil_w,1))*3
+         inn= ds_in+2-3*min(pil_e,1)
+         j00= ds_j0-(1-min(pil_s,1))*3
+         jnn= ds_jn+2-3*min(pil_n,1)
       endif
       
       tau_8  = (2.d0 * F_dt_8 ) / 3.d0
@@ -77,6 +73,17 @@
       dim= (l_maxx-l_minx+1)*(l_maxy-l_miny+1)
       Rt   (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => WS1(ub+1:) ; ub=ub+dim*l_nk
       wkf  (l_minx:l_maxx,l_miny:l_maxy,1:1)    => WS1(ub+1:) ; ub=ub+dim
+      ub=0
+
+      t2u  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => WS1_8(ub+1:) ; ub=ub+dim*l_nk
+      v2u  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => WS1_8(ub+1:) ; ub=ub+dim*l_nk
+      t2v  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => WS1_8(ub+1:) ; ub=ub+dim*l_nk
+      u2v  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => WS1_8(ub+1:) ; ub=ub+dim*l_nk
+
+      !---vertical derivative of q to points u,v,w in rhs---
+      dqz2u (l_minx:l_maxx, l_miny:l_maxy, 1:l_nk) => WS1_8(ub+1:); ub=ub+dim*l_nk
+      dqz2v (l_minx:l_maxx, l_miny:l_maxy, 1:l_nk) => WS1_8(ub+1:); ub=ub+dim*l_nk
+      dqz2w (l_minx:l_maxx, l_miny:l_maxy, 1:l_nk) => WS1_8(ub+1:); ub=ub+dim*l_nk
 
       do k=1, l_nk
          do j=1, l_nj
@@ -86,59 +93,61 @@
             end do
          end do
       end do
+      
+      call prerhs3rd (t2u, v2u, t2v, u2v, dqz2u, dqz2v, dqz2w,&
+                      l_minx,l_maxx,l_miny,l_maxy,G_nk)
 
       do k=1, l_nk
          km=max(k-1,1)
+
          do j= Adz_j0 , Adz_jn
          do i= Adz_i0u, Adz_inu
             Ruu(i,j,k) = a*rhsu_mid(i,j,k) - b*rhsu_dep(i,j,k) 
          end do
          end do
+
          do j= Adz_j0v, Adz_jnv
          do i= Adz_i0 , Adz_in
             Rvv(i,j,k) = a*rhsv_mid(i,j,k) - b*rhsv_dep(i,j,k) 
          end do
          end do
+
          do j= ds_j0, ds_jn
          do i= i00, inn
-            barz = Ver_wp_8%m(k)*tt0(i  ,j,k)+Ver_wm_8%m(k)*tt0(i  ,j,km)
-            barzp= Ver_wp_8%m(k)*tt0(i+1,j,k)+Ver_wm_8%m(k)*tt0(i+1,j,km)
-            t_interp = (barz+barzp)*half/Cstv_Tstr_8-one
-            v_interp = 0.25d0*(vt0(i  ,j,k)+vt0(i  ,j-1,k)+&
-                               vt0(i+1,j,k)+vt0(i+1,j-1,k))
-            Nuu(i,j,k)= t_interp*( qt0(i+1,j,k) - qt0(i,j,k) ) * geomh_invDX_8(j) &
-                        - ( Cori_fcoru_8(i,j) + geomh_tyoa_8(j) * ut0(i,j,k) ) * v_interp &
-                        - t_interp*GVM%mc_Jx_8(i,j,k) * ( &
-                          Ver_wp_8%m(k)*half*( (qt0(i+1,j,k+1)-qt0(i+1,j,k ))*GVM%mc_iJz_8(i+1,j,k )   &
-                                              +(qt0(i  ,j,k+1)-qt0(i  ,j,k ))*GVM%mc_iJz_8(i  ,j,k ) ) &
-                         +Ver_wm_8%m(k)*half*( (qt0(i+1,j,k  )-qt0(i+1,j,km))*GVM%mc_iJz_8(i+1,j,km)   &
-                                              +(qt0(i  ,j,k  )-qt0(i  ,j,km))*GVM%mc_iJz_8(i  ,j,km) ) )
+            dqdx = Hderiv(qt0(i-1,j,k), qt0(i,j,k), &
+                          qt0(i+1,j,k), qt0(i+2,j,k), geomh_invDX_8(j))
+
+            Nuu(i,j,k) =  t2u(i,j,k)*dqdx &
+                        - ( Cori_fcoru_8(i,j) + geomh_tyoa_8(j) * ut0(i,j,k) ) * v2u(i,j,k) &
+                        - t2u(i,j,k)*(dqdx - dqz2u(i,j,k)) 
          end do
          end do         
+        
          do j= j00, jnn
          do i= ds_i0, ds_in
-            barz = Ver_wp_8%m(k)*tt0(i,j  ,k)+Ver_wm_8%m(k)*tt0(i,j  ,km)
-            barzp= Ver_wp_8%m(k)*tt0(i,j+1,k)+Ver_wm_8%m(k)*tt0(i,j+1,km)
-            t_interp = (barz+barzp)*half/Cstv_Tstr_8-one
-            u_interp = 0.25d0*(ut0(i,j,k)+ut0(i-1,j,k)+ut0(i,j+1,k)+ut0(i-1,j+1,k))
-            Nvv(i,j,k)= t_interp*( qt0(i,j+1,k) - qt0(i,j,k) ) * geomh_invDY_8 &
-                        + ( Cori_fcorv_8(i,j) + geomh_tyoav_8(j) * u_interp ) * u_interp &
-                        - t_interp*GVM%mc_Jy_8(i,j,k) * ( &
-                          Ver_wp_8%m(k)*half*( (qt0(i,j+1,k+1)-qt0(i,j+1,k ))*GVM%mc_iJz_8(i,j+1,k )   &
-                                              +(qt0(i,j  ,k+1)-qt0(i,j  ,k ))*GVM%mc_iJz_8(i,j  ,k ) ) &
-                         +Ver_wm_8%m(k)*half*( (qt0(i,j+1,k  )-qt0(i,j+1,km))*GVM%mc_iJz_8(i,j+1,km)   &
-                                              +(qt0(i,j  ,k  )-qt0(i,j  ,km))*GVM%mc_iJz_8(i,j  ,km) ) )
+            dqdy = Hderiv(qt0(i,j-1,k),qt0(i  ,j,k),&
+                          qt0(i,j+1,k),qt0(i,j+2,k),geomh_invDY_8)
+
+            Nvv(i,j,k)= t2v(i,j,k)*dqdy &
+                        + ( Cori_fcorv_8(i,j) + geomh_tyoav_8(j) * u2v(i,j,k)) * u2v(i,j,k) &
+                        - t2v(i,j,k)*(dqdy - dqz2v(i,j,k))
          end do
          end do
+
          do j= ds_j0, ds_jn
             do i= ds_i0, ds_in
+
             w0= tots(i,j,k)-one
             w1= a*rhst_mid(i,j,k) - b*rhst_dep(i,j,k)
             w2= a*rhsw_mid(i,j,k) - b*rhsw_dep(i,j,k)
             w3= invT_8*( logT(i,j,k) - (one-one/tots(i,j,k)) )
+               !--- remains second order for now ---
+            !w4= w0*(dqz2w(i,j,k) - grav_8*(one-one/tots(i,j,k)))
             w4= w0*(GVM%mc_iJz_8(i,j,k)*(qt0(i,j,k+1)-qt0(i,j,k)) - grav_8*(one-one/tots(i,j,k)))
+
             Rtt(i,j,k)= w1 - w3
             Rww(i,j,k)= w2 - w4
+
             Rtt(i,j,k)= gama_bdf_8 * ( c*Rtt(i,j,k) + Rww(i,j,k) )
             Rzz(i,j,k)= a*rhsf_mid(i,j,k) - b*rhsf_dep(i,j,k ) - invT_8*(GVM%ztht_8(i,j,k)-Ver_z_8%t(k))
             
@@ -152,6 +161,7 @@
                  l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
       call gem_xch_halo_8 ( Rvv(l_minx,l_miny,HLT_start),&
                  l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
+
       do k=1, l_nk
          Ruu(:,:,k)= Ruu(:,:,k) - Nuu(:,:,k)
          Rvv(:,:,k)= Rvv(:,:,k) - Nvv(:,:,k)
@@ -159,35 +169,68 @@
 
       do k=1, l_nk
          km=max(k-1,1)
+         km1=max(k-1,1)
+         km2=max(k-2,1)
+         km3=max(k-3,1)
+         kp1=min(k+1,G_nk)
+         kp2=min(k+2,G_nk)
+
          do j= ds_j0, ds_jn
          do i= ds_i0, ds_in
             Rqq = a*rhsc_mid(i,j,k ) - b*rhsc_dep(i,j,k )
-            d1  = (Rzz(i,j,k)-Rzz(i,j,km))*Ver_idz_8%m(k) ! very sensitive... hence temporary storage in quad precicion
+            dudx = Hderiv8(Ruu(i-2,j,k), Ruu(i-1,j,k), &
+                           Ruu(i  ,j,k), Ruu(i+1,j,k), geomh_invDXM_8(j))
+            dvdy = Hderiv8(Rvv(i,j-2,k)*geomh_cyM_8(j-2), &
+                           Rvv(i,j-1,k)*geomh_cyM_8(j-1), &
+                           Rvv(i,j  ,k)*geomh_cyM_8(j  ), &
+                           Rvv(i,j+1,k)*geomh_cyM_8(j+1), &
+                           geomh_invDYM_8(j))
+            ubx = Hstag8(Ruu(i-2,j,k), Ruu(i-1,j,k), &
+                         Ruu(i  ,j,k), Ruu(i+1,j,k))
+            vby = Hstag8(Rvv(i,j-2,k), Rvv(i,j-1,k), &
+                         Rvv(i,j  ,k), Rvv(i,j+1,k))
+            !compute vertical staggering of Rzz: thermo lvl -> mom lvl center point
+            zzbz = Rzz(i,j,km2) * CWt2m(1,k) & 
+                 + Rzz(i,j,km1) * CWt2m(2,k) & 
+                 + Rzz(i,j,k  ) * CWt2m(3,k) & 
+                 + Rzz(i,j,kp1) * CWt2m(4,k)
 
-            dudx= (Ruu(i,j,k)-Ruu(i-1,j,k))*geomh_invDXM_8(j)
-            dvdy= (Rvv(i,j  ,k)*geomh_cyM_8(j  ) - &
-                   Rvv(i,j-1,k)*geomh_cyM_8(j-1))*geomh_invDYM_8(j)
-            ubx = half*(Ruu(i,j,k)+Ruu(i-1,j,k))
-            vby = half*(Rvv(i,j,k)+Rvv(i,j-1,k))
+            !compute vertical staggering of Rtt: thermo lvl -> mom lvl center point
+            ttbz = Rtt(i,j,km2) * CWt2m(1,k) & 
+                 + Rtt(i,j,km1) * CWt2m(2,k) & 
+                 + Rtt(i,j,k  ) * CWt2m(3,k) & 
+                 + Rtt(i,j,kp1) * CWt2m(4,k)
+
+            !compute vertical derivative of Rzz: thermo lvl -> mom lvl center point
+            dzrzz = Rzz(i,j,km2) * CDt2m(1,k) & 
+                  + Rzz(i,j,km1) * CDt2m(2,k) & 
+                  + Rzz(i,j,k  ) * CDt2m(3,k) & 
+                  + Rzz(i,j,kp1) * CDt2m(4,k) 
+
+            !compute vertical derivative of Rtt: thermo lvl -> mom lvl cntr point
+            dzrtt = Rtt(i,j,km2) * CDt2m(1,k) & 
+                  + Rtt(i,j,km1) * CDt2m(2,k) & 
+                  + Rtt(i,j,k  ) * CDt2m(3,k) & 
+                  + Rtt(i,j,kp1) * CDt2m(4,k)
 
             ! exact form of eqn 58 in SG notes
-            Sol_rhs(i,j,k) = -invT_8*Rqq + dudx + dvdy + invT_8*d1 + ubx*GVM%mc_Ix_8(i,j,k) + vby*GVM%mc_Iy_8(i,j,k) &
-                            + invT_8*GVM%mc_Iz_8(i,j,k)* (Ver_wp_8%m(k)*Rzz(i,j,k)+Ver_wm_8%m(k)*Rzz(i,j,km)) &
-                            + (Rtt(i,j,k) - Rtt(i,j,km))*Ver_idz_8%m(k) &
-                            + (Rtt(i,j,k)*Ver_wp_8%m(k) + Rtt(i,j,km)*Ver_wm_8%m(k))*(GVM%mc_Iz_8(i,j,k)-epsi_8)
+            Sol_rhs(i,j,k) = -invT_8*Rqq + dudx + dvdy + invT_8*dzrzz   &
+                            + ubx*M_logJzu(i,j,k) + vby*M_logJzv(i,j,k) &
+                            + invT_8*M_logJzq(i,j,k)* zzbz + dzrtt      &
+                            + ttbz*(M_logJzq(i,j,k) - epsi_8)
 
 ! this exception at k=1 will be removed soon and km should be replaced with simply k-1
             if (k==1   ) then
                w3   = (Ver_idz_8%m(k) + (GVM%mc_Iz_8(i,j,k) - epsi_8)*Ver_wp_8%m(k))
                w5   = a*rhst_mid(i,j,k ) - b*rhst_dep(i,j,k )
                w5   = gama_bdf_8 * ( c * w5   + a*rhsw_mid(i,j,k ) - b*rhsw_dep(i,j,k ))
-               w6   = invT_8*( logT(i,j,k ) - (one-one/tots(i,j,k )) )
+               w6(1)   = invT_8*( logT(i,j,k ) - (one-one/tots(i,j,k )) )
                Nwww = (tots(i,j,k)-one)*GVM%mc_iJz_8(i,j,k)*(qt0(i,j,k+1)-qt0(i,j,k)) &
                      -(tots(i,j,k)-one)*grav_8*(one-one/tots(i,j,k)) 
-               Nttt = gama_bdf_8 * ( c * w6   + Nwww )
+               Nttt = gama_bdf_8 * ( c * w6(1)   + Nwww )
                w7   = a*rhsf_mid(i,j,k ) - b*rhsf_dep(i,j,k )
                Sol_rhs(i,j,k)= -invT_8*Rqq + dudx + dvdy + ubx*GVM%mc_Ix_8(i,j,k) + vby*GVM%mc_Iy_8(i,j,k)&
-                               + invT_8*w7*(Ver_idz_8%m(1)+GVM%mc_Iz_8(i,j,1)*Ver_wp_8%m(1)) + (w3*w5) - w3*Nttt
+                               + invT_8*w7*(Ver_idz_8%m(1)+GVM%mc_Iz_8(i,j,1)*Ver_wp_8%m(1)) + (w3*w5) - w3*Nttt(1)
             endif
          end do
          end do
@@ -248,4 +291,5 @@
 !     ---------------------------------------------------------------
 !
       return
-      end subroutine elliptic_rhs
+      include 'H3rd_ope.inc'
+      end subroutine elliptic_rhs3rd

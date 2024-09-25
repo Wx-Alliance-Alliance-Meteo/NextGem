@@ -97,6 +97,7 @@ module ver
       real(kind=REAL64), dimension(:), allocatable :: Ver_bzz_8, Ver_czz_8
       real(kind=REAL64), dimension(:), allocatable :: Ver_dqdz_8
       real(kind=REAL64), dimension(:), allocatable :: Ver_wpstar_8,Ver_wmstar_8
+      real(kind=REAL64), dimension(:,:), allocatable :: CWm2t, CWt2m, CDm2t, CDt2m
       real(kind=REAL64), dimension(:,:), allocatable :: QWm2t, QWt2m, QDm2t, QDt2m
 
 end module ver
