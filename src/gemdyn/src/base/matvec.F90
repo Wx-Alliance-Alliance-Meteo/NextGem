@@ -54,6 +54,9 @@
       if (Schm_POSO == 5) then
          call matvec5th ( F_vector, F_minx,F_maxx,F_miny,F_maxy,&
                           F_prod  , F_i0,F_in,F_j0,F_jn, F_nk )
+         !for 5th order with vertical ghosts halos
+         !call matvec5 ( F_vector, F_minx,F_maxx,F_miny,F_maxy,&
+         !               F_prod  , F_i0,F_in,F_j0,F_jn, F_nk )
          return
       else if (Schm_POSO == 3) then
          call matvec3rd ( F_vector, F_minx,F_maxx,F_miny,F_maxy,&

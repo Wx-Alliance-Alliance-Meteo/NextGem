@@ -51,6 +51,7 @@
          call gem_xch_halo_8 ( F_q(l_minx,l_miny,HLT_start),&
                     l_minx,l_maxx,l_miny,l_maxy, HLT_np, 1)
       endif
+
       do k=0,G_nk
          km2=max(k-2,0)
          km1=max(k-1,0)
@@ -75,9 +76,7 @@
             end do
          end do
       end do
-      call HLT_split (0, l_nk, HLT_np, HLT_start, HLT_end)
-      call gem_xch_halo_8 (dqdzx(l_minx,l_minx,HLT_start), l_minx,l_maxx,l_miny,l_maxy,HLT_np,-1 )
-      call gem_xch_halo_8 (dqdzy(l_minx,l_minx,HLT_start), l_minx,l_maxx,l_miny,l_maxy,HLT_np,-1 )
+
       do k=1,G_nk
          km3=max(k-3,0)
          km2=max(k-2,0)

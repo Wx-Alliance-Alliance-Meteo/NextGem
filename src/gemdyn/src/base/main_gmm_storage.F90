@@ -105,8 +105,8 @@
       allocate (Ruu(l_minx:l_maxx,l_miny:l_maxy,1:l_nk))
       allocate (Rvv(l_minx:l_maxx,l_miny:l_maxy,1:l_nk))
       allocate (Rww(l_minx:l_maxx,l_miny:l_maxy,1:l_nk))
-      allocate (Rtt(l_minx:l_maxx,l_miny:l_maxy,0:l_nk))
-      allocate (Rzz(l_minx:l_maxx,l_miny:l_maxy,0:l_nk))
+      allocate (Rtt(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3))
+      allocate (Rzz(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3))
       allocate (Nuu(l_minx:l_maxx,l_miny:l_maxy,1:l_nk))
       allocate (Nvv(l_minx:l_maxx,l_miny:l_maxy,1:l_nk))
       Nuu= 0. ; Nvv= 0.

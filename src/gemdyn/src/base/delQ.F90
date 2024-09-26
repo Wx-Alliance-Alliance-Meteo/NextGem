@@ -44,6 +44,8 @@
       if (Schm_POSO == 5) then
          call delQ5th ( F_q, F_minx,F_maxx,F_miny,F_maxy, &
                         F_Qu,F_Qv,F_Qw, F_Qq, F_k0,F_kn )
+      !   call delQ5 ( F_q, F_minx,F_maxx,F_miny,F_maxy, &
+      !                  F_Qu,F_Qv,F_Qw, F_Qq, F_k0,F_kn )
          return
       else if (Schm_POSO == 3) then
          call delQ3rd ( F_q, F_minx,F_maxx,F_miny,F_maxy, &

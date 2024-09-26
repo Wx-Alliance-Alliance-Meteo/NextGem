@@ -62,7 +62,7 @@
                   Ver_b_8%m(G_nk+1),       Ver_b_8%t(G_nk+1), &
                   Ver_c_8%m(G_nk+1),       Ver_c_8%t(G_nk+1), &
                 Ver_z_8%m(0:G_nk+1),     Ver_z_8%t(0:G_nk+1), &
-                Ver_ext%m(0:G_nk+3),     Ver_ext%t(0:G_nk+3), &
+                Ver_ext%m(-2:G_nk+3),   Ver_ext%t(-2:G_nk+3), &
                Ver_dqdz_8(0:G_nk  )                         , &
                  Ver_dz_8%m(G_nk  ),      Ver_dz_8%t(G_nk  ), &
                 Ver_idz_8%m(G_nk  ),     Ver_idz_8%t(G_nk  ), &
@@ -141,7 +141,11 @@
       do k = 1, G_nk+1
          Ver_z_8%m(k) = Ver_a_8%m(k)
       end do
-      Ver_ext%m(0:G_nk) =  Ver_z_8%m(0:G_nk)
+
+      Ver_ext%m(1:G_nk) =  Ver_z_8%m(1:G_nk)
+      Ver_ext%m(0 )     =  Ver_ext%m(1 ) + 2*(Ver_z_8%m(0)-Ver_a_8%m(1))
+      Ver_ext%m(-1)     =  Ver_ext%m(0 ) + (Ver_z_8%m(1)-Ver_a_8%m(2))
+      Ver_ext%m(-2)     =  Ver_ext%m(-1) + (Ver_z_8%m(2)-Ver_a_8%m(3))
       Ver_ext%m(G_nk+1) = -Ver_z_8%m(G_nk  )
       Ver_ext%m(G_nk+2) = -Ver_z_8%m(G_nk-1)
       Ver_ext%m(G_nk+3) = -Ver_z_8%m(G_nk-2)
@@ -152,14 +156,20 @@
          Ver_z_8%t(k) = Ver_a_8%t(k)
       end do
       Ver_dqdz_8(1:G_nk) = Ver_z_8%t(1:G_nk)
-      Ver_ext%t(0:G_nk) =  Ver_z_8%t(0:G_nk)
+
+      Ver_ext%t(1:G_nk) =  Ver_z_8%t(1:G_nk)
+      Ver_ext%t(0 )     =  Ver_ext%t(1 ) + 2*(Ver_z_8%m(0)-Ver_a_8%t(1))
+      Ver_ext%t(-1)     =  Ver_ext%t(0 ) + (Ver_z_8%t(1)-Ver_a_8%t(2))
+      Ver_ext%t(-2)     =  Ver_ext%t(-1) + (Ver_z_8%t(2)-Ver_a_8%t(3))
       Ver_ext%t(G_nk+1) = -Ver_z_8%t(G_nk  )
       Ver_ext%t(G_nk+2) = -Ver_z_8%t(G_nk-1)
       Ver_ext%t(G_nk+3) = -Ver_z_8%t(G_nk-2)
-!      do k = 1, G_nk+3
-!         print*, k, Ver_ext%m(k), Ver_ext%t(k)
-!      end do
-!call gem_stop
+
+! TANYA/JF - new Ver_ext vectors to contain ghosts extension
+!!$      do k = -2, G_nk+3
+!!$         print*, k, Ver_ext%m(k),Ver_ext%t(k)
+!!$      end do
+
       Ver_zmin_8 = Ver_z_8%m(G_nk+1)
       Ver_zmax_8 = Ver_z_8%m(0)
 
@@ -167,6 +177,11 @@
       call CW_vderiva ()
       call QW_vinterp ()
       call QW_vderiva ()
+
+      call VS3_vinterp ()
+      call VD3_vderiva ()
+      call VS5_vinterp ()
+      call VD5_vderiva ()
 
       if ( Ctrl_canonical_dcmip_L ) then
          Cstv_pref_8 = 100000.d0

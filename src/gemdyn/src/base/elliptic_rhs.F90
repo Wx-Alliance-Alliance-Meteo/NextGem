@@ -28,6 +28,8 @@
       use dcst
       use tdpack
       use ver
+      use glb_pil
+      use stat_mpi
       implicit none
 
       integer, intent(in) :: k0, k0t
@@ -47,8 +49,11 @@
 !
 !     ---------------------------------------------------------------
 !
+      Sol_rhs=0.
       if (Schm_POSO == 5) then
          call elliptic_rhs5th ( F_dt_8, k0, k0t )
+         !for 5th order with vertical ghosts halos
+         !call elliptic_rhs5 ( F_dt_8, k0, k0t )
          return
       else if (Schm_POSO == 3) then
          call elliptic_rhs3rd ( F_dt_8, k0, k0t )
@@ -244,7 +249,11 @@
             Sol_rhs(i,j,k)= Sol_rhs(i,j,k)-w2-w3-w4
       end do
       end do
-!
+
+!!$      do k=1,l_nk
+!!$         call statf_dm (Sol_rhs(1:,1:,k:k), 'ERHS', k, 'ELLI', 1,ubound(Sol_rhs,1),1,ubound(Sol_rhs,2),1,1,1+Glb_pil_w,1+Glb_pil_s,1,G_ni-Glb_pil_e,G_nj-Glb_pil_n,1,8)
+!!$      end do
+!     
 !     ---------------------------------------------------------------
 !
       return

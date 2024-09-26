@@ -30,7 +30,6 @@
       use gmm_geof
       use ptopo
       use glb_pil
-      use ldnh
       use stat_mpi
       implicit none
       
@@ -38,16 +37,13 @@
 
       logical, external :: picard_stop
       logical :: print_conv, first_time_L=.true.
-      integer itpc, iter, ni,nj
+      integer itpc, iter
       integer :: HLT_np, HLT_start, HLT_end
       real(kind=REAL64), parameter :: zero=0.d0, one=1.d0
       real(kind=REAL64) :: dt_8, invT_m_8
 !
 !     ---------------------------------------------------------------
 !
-      ni=ldnh_maxx-ldnh_minx+1
-      nj=ldnh_maxy-ldnh_miny+1
-      
       print_conv = (Ptopo_couleur == 0  ) .and. (Lun_out > 0)
 
       dt_8 = F_dt_8
@@ -71,7 +67,6 @@
     
       do iter = 1, Schm_itpc
          
-        ! call fill_Vhalo (wt0,l_minx,l_maxx,l_miny,l_maxy,G_nk+3,6)
          call gem_xch_halo ( wt0(l_minx,l_miny,HLT_start),&
                   l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
 
@@ -89,15 +84,20 @@
 
          if (.not.ctrl_testcases_adv_L) then
             call gtmg_start (29, 'SOL', 20)
-!call statf_dm (Sol_rhs, 'RHS', 1, 'TSTP', 1,ni,1,nj,1,l_nk,1+Glb_pil_w,1+Glb_pil_s,1,G_ni-Glb_pil_e,G_nj-Glb_pil_n,l_nk,8)
+!!$            call statf_dm (Sol_rhs,'RHS',1,'TSTP',1,ubound(Sol_rhs,1),&
+!!$                   1,ubound(Sol_rhs,2),1,l_nk,1+Glb_pil_w,1+Glb_pil_s,&
+!!$                   1,G_ni-Glb_pil_e,G_nj-Glb_pil_n,l_nk,8)
 
             call sol_fgmres (print_conv)
             
-!call statf_dm (Sol_lhs, 'LHS', 1, 'TSTP', 1,ni,1,nj,1,l_nk,1+Glb_pil_w,1+Glb_pil_s,1,G_ni-Glb_pil_e,G_nj-Glb_pil_n,l_nk,8)
+!!$            call statf_dm (Sol_lhs,'LHS',1,'TSTP',1,ubound(Sol_rhs,1),&
+!!$                   1,ubound(Sol_rhs,2),1,l_nk,1+Glb_pil_w,1+Glb_pil_s,&
+!!$                   1,G_ni-Glb_pil_e,G_nj-Glb_pil_n,l_nk,8)
             call gtmg_stop (29)
          endif
 
          call gtmg_start (30, 'BAC', 20)
+         !call bac_new (dt_8) ! for high order
          call bac (dt_8)
          call gtmg_stop (30)
 

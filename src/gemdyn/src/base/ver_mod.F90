@@ -99,5 +99,7 @@ module ver
       real(kind=REAL64), dimension(:), allocatable :: Ver_wpstar_8,Ver_wmstar_8
       real(kind=REAL64), dimension(:,:), allocatable :: CWm2t, CWt2m, CDm2t, CDt2m
       real(kind=REAL64), dimension(:,:), allocatable :: QWm2t, QWt2m, QDm2t, QDt2m
+      real(kind=REAL64), dimension(:,:), allocatable :: VS3m2t, VS3t2m, VD3m2t, VD3t2m
+      real(kind=REAL64), dimension(:,:), allocatable :: VS5m2t, VS5t2m, VD5m2t, VD5t2m
 
 end module ver
