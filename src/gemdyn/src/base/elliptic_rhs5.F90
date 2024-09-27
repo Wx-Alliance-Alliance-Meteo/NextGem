@@ -162,7 +162,7 @@
       call fill_Vhalo (Rtt,l_minx,l_maxx,l_miny,l_maxy,1.d0)
       call fill_Vhalo (Rzz,l_minx,l_maxx,l_miny,l_maxy,1.d0)
       
-      do k=1, l_nk-1
+      do k=1, l_nk
          do j= ds_j0, ds_jn
          do i= ds_i0, ds_in
             Rqq = a*rhsc_mid(i,j,k ) - b*rhsc_dep(i,j,k )

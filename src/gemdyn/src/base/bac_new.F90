@@ -13,8 +13,8 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END --------------------------------
 
-!**s/r bac - backsubstitution: obtain new values for variables:u,v,w,t,q,zd
-!                                using Sol_lhs
+!**   s/r bac - back substitution: obtain new values for variables
+!               u,v,w,t,q,zd using Sol_lhs
 
       subroutine bac_new ( F_dt_8 )
       use dyn_fisl_options
@@ -63,7 +63,7 @@
             end do
          end do
       end do
-      call delQ5th (vgh_q, l_minx,l_maxx,l_miny,l_maxy, Qu,Qv,Qw,Qq,-2,l_nk+3)
+      call delQ5 (vgh_q, l_minx,l_maxx,l_miny,l_maxy, Qu,Qv,Qw,Qq,-2,l_nk+3)
 
 !!$omp do collapse(2)
       do k=1, l_nk
