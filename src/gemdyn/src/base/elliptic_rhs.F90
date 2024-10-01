@@ -56,7 +56,8 @@
          !call elliptic_rhs5 ( F_dt_8, k0, k0t )
          return
       else if (Schm_POSO == 3) then
-         call elliptic_rhs3rd ( F_dt_8, k0, k0t )
+!        call elliptic_rhs3rd ( F_dt_8, k0, k0t )
+         call elliptic_rhs3rd_try1 ( F_dt_8, k0, k0t )
          return
       endif
 

@@ -208,7 +208,7 @@ contains
 
       err = clib_toupper(Schm_orols_ftype_S)
       
-      if ( .not. Grd_yinyang_L) Schm_POSO = 2
+!     if ( .not. Grd_yinyang_L) Schm_POSO = 2
       G_halox=4
       if (Schm_POSO==3) G_halox=5
       if (Schm_POSO==5) G_halox=6
