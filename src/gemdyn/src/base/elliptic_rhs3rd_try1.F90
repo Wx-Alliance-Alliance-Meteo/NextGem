@@ -204,29 +204,25 @@
          end do
          end do
 
-         do j= ds_j0, ds_jn
-         do i= i00, inn
-            if((i.eq.ds_i0.and.l_west).or.(i.eq.ds_in.and.l_east).or.(j.eq.ds_j0.and.l_south).or.(j.eq.ds_jn.and.l_north)) then
-            dqdx = ( qt0(i+1,j,k) - qt0(i,j,k) ) * geomh_invDX_8(j)  
-            else
+!        do j= ds_j0, ds_jn
+!        do i= i00, inn
+         do j= 1, l_nj
+          do i= 1, l_ni
             dqdx = Hderiv(qt0(i-1,j,k), qt0(i,j,k), &
                           qt0(i+1,j,k), qt0(i+2,j,k), geomh_invDX_8(j))
-            endif
             Nuu(i,j,k) = - ( Cori_fcoru_8(i,j) + geomh_tyoa_8(j) * ut0(i,j,k) ) * v2u(i,j,k) &
                         - t2u(i,j,k)*(dqdx - dqz2u(i,j,k)) 
-         end do
+          end do
          end do         
-         do j= j00, jnn
-         do i= ds_i0, ds_in
-            if((i.eq.ds_i0.and.l_west).or.(i.eq.ds_in.and.l_east).or.(j.eq.ds_j0.and.l_south).or.(j.eq.ds_jn.and.l_north)) then
-            dqdy = ( qt0(i,j+1,k) - qt0(i,j,k) ) * geomh_invDY_8
-            else
+!        do j= j00, jnn
+!        do i= ds_i0, ds_in
+         do j= 1, l_nj
+          do i= 1, l_ni
             dqdy = Hderiv(qt0(i,j-1,k),qt0(i  ,j,k),&
                           qt0(i,j+1,k),qt0(i,j+2,k),geomh_invDY_8)
-            endif
             Nvv(i,j,k)= ( Cori_fcorv_8(i,j) + geomh_tyoav_8(j) * u2v(i,j,k)) * u2v(i,j,k) &
                         - t2v(i,j,k)*(dqdy - dqz2v(i,j,k))
-         end do
+          end do
          end do
 
          do j= ds_j0, ds_jn
@@ -268,13 +264,6 @@
          do j= ds_j0, ds_jn
          do i= ds_i0, ds_in
             Rqq = a*rhsc_mid(i,j,k ) - b*rhsc_dep(i,j,k )
-            if((i.eq.ds_i0.and.l_west).or.(i.eq.ds_in.and.l_east).or.(j.eq.ds_j0.and.l_south).or.(j.eq.ds_jn.and.l_north)) then
-             dudx= (Ruu(i,j,k)-Ruu(i-1,j,k))*geomh_invDXM_8(j)
-             dvdy= (Rvv(i,j  ,k)*geomh_cyM_8(j  ) - &
-                   Rvv(i,j-1,k)*geomh_cyM_8(j-1))*geomh_invDYM_8(j)
-             ubx = half*(Ruu(i,j,k)+Ruu(i-1,j,k))
-             vby = half*(Rvv(i,j,k)+Rvv(i,j-1,k))
-            else
              dudx = Hderiv8(Ruu(i-2,j,k), Ruu(i-1,j,k), &
                            Ruu(i  ,j,k), Ruu(i+1,j,k), geomh_invDXM_8(j))
              dvdy = Hderiv8(Rvv(i,j-2,k)*geomh_cyM_8(j-2), &
@@ -286,7 +275,6 @@
                          Ruu(i  ,j,k), Ruu(i+1,j,k))
              vby = Hstag8(Rvv(i,j-2,k), Rvv(i,j-1,k), &
                          Rvv(i,j  ,k), Rvv(i,j+1,k))
-            endif
             !compute vertical staggering of Rzz: thermo lvl -> mom lvl center point
             zzbz = Rzz(i,j,km2) * CWt2m(1,k) & 
                  + Rzz(i,j,km1) * CWt2m(2,k) & 

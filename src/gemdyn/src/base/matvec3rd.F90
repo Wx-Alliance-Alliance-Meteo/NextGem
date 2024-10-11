@@ -56,14 +56,22 @@
       call gtmg_start (91, 'MATVEC1', 29 )
 
       do k= 1, l_nk
-         do j= ds_j0, ds_jn
-         do i= ds_i0, ds_in
+     !  do j= ds_j0, ds_jn
+     !  do i= ds_i0, ds_in
+        do j= 1,l_nj
+        do i= 1,l_ni
+        !do j= ds_j0-3, ds_jn+2
+        !do i= ds_i0-3, ds_in+2
             ext_q(i,j,k)= F_vector(i,j,k)
          end do
          end do
       end do
-      do j= ds_j0, ds_jn
-      do i= ds_i0, ds_in
+      !do j= ds_j0-3,ds_jn+2
+      !do i= ds_i0-3,ds_in+2
+      !do j= ds_j0,ds_jn
+      !do i= ds_i0,ds_in
+      do j= 1, l_nj
+      do i= 1, l_ni
          r1(i)=  (GVM%zmom_8(i,j,l_nk+1)-GVM%zmom_8(i,j,l_nk))&
                 /(GVM%zmom_8(i,j,l_nk)-GVM%zmom_8(i,j,l_nk-1))
          r3(i)= (GVM%zmom_8(i,j,1)-ver_z_8%m(0))/(GVM%zmom_8(i,j,2)-GVM%zmom_8(i,j,1))
@@ -165,66 +173,6 @@
       end do
       call gtmg_stop (92)
 
-!-------------------------- DO LATERAL BOUNDARIES AND CORNERS ---------------
-      if (.not.Grd_yinyang_L) then
-
-      do k= 2, l_nk
-
-         km1=max(k-1,1)
-         km2=max(k-2,1)
-         km3=max(k-3,1)
-         kp1=min(k+1,G_nk)
-         kp2=min(k+2,G_nk)
-
-         do j= ds_j0, ds_jn
-            do i= ds_i0, ds_in
-             if((i.eq.ds_i0.and.l_west).or.(i.eq.ds_in.and.l_east).or.(j.eq.ds_j0.and.l_south).or.(j.eq.ds_jn.and.l_north)) then 
-               r1(i)= GVM%mc_iJz_8(i,j,k  )*(ext_q(i,j,k+1)-ext_q(i,j,k  )) !dqdz(k  )
-               r2(i)= GVM%mc_iJz_8(i,j,k-1)*(ext_q(i,j,k  )-ext_q(i,j,k-1)) !dqdz(k-1)
-               r3(i)= half*(ext_q(i,j,k  )+ext_q(i,j,k+1)) !qbarz(k  )
-               r4(i)= half*(ext_q(i,j,k-1)+ext_q(i,j,k  )) !qbarz(k-1)
-               
-               s1(i)= GVM%mc_iJz_8(i+1,j,k  )*(ext_q(i+1,j,k+1)-ext_q(i+1,j,k  ))*m_east (i) !dqdz(i+1,k  )
-               s2(i)= GVM%mc_iJz_8(i+1,j,k-1)*(ext_q(i+1,j,k  )-ext_q(i+1,j,k-1))*m_east (i) !dqdz(i+1,k-1)
-               s3(i)= GVM%mc_iJz_8(i-1,j,k  )*(ext_q(i-1,j,k+1)-ext_q(i-1,j,k  ))*m_west (i) !dqdz(i-1,k  )
-               s4(i)= GVM%mc_iJz_8(i-1,j,k-1)*(ext_q(i-1,j,k  )-ext_q(i-1,j,k-1))*m_west (i) !dqdz(i-1,k-1)
-               s5(i)= GVM%mc_iJz_8(i,j+1,k  )*(ext_q(i,j+1,k+1)-ext_q(i,j+1,k  ))*m_north(j) !dqdz(j+1,k  )
-               s6(i)= GVM%mc_iJz_8(i,j+1,k-1)*(ext_q(i,j+1,k  )-ext_q(i,j+1,k-1))*m_north(j) !dqdz(j+1,k-1)
-               s7(i)= GVM%mc_iJz_8(i,j-1,k  )*(ext_q(i,j-1,k+1)-ext_q(i,j-1,k  ))*m_south(j) !dqdz(j-1,k  )
-               s8(i)= GVM%mc_iJz_8(i,j-1,k-1)*(ext_q(i,j-1,k  )-ext_q(i,j-1,k-1))*m_south(j) !dqdz(j-1,k-1)
-               
-               w1(i)= (ext_q(i+1,j,k)-ext_q(i  ,j,k))*geomh_invDXM_8(j)*m_east (i) !dqdx(i  )
-               w2(i)= (ext_q(i  ,j,k)-ext_q(i-1,j,k))*geomh_invDXM_8(j)*m_west (i) !dqdx(i-1)
-               w3(i)= (ext_q(i,j+1,k)-ext_q(i  ,j,k))*geomh_invDYM_8(j)*m_north(j) !dqdy(j  )
-               w4(i)= (ext_q(i,j  ,k)-ext_q(i,j-1,k))*geomh_invDYM_8(j-1)*m_south(j) !dqdy(j-1)
-               w5(i)= half*( (r1(i)+s1(i))*Ver_wp_8%m(k) + (r2(i)+s2(i))*Ver_wm_8%m(k) )
-               w6(i)= half*( (s3(i)+r1(i))*Ver_wp_8%m(k) + (s4(i)+r2(i))*Ver_wm_8%m(k) )
-
-               w7(i)= half*( (r1(i)+s5(i))*Ver_wp_8%m(k) + (r2(i)+s6(i))*Ver_wm_8%m(k) )
-               w8(i)= half*( (r1(i)+s7(i))*Ver_wp_8%m(k) + (r2(i)+s8(i))*Ver_wm_8%m(k) )
-               
-               w9(i) =r1(i)*Ver_wp_8%m(k  ) + r2(i)*Ver_wm_8%m(k  )
-               w10(i)=r2(i)*Ver_wp_8%m(k-1) + r3(i)*Ver_wm_8%m(k-1)
-               
-               F_prod(i,j,k)= -gg_8*ext_q(i,j,k) &
-               +geomh_invDX_8 (j)*( (w1(i)-w2(i)) - (GVM%mc_Jx_8(i,j,k)*w5(i)-GVM%mc_Jx_8(i-1,j,k)*w6(i))) &
-               +geomh_invDYM_8(j)*( (geomh_cyv_8(j)*w3(i)-geomh_cyv_8(j-1)*w4(i)) &
-               -GVM%mc_Jy_8(i,j,k)*geomh_cyv_8(j)*w7(i) + GVM%mc_Jy_8(i,j-1,k)*geomh_cyv_8(j-1)*w8(i)) &
-               +gama_8*Ver_idz_8%m(k)*((r1(i)-mu_8*r3(i)) - (r2(i)-mu_8*r4(i))) &
-               
-               -gama_8*epsi_8*w9(i) &
-!               +gama_8*epsi_8*mu_8*ext_q(i,j,k) &
-               +gama_8*epsi_8* mu_8*half* ( Ver_wm_8%m(k)*ext_q(i,j,k-1) + Ver_wp_8%m(k)*ext_q(i,j,k+1) + ext_q(i,j,k) ) &
-               
-               +(half*(w1(i)+w2(i)) - GVM%mc_Jx_8(i,j,k)*w9(i))*GVM%mc_Ix_8(i,j,k) &
-               +(half*(w3(i)+w4(i)) - GVM%mc_Jy_8(i,j,k)*w9(i))*GVM%mc_Iy_8(i,j,k) &
-               +gama_8* (w9(i)-mu_8*ext_q(i,j,k)) * GVM%mc_Iz_8(i,j,k)
-              endif !edges
-            end do
-         end do
-      end do
-
-      endif !.not.yinyang
 !     
 !     ---------------------------------------------------------------
 !     

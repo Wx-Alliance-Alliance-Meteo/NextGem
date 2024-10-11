@@ -136,17 +136,19 @@
 
             if (Sol_precond3D_S == 'RAS') then
                call sol_precond (wint_8(Sol_ii0:Sol_iin,Sol_jj0:Sol_jjn,:,initer), &
-                 vv(Sol_ii0:Sol_iin,Sol_jj0:Sol_jjn,:,initer), sol_niloc,sol_njloc,l_nk)
+                vv(Sol_ii0:Sol_iin,Sol_jj0:Sol_jjn,:,initer), sol_niloc,sol_njloc,l_nk)
+               !wint_8(Sol_ii0:Sol_iin,Sol_jj0:Sol_jjn,:,initer) = vv(Sol_ii0:Sol_iin,Sol_jj0:Sol_jjn,:,initer)
                if(.not.Dynamics_sw_L) then
-                  call matvec (wint_8(sol_ii0,sol_jj0,1,initer),Sol_ii0,Sol_iin,Sol_jj0,Sol_jjn,&
+                  call matvec(wint_8(sol_ii0,sol_jj0,1,initer),l_minx,l_maxx, l_miny,l_maxy,&!Sol_ii0,Sol_iin,Sol_jj0,Sol_jjn,
                        vv(sol_imin,sol_jmin,1,initer+1),Sol_imin,Sol_imax,Sol_jmin,Sol_jmax,l_nk)
                else
-                  call SW_matvec (wint_8(sol_ii0,sol_jj0,1,initer),Sol_ii0,Sol_iin,Sol_jj0,Sol_jjn,&
+                  call SW_matvec(wint_8(sol_ii0,sol_jj0,1,initer),Sol_ii0,Sol_iin,Sol_jj0,Sol_jjn,&
                       vv(sol_imin,sol_jmin,1,initer+1),Sol_imin,Sol_imax,Sol_jmin,Sol_jmax,l_nk)
                endif
             else
                wint_8(Sol_ii0:Sol_iin,Sol_jj0:Sol_jjn,:,initer) = vv(Sol_ii0:Sol_iin,Sol_jj0:Sol_jjn,:,initer)
-               call matvec (vv(sol_imin,sol_jmin,1,initer),Sol_imin,Sol_imax,Sol_jmin,Sol_jmax,vv(sol_imin,sol_jmin,1,initer+1),Sol_imin,Sol_imax,Sol_jmin,Sol_jmax,l_nk)
+               call matvec(vv(sol_imin,sol_jmin,1,initer),l_minx,l_maxx,l_miny,l_maxy,&!Sol_imin,Sol_imax,Sol_jmin,Sol_jmax,
+                      vv(sol_imin,sol_jmin,1,initer+1),Sol_imin,Sol_imax,Sol_jmin,Sol_jmax,l_nk)
             endif
 
             ! Modified Gram-Schmidt from Świrydowicz et al. (2018)
