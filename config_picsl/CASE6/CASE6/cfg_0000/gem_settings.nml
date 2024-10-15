@@ -30,11 +30,8 @@
 
  &dyn_fisl
   Cstv_tstr_8     = 273.15     ,
-  Cstv_h0inv_8   = 0.0001d0    ,
-
   Schm_wload_L      = .false.
-  Schm_hzdadw_L     = .false.
-  Schm_itpc       = 2  
+  Schm_itpc       = 2
 /
 
  &sol
