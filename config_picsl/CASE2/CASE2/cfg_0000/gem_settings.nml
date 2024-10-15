@@ -26,7 +26,6 @@
  &dyn_fisl
   Cstv_tstr_8     = 105.54     ,
   Schm_wload_L      = .false.
-  Schm_hzdadw_L     = .false.
 /
 
  &hvdif
