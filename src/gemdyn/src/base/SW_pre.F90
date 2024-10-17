@@ -77,7 +77,7 @@
             do i= i0, in
                div  = (rhsu(i,j,k)-rhsu(i-1,j,k))*geomh_invDXM_8(j) &
                     + (rhsv(i,j,k)*geomh_cyM_8(j)-rhsv(i,j-1,k)*geomh_cyM_8(j-1))*geomh_invDYM_8(j) 
-               rhsc(i,j,k) = div/grav_8 - (invT_8*Cstv_h0inv_8/grav_8)*rhsc(i,j,k)
+               rhsc(i,j,k) = div/grav_8 - invT_8*((1.d0-Cstv_swln_8)*Cstv_h0inv_8+Cstv_swln_8)/grav_8*rhsc(i,j,k)
             end do
          end do
       end do

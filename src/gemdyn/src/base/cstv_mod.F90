@@ -47,7 +47,7 @@ module cstv
 !
       real(kind=REAL64) :: &
       Cstv_dtA_8   ,Cstv_dtD_8    ,Cstv_dtzA_8   ,&
-      Cstv_Tau_8   ,Cstv_invT_8   ,Cstv_tau_m_8 ,Cstv_invT_m_8 ,&
+      Cstv_Tau_8   ,Cstv_invT_8   ,Cstv_tau_m_8 ,Cstv_invT_m_8 , Cstv_swln_8 , &
       Cstv_tau_nh_8,Cstv_invT_nh_8,Cstv_dt_8, &
       Cstv_pref_8  ,Cstv_dtzD_8                 ,&
       Cstv_ptop_8  ,Cstv_Ztop_8   ,Cstv_Zsrf_8  

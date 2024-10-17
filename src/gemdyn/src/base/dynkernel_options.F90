@@ -22,6 +22,10 @@ module dynkernel_options
    logical :: Dynamics_sw_L = .false.
    namelist /dyn_kernel/ Dynamics_sw_L
 
+   !# * True-> logarithmic SW form.
+   !# * False->Basic SW form.
+   logical :: Dynamics_swln_L = .true.
+   namelist /dyn_kernel/ Dynamics_swln_L
 contains
 
 !**s/r dynkernel_nml - Read namelist dyn_kernel
