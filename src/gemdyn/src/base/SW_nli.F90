@@ -40,6 +40,7 @@
       implicit none
       
       real(kind=REAL64), intent(IN) :: F_dt_8
+      real(kind=REAL64) :: invT_n_8
       
       integer :: HLT_j0, HLT_jn, HLT_nj, HLT_nk, &
                  HLT_np, HLT_start, HLT_end
@@ -52,6 +53,7 @@
 !
 !     ---------------------------------------------------------------
 !
+      invT_n_8 = 3.0/(2.0*F_dt_8)
       HLT_j0 = 1
       HLT_jn = l_nj
       HLT_nk = l_nk
@@ -95,8 +97,8 @@
             !---nonlinear term for depth---
             div = (ut0 (i,j,k)- ut0 (i-1,j,k))*geomh_invDXM_8(j)     &
                 + (vt0 (i,j,k)*geomh_cyM_8(j)-vt0 (i,j-1,k)*geomh_cyM_8(j-1))*geomh_invDYM_8(j) 
-            nlq_t1(i,j,k) = (qt0(i,j,k)-fis0(i,j)) * div                                                                                          
-
+            nlq_t1(i,j,k) = (1.d0-Cstv_swln_8)*(qt0(i,j,k)-fis0(i,j)) * div &                                                                                         
+                            -Cstv_swln_8*invT_n_8*(Cstv_h0inv_8*qt0(i,j,k)-log(Cstv_h0inv_8*(qt0(i,j,k)-fis0(i,j))))
         end do
       end do
       

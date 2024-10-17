@@ -126,7 +126,7 @@
                    + (nl_v(i,j,k)*geomh_cyM_8(j)-nl_v(i,j-1,k)* &
                       geomh_cyM_8(j-1))*geomh_invDYM_8(j) 
 
-               nl_c(i,j,k) = div/grav_8 - (invT_8*Cstv_h0inv_8/grav_8)*nl_c(i,j,k)
+               nl_c(i,j,k) = div/grav_8 - invT_8*((1.d0-Cstv_swln_8)*Cstv_h0inv_8+Cstv_swln_8)/grav_8*nl_c(i,j,k)
 
                Sol_rhs(i,j,k) = c0*(rhsc(i,j,k)-nl_c(i,j,k))
 
