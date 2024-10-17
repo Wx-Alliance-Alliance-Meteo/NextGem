@@ -74,7 +74,7 @@
          !--------------------------------
          FI_8= grav_8*Ver_z_8%m(1)
          do k=1,G_nk+1
-            qt1(i0:in,j0:jn,k) = p0(i0:in,j0:jn) - FI_8
+            qt1(i0:in,j0:jn,k) = (p0(i0:in,j0:jn) - FI_8)/grav_8
          end do
 
       end if
