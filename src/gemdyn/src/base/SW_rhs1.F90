@@ -94,10 +94,10 @@
 
             orhsu_ext(i,j,k)  = ut1(i,j,k)
             orhsv_ext(i,j,k)  = vt1(i,j,k)
-            orhsw_ext(i,j,k)  = Cstv_swln_8*log(Cstv_h0inv_8*(qt1(i,j,k)-fis0(i,j)))+(1.-Cstv_swln_8)*(qt1(i,j,k)-fis0(i,j))
+            orhsw_ext(i,j,k)  = Cstv_swln_8*log(Cstv_h0inv_8*(qt1(i,j,k)-fis0(i,j))+1.d0)+(1.-Cstv_swln_8)*(qt1(i,j,k)-fis0(i,j))
             orhst_ext(i,j,k)  = ut2(i,j,k)
             orhsc_ext(i,j,k)  = vt2(i,j,k)
-            orhsf_ext(i,j,k)  = Cstv_swln_8*log(Cstv_h0inv_8*(qt2(i,j,k)-fis0(i,j)))+(1.-Cstv_swln_8)*(qt2(i,j,k)-fis0(i,j))
+            orhsf_ext(i,j,k)  = Cstv_swln_8*log(Cstv_h0inv_8*(qt2(i,j,k)-fis0(i,j))+1.d0)+(1.-Cstv_swln_8)*(qt2(i,j,k)-fis0(i,j))
 
         end do
       end do
