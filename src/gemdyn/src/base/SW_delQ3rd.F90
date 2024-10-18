@@ -53,12 +53,6 @@
       endif
 
       do k=1,G_nk
-         km3=max(k-3,0)
-         km2=max(k-2,0)
-         km1=max(k-1,0)
-         kp1=min(k+1,G_nk)
-         kp2=min(k+2,G_nk)
-         kp3=min(k+3,G_nk)
          do j= 1, l_nj
             do i= 1, l_ni
                F_Qu(i,j,k)= Hderiv8(F_q(i-1,j,k), F_q(i,j,k), &
