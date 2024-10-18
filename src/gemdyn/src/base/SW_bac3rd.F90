@@ -18,7 +18,7 @@
 !                             and non-linear terms (Nu,Nv,Nw,Nt)
 !             - Height-type vertical coordinate
 
-      subroutine SW_bac ( F_dt_8, i0, j0, k0, in, jn ,k0t )
+      subroutine SW_bac3rd ( F_dt_8, i0, j0, k0, in, jn ,k0t )
       use gem_options
       use dynkernel_options
       use dyn_fisl_options
@@ -34,6 +34,7 @@
       use ver
       use metric
       use ctrl
+      use yyg_param
       use, intrinsic :: iso_fortran_env
       implicit none
 
@@ -43,8 +44,9 @@
       integer :: i, j, k, km
       integer :: HLT_np, HLT_start, HLT_end, itpc, local_np
       real :: w5,w6
-      real(kind=REAL64) :: tau_m_8, tau_nh_8, invT_m_8, invT_nh_8, Buoy
+      real(kind=REAL64) :: tau_m_8, tau_nh_8, invT_m_8, invT_nh_8, Buoy, dqdx, dqdy
       real(kind=REAL64), parameter :: one=1.d0, half=0.5d0
+      real(kind=REAL64), dimension(l_minx:l_maxx,l_miny:l_maxy,1:l_nk) :: F_q
 
 !
 !     ---------------------------------------------------------------
@@ -55,11 +57,6 @@
 !!$omp end single
          return
       end if
-
-      if (Schm_POSO.eq.3) then
-          call SW_bac3rd (F_dt_8, i0, j0, k0, in, jn, k0t)
-          return
-      endif
 
       tau_m_8  = (2.d0*F_dt_8) / 3.d0 
       tau_nh_8 = (2.d0*F_dt_8) / 3.d0 
@@ -72,33 +69,21 @@
       do k=k0, l_nk
          do j= j0, jn
             do i= i0, in
-               qt0(i,j,k) = sngl(Sol_lhs(i,j,l_nk))
-
-               !if (k == l_nk) then 
-               !  print *, qt0(i,j,k)
-               !end if
-
+               F_q(i,j,k) = sngl(Sol_lhs(i,j,l_nk))
             end do
          end do
       end do
 !!$omp enddo
 
-!!$omp do collapse(2)
-         do j= j0, jn
-            do i= i0, in
-               qt0(i,j,l_nk+1) = sngl(Sol_lhs(i,j,l_nk))
-            end do
-         end do
-!!$omp enddo
-
-
-!!$omp single
-!     call rpn_comm_xch_halo(qt0,l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,G_nk+1, &
-!                            G_halox,G_haloy,G_periodx,G_periody,l_ni,0)
-!!$omp end single
-      call HLT_split (1, G_nk+1, HLT_np, HLT_start, HLT_end)
-      call gem_xch_halo ( qt0(l_minx,l_miny,HLT_start),&
-                 l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
+      if ( Grd_yinyang_L) then
+         call yyg_xchng_8 (F_q, YYG_HALO_q2q, l_minx,l_maxx,l_miny,l_maxy, &
+                           l_ni,l_nj, l_nk, .false., 'CUBIC', .true.)
+      else
+        !call HLT_split (F_k0, F_kn, HLT_np, HLT_start, HLT_end)
+         call HLT_split (1, G_nk, HLT_np, HLT_start, HLT_end)
+         call gem_xch_halo_8 ( F_q(l_minx,l_miny,HLT_start),&
+                    l_minx,l_maxx,l_miny,l_maxy, HLT_np, 1)
+      endif
 
 !!$omp do collapse(2)
       do k=k0, l_nk
@@ -107,9 +92,11 @@
 !DIR$ SIMD
             do i= i0, l_niu-pil_e
 
+               dqdx = Hderiv8(F_q(i-1,j,k), F_q(i,j,k), &
+                             F_q(i+1,j,k), F_q(i+2,j,k), geomh_invDX_8(j))
    !           Compute U
    !           ~~~~~~~~~
-               ut0(i,j,k) = tau_m_8*(Ruu(i,j,k) - grav_8*(qt0(i+1,j,k)-qt0(i,j,k))*geomh_invDX_8(j)) 
+               ut0(i,j,k) = tau_m_8*(Ruu(i,j,k) - grav_8*dqdx)
             end do
          end do
       end do
@@ -122,9 +109,11 @@
 !DIR$ SIMD
             do i= i0, in
 
+               dqdy = Hderiv8(F_q(i,j-1,k),F_q(i  ,j,k),&
+                             F_q(i,j+1,k),F_q(i,j+2,k),geomh_invDY_8)
    !           Compute V
    !           ~~~~~~~~~
-               vt0(i,j,k) = tau_m_8*(Rvv(i,j,k) - grav_8*(qt0(i,j+1,k)-qt0(i,j,k))*geomh_invDYMv_8(j) )
+               vt0(i,j,k) = tau_m_8*(Rvv(i,j,k) - grav_8*dqdy)
             end do
          end do
       end do
@@ -134,4 +123,5 @@
 !     ---------------------------------------------------------------
 !
       return
-      end subroutine SW_bac
+      include 'H3rd_ope.inc'
+      end subroutine SW_bac3rd

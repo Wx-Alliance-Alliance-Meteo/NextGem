@@ -14,7 +14,7 @@
 !---------------------------------- LICENCE END ---------------------------------
 !**s/r elliptic_rhs_schar - Compute right hand side of the elliptic problem
 
-      subroutine SW_elliptic_rhs ( F_dt_8, k0, k0t )
+      subroutine SW_elliptic_rhs3rd ( F_dt_8, k0, k0t )
       use, intrinsic :: iso_fortran_env
       use dyn_fisl_options
       use HORgrid_options
@@ -41,7 +41,9 @@
       integer :: km,i00,inn,j00,jnn,dim,ub
       real, dimension(:,:,:), pointer :: wkf
       real, dimension(:,:,:), pointer :: tots, logT, logQ, Rt
+      real(kind=REAL64), dimension(:,:,:), pointer :: v2u, u2v
       real(kind=REAL64) :: Rqq,Nqq,tau_8,invT_8,a,b,c,barz,barzp,div
+      real(kind=REAL64) :: dqdx, dqdy
       real(kind=REAL64) :: w0,w1,w2,w3,w4,w5,w6,w7, dudx,dvdy,ubx,vby
       real(kind=REAL64) :: Nwww,Nttt,t_interp,u_interp,v_interp
       real(kind=REAL64) :: wka(l_minx:l_maxx,l_miny:l_maxy),&
@@ -51,19 +53,13 @@
 !
 !     ---------------------------------------------------------------
 !
-      Sol_rhs=0.
-      if (Schm_POSO == 3) then
-         call SW_elliptic_rhs3rd( F_dt_8, k0, k0t )
-         return
-      endif
-
-      i00= ds_i0-1 ; inn= ds_in
-      j00= ds_j0-1 ; jnn= ds_jn
+      i00= ds_i0-3 ; inn= ds_in+2
+      j00= ds_j0-3 ; jnn= ds_jn+2
       if (.not.Grd_yinyang_L) then
-         i00= ds_i0-1+min(pil_w,1)
-         inn= ds_in  -min(pil_e,1)
-         j00= ds_j0-1+min(pil_s,1)
-         jnn= ds_jn  -min(pil_n,1)
+         i00= ds_i0-(1-min(pil_w,1))*3
+         inn= ds_in+2-3*min(pil_e,1)
+         j00= ds_j0-(1-min(pil_s,1))*3
+         jnn= ds_jn+2-3*min(pil_n,1)
       endif
       
       tau_8  = (2.d0 * F_dt_8 ) / 3.d0
@@ -71,6 +67,12 @@
       a      = 4.d0*invT_8/3.d0
       b      =      invT_8/3.d0
       c      = grav_8 * tau_8
+
+      ub=0
+      v2u  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => WS1_8(ub+1:) ; ub=ub+dim*l_nk
+      u2v  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => WS1_8(ub+1:) ; ub=ub+dim*l_nk
+
+      call SW_prerhs3rd (v2u,u2v,l_minx,l_maxx,l_miny,l_maxy,G_nk)
 
       do k=1, l_nk
          do j= Adz_j0 , Adz_jn
@@ -85,15 +87,12 @@
          end do
          do j= ds_j0, ds_jn
          do i= i00, inn
-            v_interp = 0.25d0*(vt0(i  ,j,k)+vt0(i  ,j-1,k)+&
-                               vt0(i+1,j,k)+vt0(i+1,j-1,k))
-            Nuu(i,j,k)=  - ( Cori_fcoru_8(i,j) + geomh_tyoa_8(j) * ut0(i,j,k) ) * v_interp 
+            Nuu(i,j,k)=  - ( Cori_fcoru_8(i,j) + geomh_tyoa_8(j)*ut0(i,j,k) ) * v2u(i,j,k) 
          end do
          end do         
          do j= j00, jnn
          do i= ds_i0, ds_in
-            u_interp = 0.25d0*(ut0(i,j,k)+ut0(i-1,j,k)+ut0(i,j+1,k)+ut0(i-1,j+1,k))
-            Nvv(i,j,k) = ( Cori_fcorv_8(i,j) + geomh_tyoav_8(j) * u_interp ) * u_interp 
+            Nvv(i,j,k) = ( Cori_fcorv_8(i,j) + geomh_tyoav_8(j)*u2v(i,j,k) ) * u2v(i,j,k)
          end do
          end do
       end do
@@ -113,17 +112,26 @@
          do i= ds_i0, ds_in
             Rqq = a*rhsc_mid(i,j,k ) - b*rhsc_dep(i,j,k ) + (1.d0-Cstv_swln_8)*invT_8*fis0(i,j)
 
-            div = (ut0 (i,j,k)- ut0 (i-1,j,k))*geomh_invDXM_8(j)     &
-                + (vt0 (i,j,k)*geomh_cyM_8(j)-vt0 (i,j-1,k)*geomh_cyM_8(j-1))*geomh_invDYM_8(j) 
+            dudx = Hderiv(ut0(i-2,j,k), ut0(i-1,j,k), &
+                           ut0(i  ,j,k), ut0(i+1,j,k), geomh_invDXM_8(j))
+            dvdy = Hderiv8(vt0(i,j-2,k)*geomh_cyM_8(j-2), &
+                           vt0(i,j-1,k)*geomh_cyM_8(j-1), &
+                           vt0(i,j  ,k)*geomh_cyM_8(j  ), &
+                           vt0(i,j+1,k)*geomh_cyM_8(j+1), &
+                           geomh_invDYM_8(j))
 
-            Nqq = (1.d0-Cstv_swln_8)*(qt0(i,j,k)-fis0(i,j)) * div &                                                                                         
+            Nqq = (1.d0-Cstv_swln_8)*(qt0(i,j,k)-fis0(i,j)) * ( dudx + dvdy ) &                                                                                         
                             -Cstv_swln_8*invT_8*(Cstv_h0inv_8*qt0(i,j,k)-log(Cstv_h0inv_8*(qt0(i,j,k)-fis0(i,j))+1.d0))
 
             Rqq = Rqq - Nqq
 
-            dudx= (Ruu(i,j,k)-Ruu(i-1,j,k))*geomh_invDXM_8(j)
-            dvdy= (Rvv(i,j  ,k)*geomh_cyM_8(j  ) - &
-                   Rvv(i,j-1,k)*geomh_cyM_8(j-1))*geomh_invDYM_8(j)
+            dudx = Hderiv8(Ruu(i-2,j,k), Ruu(i-1,j,k), &
+                           Ruu(i  ,j,k), Ruu(i+1,j,k), geomh_invDXM_8(j))
+            dvdy = Hderiv8(Rvv(i,j-2,k)*geomh_cyM_8(j-2), &
+                           Rvv(i,j-1,k)*geomh_cyM_8(j-1), &
+                           Rvv(i,j  ,k)*geomh_cyM_8(j  ), &
+                           Rvv(i,j+1,k)*geomh_cyM_8(j+1), &
+                           geomh_invDYM_8(j))
 
             Sol_rhs(i,j,k) = (dudx + dvdy)/grav_8 - invT_8*((1.d0-Cstv_swln_8)*Cstv_h0inv_8+Cstv_swln_8)/grav_8*Rqq
          end do
@@ -133,4 +141,5 @@
 !     ---------------------------------------------------------------
 !
       return
-      end subroutine SW_elliptic_rhs
+      include 'H3rd_ope.inc'
+      end subroutine SW_elliptic_rhs3rd

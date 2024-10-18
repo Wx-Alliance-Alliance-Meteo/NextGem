@@ -63,7 +63,7 @@
        end do
       end do
 
-      call SW_delQ3rd (ext_q, l_minx,l_maxx,l_miny,l_maxy, Qu,Qv,0,l_nk+1)
+      call SW_delQ3rd (ext_q, l_minx,l_maxx,l_miny,l_maxy,Qu,Qv,0,l_nk+1)
 
       call gtmg_stop (91)
       call gtmg_start (92, 'MATVEC2', 29 )
