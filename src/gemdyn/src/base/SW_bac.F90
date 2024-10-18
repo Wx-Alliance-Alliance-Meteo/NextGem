@@ -104,8 +104,7 @@
 
    !           Compute U
    !           ~~~~~~~~~
-               ut0(i,j,k) = tau_m_8*(rhsu(i,j,k)-nl_u(i,j,k)  &
-                          - grav_8*(qt0(i+1,j,k)-qt0(i,j,k))*geomh_invDX_8(j)) 
+               ut0(i,j,k) = tau_m_8*(Ruu(i,j,k) - grav_8*(qt0(i+1,j,k)-qt0(i,j,k))*geomh_invDX_8(j)) 
             end do
          end do
       end do
@@ -120,8 +119,7 @@
 
    !           Compute V
    !           ~~~~~~~~~
-               vt0(i,j,k) = tau_m_8*(rhsv(i,j,k)-nl_v(i,j,k) &
-                          - grav_8*(qt0(i,j+1,k)-qt0(i,j,k))*geomh_invDYMv_8(j) )
+               vt0(i,j,k) = tau_m_8*(Rvv(i,j,k) - grav_8*(qt0(i,j+1,k)-qt0(i,j,k))*geomh_invDYMv_8(j) )
             end do
          end do
       end do

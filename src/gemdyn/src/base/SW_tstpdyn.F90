@@ -100,24 +100,26 @@
     
 !5.	Form rhs using the bdf terms
 
-      call SW_rhs2 (dt_8, i0, j0, k0, in, jn, k0t )
- 
+!     call SW_rhs2 (dt_8, i0, j0, k0, in, jn, k0t )
+!
 !6.  Combine some rhs to obtain the linear part
 !     of the right-hand side of the elliptic problem
       print *,"---sliemx pre---"
-      call SW_pre (dt_8, i0, j0, k0, in, jn, k0t )
-      call gtmg_stop (27)
+!     call SW_pre (dt_8, i0, j0, k0, in, jn, k0t )
+!     call gtmg_stop (27)
 
 !7. Compute nonlinear terms at t0 time level
-      call SW_nli( dt_8 )
+!     call SW_nli( dt_8 )
 
 !8.	Combine the nonlinear term of the rhs and then
 !	combine with linear rhs of bvp to form final rhs 
 !	of bvp; rhs_sol should be complete
 
-      call gtmg_start (28, 'NLI', 20)
-      call SW_comb_nli (dt_8, i0, j0, k0, in, jn, k0t,itpc)
-      call gtmg_stop (28)
+!     call gtmg_start (28, 'NLI', 20)
+!     call SW_comb_nli (dt_8, i0, j0, k0, in, jn, k0t,itpc)
+!     call gtmg_stop (28)
+      
+      call SW_elliptic_rhs (dt_8, k0, k0t)
 
 !9.	Solve the elliptic problem; nothing changed here!
 !	but changed print_conv to be true at every step 
