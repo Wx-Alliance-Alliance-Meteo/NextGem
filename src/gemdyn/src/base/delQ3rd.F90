@@ -44,7 +44,7 @@
 !
       nk= F_kn-F_k0+1
       if ( Grd_yinyang_L) then
-         call yyg_xchng_8 (F_q, YYG_HALO_q2q, l_minx,l_maxx,l_miny,l_maxy, &
+         call yyg_xchng_8 (F_q(l_minx,l_miny,F_k0), YYG_HALO_q2q, l_minx,l_maxx,l_miny,l_maxy, &
                            l_ni,l_nj, nk, .false., 'CUBIC', .true.)
       else
          call HLT_split (F_k0, F_kn, HLT_np, HLT_start, HLT_end)
