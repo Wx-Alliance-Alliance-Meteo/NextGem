@@ -75,50 +75,67 @@
       call SW_prerhs3rd (v2u,u2v,l_minx,l_maxx,l_miny,l_maxy,G_nk)
 
       do k=1, l_nk
-         do j= Adz_j0 , Adz_jn
-         do i= Adz_i0u, Adz_inu
+         do j= 1, l_nj
+         do i= 1, l_ni
+        !do j= Adz_j0 , Adz_jn
+        !do i= Adz_i0u, Adz_inu
             Ruu(i,j,k) = a*rhsu_mid(i,j,k) - b*rhsu_dep(i,j,k) 
          end do
          end do
-         do j= Adz_j0v, Adz_jnv
-         do i= Adz_i0 , Adz_in
+         do j= 1, l_nj
+         do i= 1, l_ni
+        !do j= Adz_j0v, Adz_jnv
+        !do i= Adz_i0 , Adz_in
             Rvv(i,j,k) = a*rhsv_mid(i,j,k) - b*rhsv_dep(i,j,k) 
          end do
          end do
-         do j= ds_j0, ds_jn
-         do i= i00, inn
+         do j= 1, l_nj
+         do i= 1, l_ni
+        !do j= ds_j0, ds_jn
+        !do i= i00, inn
             Nuu(i,j,k)=  - ( Cori_fcoru_8(i,j) + geomh_tyoa_8(j)*ut0(i,j,k) ) * v2u(i,j,k) 
          end do
          end do         
-         do j= j00, jnn
-         do i= ds_i0, ds_in
+         do j= 1, l_nj
+         do i= 1, l_ni
+        !do j= j00, jnn
+        !do i= ds_i0, ds_in
             Nvv(i,j,k) = ( Cori_fcorv_8(i,j) + geomh_tyoav_8(j)*u2v(i,j,k) ) * u2v(i,j,k)
          end do
          end do
       end do
       
-      do k=1, l_nk
-         Ruu(:,:,k)= Ruu(:,:,k) - Nuu(:,:,k)
-         Rvv(:,:,k)= Rvv(:,:,k) - Nvv(:,:,k)
-      end do
       call HLT_split (1, l_nk, HLT_np, HLT_start, HLT_end)
       call gem_xch_halo_8 ( Ruu(l_minx,l_miny,HLT_start),&
                  l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
       call gem_xch_halo_8 ( Rvv(l_minx,l_miny,HLT_start),&
                  l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
+      do k=1, l_nk
+         Ruu(:,:,k)= Ruu(:,:,k) - Nuu(:,:,k)
+         Rvv(:,:,k)= Rvv(:,:,k) - Nvv(:,:,k)
+      end do
 
       do k=1, l_nk
          do j= ds_j0, ds_jn
          do i= ds_i0, ds_in
             Rqq = a*rhsc_mid(i,j,k ) - b*rhsc_dep(i,j,k ) + (1.d0-Cstv_swln_8)*invT_8*fis0(i,j)
 
-            dudx = Hderiv(ut0(i-2,j,k), ut0(i-1,j,k), &
-                           ut0(i  ,j,k), ut0(i+1,j,k), geomh_invDXM_8(j))
-            dvdy = Hderiv8(vt0(i,j-2,k)*geomh_cyM_8(j-2), &
-                           vt0(i,j-1,k)*geomh_cyM_8(j-1), &
-                           vt0(i,j  ,k)*geomh_cyM_8(j  ), &
-                           vt0(i,j+1,k)*geomh_cyM_8(j+1), &
+            !dudx = Hderiv8(ut0(i-2,j,k)*1.d0, ut0(i-1,j,k)*1.d0, &
+            !               ut0(i  ,j,k)*1.d0, ut0(i+1,j,k)*1.d0, geomh_invDXM_8(j))
+            !dvdy = Hderiv8(vt0(i,j-2,k)*geomh_cyM_8(j-2), &
+            !               vt0(i,j-1,k)*geomh_cyM_8(j-1), &
+            !               vt0(i,j  ,k)*geomh_cyM_8(j  ), &
+            !               vt0(i,j+1,k)*geomh_cyM_8(j+1), &
+            !               geomh_invDYM_8(j))
+            dudx = Hderiv8(ut0(i-1,j,k)*1.d0, ut0(i,j,k)*1.d0, &
+                           ut0(i+1  ,j,k)*1.d0, ut0(i+2,j,k)*1.d0, geomh_invDXM_8(j))
+            dvdy = Hderiv8(vt0(i,j-1,k)*geomh_cyM_8(j-1), &
+                           vt0(i,j,k)*geomh_cyM_8(j), &
+                           vt0(i,j+1,k)*geomh_cyM_8(j+1  ), &
+                           vt0(i,j+2,k)*geomh_cyM_8(j+2), &
                            geomh_invDYM_8(j))
+           !dudx= (ut0 (i,j,k)- ut0 (i-1,j,k))*geomh_invDXM_8(j)    
+           !dvdy=  (vt0 (i,j,k)*geomh_cyM_8(j)-vt0 (i,j-1,k)*geomh_cyM_8(j-1))*geomh_invDYM_8(j) 
 
             Nqq = (1.d0-Cstv_swln_8)*(qt0(i,j,k)-fis0(i,j)) * ( dudx + dvdy ) &                                                                                         
                             -Cstv_swln_8*invT_8*(Cstv_h0inv_8*qt0(i,j,k)-log(Cstv_h0inv_8*(qt0(i,j,k)-fis0(i,j))+1.d0))
