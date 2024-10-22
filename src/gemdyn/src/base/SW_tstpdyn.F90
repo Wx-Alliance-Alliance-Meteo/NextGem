@@ -77,7 +77,9 @@
 
       call gtmg_start (20, 'TSTPDYN', 10)
 
-      call HLT_split (1, 6*l_nk+2, HLT_np, HLT_start, HLT_end)
+!     call HLT_split (1, 6*l_nk+2, HLT_np, HLT_start, HLT_end)
+      call HLT_split (-2, 6*(G_nk+6)-3, HLT_np, HLT_start, HLT_end)
+
 
       call set_dync ( .true., dt_8 )
 
