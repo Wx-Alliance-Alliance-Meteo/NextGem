@@ -84,6 +84,7 @@
       call gtmg_start (73, 'MATVEC2', 25 )
 
 !!$omp do collapse(2)
+      if(1.eq.1)then
       do k=k0,l_nk
          do j= j0, jn
             km=max(k-1,1)
@@ -101,6 +102,23 @@
             end do
          end do
       end do
+      else
+      do k=k0,l_nk
+         do j= j0, jn
+            do i= i0, in
+            F_prod(i,j,k)= &
+               !+Dx[Dx[q]]
+              +geomh_invDXM_8(j)*(geomh_invDX_8(j)*(fdg2(i+1,j,k)-fdg2(i  ,j,k))*m_east(i)   & 
+                                 -geomh_invDX_8(j)*(fdg2(i  ,j,k)-fdg2(i-1,j,k))*m_west(i) ) &
+               !+cos(theta)^(-1)*Dy[cos(theta)*Dy[q]]
+              +geomh_invDYM_8(j)*(geomh_cyM_8(j  )*geomh_invDYMv_8(j)*(fdg2(i,j+1,k)-fdg2(i,j,k))*m_north(j)&
+                                 -geomh_cyM_8(j-1)*geomh_invDYMv_8(j-1)*(fdg2(i,j,k)-fdg2(i,j-1,k))*m_south(j)&
+               )& 
+              -gg_sw_8*fdg2(i,j,k)
+            end do
+         end do
+      end do
+      endif
 !!$omp enddo
       call gtmg_stop (73)
 !     
