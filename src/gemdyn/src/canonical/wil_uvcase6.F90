@@ -342,10 +342,12 @@
 
       do k=1,F_nk
          F_u(i0:in,j0:jn,k) = uloc(i0:in,j0:jn)
+!        F_u(:,:,k) = uloc(:,:)
       end do
 
       do k=1,F_nk
          F_v(i0:in,j0:jn,k) = vloc(i0:in,j0:jn)
+!        F_v(:,:,k) = vloc(:,:)
       end do
 
       !######################
@@ -354,10 +356,12 @@
 
       do k=1,F_nk
          F_u(i0:inu,j0:jn,k) = uloc(i0:inu,j0:jn)
+!        F_u(:,:,k) = uloc(:,:)
       end do
 
       do k=1,F_nk
          F_v(i0:in,j0:jnv,k) = vloc(i0:in,j0:jnv)
+!        F_v(:,:,k) = vloc(:,:)
       end do
 
       !######################

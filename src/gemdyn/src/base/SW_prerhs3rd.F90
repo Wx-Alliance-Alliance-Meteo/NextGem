@@ -44,6 +44,10 @@
              end do
              F_v2u(i,j,k)= Hstag8( v2q(-1), v2q(0), v2q(1), v2q(2))
              F_u2v(i,j,k)= Hstag8( u2q(-1), u2q(0), u2q(1), u2q(2))
+             !F_v2u(i,j,k)= 0.25d0*(vt0(i,j,k)+vt0(i,j-1,k)+vt0(i+1,j,k)+vt0(i+1,j-1,k)) 
+             !F_u2v(i,j,k)= 0.25d0*(ut0(i,j,k)+ut0(i-1,j,k)+ut0(i,j+1,k)+ut0(i-1,j+1,k))
+             !F_v2u(i,j,k)= 0.d0
+             !F_u2v(i,j,k)= 0.d0
            end do
          end do
       end do

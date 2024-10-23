@@ -77,9 +77,13 @@
 
       call gtmg_start (20, 'TSTPDYN', 10)
 
+      if (Grd_yinyang_L) then
+         call yyg_xchng_vec_uv2uv (ut0(l_minx,l_miny,1), vt0(l_minx,l_miny,1),&
+                                   l_minx,l_maxx,l_miny,l_maxy,G_nk)
+      endif
+
 !     call HLT_split (1, 6*l_nk+2, HLT_np, HLT_start, HLT_end)
       call HLT_split (-2, 6*(G_nk+6)-3, HLT_np, HLT_start, HLT_end)
-
 
       call set_dync ( .true., dt_8 )
 
