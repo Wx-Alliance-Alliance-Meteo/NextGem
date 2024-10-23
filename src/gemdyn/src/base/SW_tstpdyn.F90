@@ -90,6 +90,10 @@
 !2.	Compute bdf terms that will be on rhs for current and previous time levels
       call SW_rhs1(dt_8)
 
+      if ( .not. Grd_yinyang_L ) then
+         call nest_bcs (dt_8,Ruu,Rvv,l_minx,l_maxx,l_miny,l_maxy,l_nk)
+      end if
+
       do itpc=1, Schm_itpc
 
       call gem_xch_halo ( wt0(l_minx,l_miny,HLT_start),&
