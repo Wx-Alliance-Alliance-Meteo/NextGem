@@ -76,7 +76,7 @@
 !!$omp enddo
 
       if ( Grd_yinyang_L) then
-         call yyg_xchng_8 (F_q(l_minx,l_miny,1), YYG_HALO_q2q, l_minx,l_maxx,l_miny,l_maxy, &
+         call yyg_xchng_8 (F_q(l_minx,l_miny,k0), YYG_HALO_q2q, l_minx,l_maxx,l_miny,l_maxy, &
                            l_ni,l_nj, l_nk, .false., 'CUBIC', .true.)
 !        call HLT_split (1, G_nk, HLT_np, HLT_start, HLT_end)
 !        call gem_xch_halo_8 ( F_q(l_minx,l_miny,HLT_start),&

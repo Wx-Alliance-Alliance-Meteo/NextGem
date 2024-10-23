@@ -32,6 +32,7 @@
       use ver
       use glb_pil
       use stat_mpi
+      use yyg_param
       implicit none
 
       integer, intent(in) :: k0, k0t

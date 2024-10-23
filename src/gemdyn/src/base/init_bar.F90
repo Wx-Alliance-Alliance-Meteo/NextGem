@@ -108,7 +108,11 @@
       !Estimate U-V and T on scalar grids
       !----------------------------------
 !!$omp parallel private (local_np, HLT_start, HLT_end)
+      if(Schm_POSO.eq.2)then
       call HLT_split (-2, G_nk+3, local_np, HLT_start, HLT_end)
+      else
+      call HLT_split (-2, 6*(G_nk+6)-3, local_np, HLT_start, HLT_end)
+      endif
       call gem_xch_halo (ut1(l_minx,l_miny,HLT_start),l_minx,l_maxx,l_miny,l_maxy,local_np,-1)
       call gem_xch_halo (vt1(l_minx,l_miny,HLT_start),l_minx,l_maxx,l_miny,l_maxy,local_np,-1)
       call hwnd_stag2( pw_uu_plus,pw_vv_plus,ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1),&
