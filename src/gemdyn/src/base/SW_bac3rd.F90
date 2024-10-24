@@ -67,16 +67,24 @@
 
 !!$omp do collapse(2)
       do k=k0, l_nk
-         do j= j0, jn
-            do i= i0, in
-               F_q(i,j,k) = sngl(Sol_lhs(i,j,l_nk))
+         do j= ds_j0, ds_jn
+            do i= ds_i0, ds_in
+               F_q(i,j,k) = sngl(Sol_lhs(i,j,k))
+               qt0(i,j,k) = F_q(i,j,k)
             end do
          end do
       end do
 !!$omp enddo
+!!$omp do collapse(2)
+       do j= ds_j0, ds_jn
+           do i= ds_i0, ds_in
+               qt0(i,j,l_nk+1) = F_q(i,j,l_nk)
+           end do
+       end do
+!!$omp enddo
 
       if ( Grd_yinyang_L) then
-         call yyg_xchng_8 (F_q(l_minx,l_miny,k0), YYG_HALO_q2q, l_minx,l_maxx,l_miny,l_maxy, &
+         call yyg_xchng_8 (F_q(l_minx,l_miny,1), YYG_HALO_q2q, l_minx,l_maxx,l_miny,l_maxy, &
                            l_ni,l_nj, l_nk, .false., 'CUBIC', .true.)
 !        call HLT_split (1, G_nk, HLT_np, HLT_start, HLT_end)
 !        call gem_xch_halo_8 ( F_q(l_minx,l_miny,HLT_start),&
@@ -88,6 +96,8 @@
                     l_minx,l_maxx,l_miny,l_maxy, HLT_np, 1)
       endif
 
+      call SW_delQ3rd (F_q, l_minx,l_maxx,l_miny,l_maxy,Qu,Qv,1,l_nk)
+
 !!$omp do collapse(2)
 !     do k=k0, l_nk
 !        do j= j0, jn
@@ -98,8 +108,11 @@
          do j= ds_j0, ds_jn
             do i= ds_i0, l_niu-pil_e
 
-               dqdx = Hderiv8(F_q(i-1,j,k), F_q(i,j,k), &
-                             F_q(i+1,j,k), F_q(i+2,j,k), geomh_invDX_8(j))
+              !dqdx = Hderiv8(F_q(i-1,j,k), F_q(i,j,k), &
+              !               F_q(i+1,j,k), F_q(i+2,j,k), geomh_invDX_8(j))
+              !dqdx = (F_q(i+1,j,k)-F_q(i,j,k))*geomh_invDX_8(j)
+               dqdx = Qu(i,j,k)
+              !dqdx = (qt0(i+1,j,k)-qt0(i,j,k))*geomh_invDX_8(j)
    !           Compute U
    !           ~~~~~~~~~
                ut0(i,j,k) = tau_m_8*(Ruu(i,j,k) - grav_8*dqdx)
@@ -116,8 +129,11 @@
          do j= ds_j0, l_njv-pil_n
             do i= ds_i0, ds_in
 
-               dqdy = Hderiv8(F_q(i,j-1,k),F_q(i  ,j,k),&
-                             F_q(i,j+1,k),F_q(i,j+2,k),geomh_invDY_8)
+              !dqdy = Hderiv8(F_q(i,j-1,k),F_q(i  ,j,k),&
+              !               F_q(i,j+1,k),F_q(i,j+2,k),geomh_invDYMv_8(j))
+              !dqdy = (F_q(i,j+1,k)-F_q(i,j,k))*geomh_invDYMv_8(j) 
+               dqdy = Qv(i,j,k)
+              !dqdy = (qt0(i,j+1,k)-qt0(i,j,k))*geomh_invDYMv_8(j) 
    !           Compute V
    !           ~~~~~~~~~
                vt0(i,j,k) = tau_m_8*(Rvv(i,j,k) - grav_8*dqdy)

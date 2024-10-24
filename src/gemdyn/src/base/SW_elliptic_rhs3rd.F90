@@ -70,8 +70,9 @@
       c      = grav_8 * tau_8
 
       ub=0
+      dim= (l_maxx-l_minx+1)*(l_maxy-l_miny+1)
       v2u  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => WS1_8(ub+1:) ; ub=ub+dim*l_nk
-      u2v  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => WS1_8(ub+1:) ; ub=ub+dim*l_nk
+      u2v  (l_minx:l_maxx,l_miny:l_maxy,1:l_nk) => WS1_8(ub+1:) 
 
       call SW_prerhs3rd (v2u,u2v,l_minx,l_maxx,l_miny,l_maxy,G_nk)
 
@@ -95,6 +96,9 @@
          do j= ds_j0, ds_jn
          do i= i00, inn
             Nuu(i,j,k)=  - ( Cori_fcoru_8(i,j) + geomh_tyoa_8(j)*ut0(i,j,k) ) * v2u(i,j,k) 
+           !v_interp = 0.25d0*(vt0(i  ,j,k)+vt0(i  ,j-1,k)+&
+           !                   vt0(i+1,j,k)+vt0(i+1,j-1,k))
+           !Nuu(i,j,k)=  - ( Cori_fcoru_8(i,j) + geomh_tyoa_8(j) * ut0(i,j,k) ) * v_interp 
          end do
          end do         
         !do j= 1, l_nj
@@ -102,6 +106,8 @@
          do j= j00, jnn
          do i= ds_i0, ds_in
             Nvv(i,j,k) = ( Cori_fcorv_8(i,j) + geomh_tyoav_8(j)*u2v(i,j,k) ) * u2v(i,j,k)
+           !u_interp = 0.25d0*(ut0(i,j,k)+ut0(i-1,j,k)+ut0(i,j+1,k)+ut0(i-1,j+1,k))
+           !Nvv(i,j,k) = ( Cori_fcorv_8(i,j) + geomh_tyoav_8(j) * u_interp ) * u_interp 
          end do
          end do
       end do
@@ -155,6 +161,9 @@
                            Rvv(i,j  ,k)*geomh_cyM_8(j  ), &
                            Rvv(i,j+1,k)*geomh_cyM_8(j+1), &
                            geomh_invDYM_8(j))
+           !dudx= (Ruu(i,j,k)-Ruu(i-1,j,k))*geomh_invDXM_8(j)
+           !dvdy= (Rvv(i,j  ,k)*geomh_cyM_8(j  ) - &
+           !       Rvv(i,j-1,k)*geomh_cyM_8(j-1))*geomh_invDYM_8(j)
 !                  dudx=0.
 !                  dvdy=0.
            !dudx = Hderiv8(Ruu(i-1,j,k), Ruu(i,j,k), &

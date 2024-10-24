@@ -93,6 +93,15 @@
 
                F_prod(i,j,k)= -gg_sw_8*ext_q(i,j,k) + dxQu + dyQv 
 
+              !F_prod(i,j,k) = &
+              !       -2.0d0*geomh_invDX_8(j)*geomh_invDXM_8(j)*ext_q(i,j,k)                 &
+              !       +geomh_invDX_8(j)*geomh_invDXM_8(j)*ext_q(i+1,j,k)                     &
+              !       +geomh_invDX_8(j)*geomh_invDXM_8(j)*ext_q(i-1,j,k)                     &
+              !       -geomh_invDYMv_8(j)*geomh_cyM_8(j)*geomh_invDYM_8(j)*ext_q(i,j,k)      &
+              !       -geomh_invDYMv_8(j-1)*geomh_cyM_8(j-1)*geomh_invDYM_8(j)*ext_q(i,j,k)  &
+              !       +geomh_invDYMv_8(j)*geomh_cyM_8(j)*geomh_invDYM_8(j)*ext_q(i,j+1,k)    &
+              !       +geomh_invDYMv_8(j-1)*geomh_cyM_8(j-1)*geomh_invDYM_8(j)*ext_q(i,j-1,k)&
+              !       - gg_sw_8*ext_q(i,j,k)
             end do
          end do
       end do
