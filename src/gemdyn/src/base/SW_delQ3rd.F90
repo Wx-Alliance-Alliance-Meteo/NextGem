@@ -57,8 +57,6 @@
             do i= 1, l_ni
                F_Qu(i,j,k)= Hderiv8(F_q(i-1,j,k), F_q(i,j,k), &
                                     F_q(i+1,j,k), F_q(i+2,j,k), geomh_invDX_8(j)) 
-              !F_Qv(i,j,k)= geomh_cyv_8(j)*Hderiv8(F_q(i,j-1,k), F_q(i,j,k)  , &
-              !                                    F_q(i,j+1,k), F_q(i,j+2,k), geomh_invDY_8) 
                F_Qv(i,j,k)= Hderiv8(F_q(i,j-1,k), F_q(i,j,k)  , &
                                     F_q(i,j+1,k), F_q(i,j+2,k), geomh_invDY_8) 
             end do
@@ -66,8 +64,8 @@
       end do
 
       call HLT_split (1, G_nk, HLT_np, HLT_start, HLT_end)
-      call gem_xch_halo_8 (F_Qu(l_minx,l_minx,HLT_start), l_minx,l_maxx,l_miny,l_maxy,HLT_np,-1 )
-      call gem_xch_halo_8 (F_Qv(l_minx,l_minx,HLT_start), l_minx,l_maxx,l_miny,l_maxy,HLT_np,-1 )
+      call gem_xch_halo_8 (F_Qu(l_minx,l_miny,HLT_start), l_minx,l_maxx,l_miny,l_maxy,HLT_np,-1 )
+      call gem_xch_halo_8 (F_Qv(l_minx,l_miny,HLT_start), l_minx,l_maxx,l_miny,l_maxy,HLT_np,-1 )
 !     
 !     ---------------------------------------------------------------
 !     

@@ -80,16 +80,6 @@
                               Qv(i,j  ,k)*geomh_cyM_8(j  ), &
                               Qv(i,j+1,k)*geomh_cyM_8(j+1), &
                               geomh_invDYM_8(j) )
-              !dxQu=0.
-              !dyQv=0.
-              !dxQu = Hderiv8(Qu(i-1,j,k), Qu(i,j,k), &
-              !               Qu(i+1,j,k), Qu(i+2,j,k), geomh_invDXM_8(j))
-
-              !dyQv = Hderiv8(Qv(i,j-1,k)*geomh_cyM_8(j-1), &
-              !               Qv(i,j  ,k)*geomh_cyM_8(j  ), &
-              !               Qv(i,j+1,k)*geomh_cyM_8(j+1), &
-              !               Qv(i,j+2,k)*geomh_cyM_8(j+2), &
-              !               geomh_invDYM_8(j) )
 
                F_prod(i,j,k)= -gg_sw_8*ext_q(i,j,k) + dxQu + dyQv 
 
