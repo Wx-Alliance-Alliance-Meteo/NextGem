@@ -59,6 +59,8 @@
                                     F_q(i+1,j,k), F_q(i+2,j,k), geomh_invDX_8(j)) 
                F_Qv(i,j,k)= Hderiv8(F_q(i,j-1,k), F_q(i,j,k)  , &
                                     F_q(i,j+1,k), F_q(i,j+2,k), geomh_invDY_8) 
+              !F_Qu(i,j,k) = (F_q(i+1,j,k)-F_q(i,j,k))*geomh_invDX_8(j) 
+              !F_Qv(i,j,k) = (F_q(i,j+1,k)-F_q(i,j,k))*geomh_invDYMv_8(j) 
             end do
          end do
       end do

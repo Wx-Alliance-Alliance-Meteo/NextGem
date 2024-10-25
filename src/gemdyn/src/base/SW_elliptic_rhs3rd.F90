@@ -130,6 +130,8 @@
                            vt0(i,j  ,k)*geomh_cyM_8(j  ), &
                            vt0(i,j+1,k)*geomh_cyM_8(j+1), &
                            geomh_invDYM_8(j))
+           !dudx=(ut0 (i,j,k)- ut0 (i-1,j,k))*geomh_invDXM_8(j)
+           !dvdy=(vt0 (i,j,k)*geomh_cyM_8(j)-vt0(i,j-1,k)*geomh_cyM_8(j-1))*geomh_invDYM_8(j)
 
             Nqq = (1.d0-Cstv_swln_8)*(qt0(i,j,k)-fis0(i,j)) * ( dudx + dvdy ) &                                                                                         
                             -Cstv_swln_8*invT_8*(Cstv_h0inv_8*qt0(i,j,k)-log(Cstv_h0inv_8*(qt0(i,j,k)-fis0(i,j))+1.d0))
@@ -143,6 +145,9 @@
                            Rvv(i,j  ,k)*geomh_cyM_8(j  ), &
                            Rvv(i,j+1,k)*geomh_cyM_8(j+1), &
                            geomh_invDYM_8(j))
+           !dudx= (Ruu(i,j,k)-Ruu(i-1,j,k))*geomh_invDXM_8(j)
+           !dvdy= (Rvv(i,j  ,k)*geomh_cyM_8(j  ) - &
+           !       Rvv(i,j-1,k)*geomh_cyM_8(j-1))*geomh_invDYM_8(j)
 
             Sol_rhs(i,j,k) = (dudx + dvdy)/grav_8 - invT_8*((1.d0-Cstv_swln_8)*Cstv_h0inv_8+Cstv_swln_8)/grav_8*Rqq
          end do
