@@ -5,11 +5,12 @@
 /
 
  &dyn_kernel
-  Dynamics_sw_L    = .true.
+  Dynamics_sw_L =.true.
+  Dynamics_swln_L =.true.
 /
 
  &step
-  Fcst_end_S     = "144h"
+  Fcst_end_S     = "120h"
   Fcst_gstat_s   = '1h'
   Step_dt        = 1800.
 /
@@ -19,11 +20,13 @@
   adz_verbose=1,
 /
 
+  Step_runstrt_S  = '19781221.000000',
  &gem_cfgs
   LCTL_RXSTAT_S   = 'GLB_8',
 /
 
  &dyn_fisl
+  Schm_itpc=2
   Cstv_tstr_8     = 273.15     ,
   Schm_wload_L      = .false.
 /
@@ -34,9 +37,7 @@
 /
 
  &vert_layers
-
   hyb_H = 5542.23876953, 2851.88769531, 842.43768311,
-
   hyb_rcoef       = 1.,1.      ,
 /
 
@@ -47,13 +48,13 @@
 /
 
  &out
-  Out3_etik_s     = "HCASE8"   ,
+  Out3_etik_s     = "HCASE7"   ,
   Out3_nbitg      = 32         ,
 
-  Out3_close_interval_S= '144h',
+  Out3_close_interval_S= '5d'  ,
   Out3_postproc_fact   = 1     ,
 /
 
  &williamson
-  Williamson_case = 8,
+  Williamson_case = 7,
 /

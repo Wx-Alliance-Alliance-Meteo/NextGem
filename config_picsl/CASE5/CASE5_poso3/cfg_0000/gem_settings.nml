@@ -5,11 +5,11 @@
 /
 
  &dyn_kernel
-  Dynamics_sw_L    = .true.
+  Dynamics_sw_L   = .true.
 /
 
  &step
-  Fcst_end_S     = "144h"
+  Fcst_end_S     = "360h"
   Fcst_gstat_s   = '1h'
   Step_dt        = 1800.
 /
@@ -26,6 +26,7 @@
  &dyn_fisl
   Cstv_tstr_8     = 273.15     ,
   Schm_wload_L      = .false.
+  Schm_poso = 3
 /
 
  &hvdif
@@ -34,9 +35,7 @@
 /
 
  &vert_layers
-
-  hyb_H = 5542.23876953, 2851.88769531, 842.43768311,
-
+  hyb_H = 5542.23876953, 2851.88769531, 842.43768311, 
   hyb_rcoef       = 1.,1.      ,
 /
 
@@ -47,13 +46,13 @@
 /
 
  &out
-  Out3_etik_s     = "HCASE8"   ,
+  Out3_etik_s     = "HCASE5"   ,
   Out3_nbitg      = 32         ,
 
-  Out3_close_interval_S= '144h',
+  Out3_close_interval_S= '360h',
   Out3_postproc_fact   = 1     ,
 /
 
  &williamson
-  Williamson_case = 8,
+  Williamson_case = 5,
 /

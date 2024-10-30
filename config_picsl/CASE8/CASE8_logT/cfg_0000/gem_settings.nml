@@ -6,6 +6,7 @@
 
  &dyn_kernel
   Dynamics_sw_L    = .true.
+  Dynamics_swln_L  = .true.
 /
 
  &step
@@ -26,6 +27,7 @@
  &dyn_fisl
   Cstv_tstr_8     = 273.15     ,
   Schm_wload_L      = .false.
+  Schm_itpc       = 2
 /
 
  &hvdif

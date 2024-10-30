@@ -2,16 +2,32 @@
   Grd_typ_S       = 'GY'      , Grd_nj          = 95
   Grd_overlap     = 2         ,
   Grd_maxcfl      = 5         ,
+  Grd_xlon2       =180.0       ,
+  Grd_xlat2       =  0.0       ,
+  Grd_xlon1       =  0.0       ,
+  Grd_xlat1       = 90.0       ,
+/
+
+ &grdc
+ Grdc_maxcfl = 5,
+ Grdc_nfe = '3600S',
+ Grdc_dx = 1.0 ,
+ Grdc_dy = 1.0 ,
+ Grdc_latr = 0.0,
+ Grdc_lonr = 180.0,
+ Grdc_ni =  75 ,
+ Grdc_nj =  88 ,
 /
 
  &dyn_kernel
   Dynamics_sw_L    = .true.
+  Dynamics_swln_L    = .true.
 /
 
  &step
-  Fcst_end_S     = "144h"
+  Fcst_end_S     = "120h"
   Fcst_gstat_s   = '1h'
-  Step_dt        = 1800.
+  Step_dt        = 3600.
 /
 
  &adz_cfgs
@@ -19,6 +35,7 @@
   adz_verbose=1,
 /
 
+  Step_runstrt_S  = '19781221.000000',
  &gem_cfgs
   LCTL_RXSTAT_S   = 'GLB_8',
 /
@@ -26,6 +43,7 @@
  &dyn_fisl
   Cstv_tstr_8     = 273.15     ,
   Schm_wload_L      = .false.
+  Schm_poso     = 3
 /
 
  &hvdif
@@ -34,7 +52,6 @@
 /
 
  &vert_layers
-
   hyb_H = 5542.23876953, 2851.88769531, 842.43768311,
 
   hyb_rcoef       = 1.,1.      ,
@@ -47,13 +64,13 @@
 /
 
  &out
-  Out3_etik_s     = "HCASE8"   ,
+  Out3_etik_s     = "PILOT"    ,
   Out3_nbitg      = 32         ,
 
-  Out3_close_interval_S= '144h',
+  Out3_close_interval_S= '5d'  ,
   Out3_postproc_fact   = 1     ,
 /
 
  &williamson
-  Williamson_case = 8,
+  Williamson_case = 7,
 /
