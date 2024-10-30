@@ -146,8 +146,6 @@
          !---  check convergence---
          if (picard_stop(dt_8,itpc,print_conv)) exit
 
-        end if
-
 
       enddo !Picard iter
 
