@@ -90,22 +90,6 @@
 
       call set_dync ( .true., dt_8 )
 
-      !save the initialcondition
-      !print *,"Step kount = ", Step_kount,"Step slopi = ", Step_slopi_ini 
-      if (Step_kount == 1 .and. Step_slopi_ini == 1) then 
-        
-        do k = k0, l_nk
-          do j = j0, jn
-            do i = i0, in
-               initq(i,j,k) = qt0(i,j,k)
-               !print *, i,j,k,initq(i,j,k), qt0(i,j,k)
-            end do
-          end do
-        end do
-
-      end if 
-
-
 !2.	Compute bdf terms that will be on rhs for current and previous time levels
       call SW_rhs1(dt_8)
 
@@ -124,7 +108,6 @@
          call gtmg_stop (25)
 
          call gtmg_start (27, 'PRE', 20)
-
     
          !5. Form rhs using the bdf terms
          call SW_elliptic_rhs (dt_8, k0, k0t)
@@ -162,6 +145,8 @@
 
          !---  check convergence---
          if (picard_stop(dt_8,itpc,print_conv)) exit
+
+        end if
 
 
       enddo !Picard iter
