@@ -25,6 +25,8 @@
       use HORgrid_options
       use adz_options
       use adz_mem
+      use ptopo
+      use glb_pil
       use, intrinsic :: iso_fortran_env
       implicit none
       
@@ -32,7 +34,9 @@
       integer, intent(IN) :: itpc
 
       include "tricublin_f90.inc"
-      integer :: iter,i,j,k,kk1,nb,k00,dim
+      include 'mpif.h'
+
+      integer :: iter,i,j,k,kk1,nb,k00,dim,ierr
       integer :: HLT_np, HLT_start, HLT_end
       integer,dimension(l_ni) :: kk
       real(kind=REAL64) :: dtA_8,dtzA_8,dtD_8,dtzD_8,half_dt_8,double_dt_8,pos
@@ -41,6 +45,14 @@
       !real(kind=REAL64), dimension(1:l_ni,1:l_nj,1:l_nk) :: Adz_wpz, Adz_dpz
       real(kind=REAL64), parameter :: bdf1=0.75d0, bdf2=0.25d0, bdf3=-3.d0, bdf4=4.d0
       type(C_PTR) :: Cpntr
+
+      real :: rate
+      real(kind=REAL64) :: N,err2nrm
+      real(kind=REAL64), dimension(l_nk) :: total_sum,err,glb
+      real(kind=REAL64), dimension(Adz_i0:Adz_in) :: lenght
+      real(kind=REAL64), dimension(500), save :: sucsv_err
+      logical :: print_conv=.true.
+
 !
 !     ---------------------------------------------------------------
 !
@@ -81,6 +93,8 @@
 
       call adz_prepareWinds (itpc)
 
+      N = ((G_ni-Glb_pil_e)-(1+Glb_pil_w)+1)*((G_nj-Glb_pil_n)-(1+Glb_pil_s)+1)
+
       k00=Adz_k0m
       if (Adz_k0>1) k00=1
 
@@ -96,8 +110,9 @@
 
       endif !itpc=1
 
-      do  iter = 1, Adz_niter
+      do  iter = 1, Schm_itSL
 
+         total_sum= 0.d0 ; err = -huge(1.) 
 !!$omp do
       !1.Solve x^{n-1} = x^{n+1} - 0.5*dt*(V^{n} + V^{+})
          do k= k00, l_nk
@@ -130,6 +145,16 @@
                   Adz_pxyzm(3,i,j,k) = Adz_wpxyz(i,j,k,3)
                end do
             end do
+            do j= Adz_j0, Adz_jn
+            do i= Adz_i0, Adz_in
+               lenght(i)= sqrt((Adz_pxyzm(1,i,j,k)-Adz_pm(1,i,j,k))**2. &
+                             + (Adz_pxyzm(2,i,j,k)-Adz_pm(2,i,j,k))**2. &
+                             + (Adz_pxyzm(3,i,j,k)-Adz_pm(3,i,j,k))**2.)
+               Adz_pm(:,i,j,k) = Adz_pxyzm(:,i,j,k)
+            end do !end i
+            total_sum(k)= total_sum(k) + sum(lenght)
+            err(k) = max(err(k),maxval(lenght))
+            end do !end j
          enddo
 !!$omp enddo
 
@@ -176,6 +201,22 @@
          enddo
 !!$omp enddo
 
+         !---check for convergence on midpoint---
+         if (Schm_tolSL>0.) then
+            call MPI_allreduce (err      ,glb,l_nk,MPI_DOUBLE_PRECISION,&
+                                MPI_MAX,COMM_MULTIGRID,ierr)
+            err= glb
+            call MPI_allreduce (total_sum,glb,l_nk,MPI_DOUBLE_PRECISION,&
+                                MPI_SUM,COMM_MULTIGRID,ierr)
+            err2nrm = maxval(glb)/N
+            sucsv_err(iter)= err2nrm
+            rate=1.d0
+            if (iter > 1) rate= (sucsv_err(iter-1)-sucsv_err(iter))/&
+                                 sucsv_err(iter-1)
+            if (print_conv) write(Lun_out,1001) iter,maxval(err),err2nrm,rate
+            if ((err2nrm < Schm_tolSL).or.(rate<Schm_rateSL)) exit
+         endif
+
       end do !Adz_niter
       
 !!$omp do
@@ -208,6 +249,8 @@
 
       call adz_int_traj (Adz_wpxyz,Adz_wpz,Adz_pmu,Adz_pmv,Adz_pt ,F_dt_8)
       call adz_int_traj (Adz_dpxyz,Adz_dpz,Adz_pdu,Adz_pdv,Adz_pdt,F_dt_8)
+
+ 1001 format (3x,"TRAJ convergence",i3,": DIFF_MAX,L_2,rate: ",2(1pe11.4),1pe10.2)
 !
 !     ---------------------------------------------------------------
 !
