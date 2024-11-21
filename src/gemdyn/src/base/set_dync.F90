@@ -56,14 +56,12 @@
       Cstv_swln_8 = 0.d0
       if(Dynamics_swln_L) Cstv_swln_8 = 1.d0
 
-      if(F_slmx_L .or. .not.Euler_step_one) then
-          gama_8 = gama_bdf_8
-          gg_8 = gg_bdf_8
-          gg_sw_8 = gg_sw_bdf_8
-          Cstv_tau_8     =  (2.0*F_dt_8) / 3.0
-          Cstv_tau_nh_8  =  (2.0*F_dt_8) / 3.0
-          Cstv_invT_m_8  = one/Cstv_tau_8 !<--not Cstv_tau_m_8
-      endif
+      gama_8 = gama_bdf_8
+      gg_8 = gg_bdf_8
+      gg_sw_8 = gg_sw_bdf_8
+      Cstv_tau_8     =  (2.0*F_dt_8) / 3.0
+      Cstv_tau_nh_8  =  (2.0*F_dt_8) / 3.0
+      Cstv_invT_m_8  = one/Cstv_tau_8 !<--not Cstv_tau_m_8
 
       Ver_css_8   = one/gama_8 / (Ver_idz_8%t(G_nk)-mu_8*half)
       Ver_alfas_8 = Ver_css_8*gama_8* &
@@ -85,7 +83,11 @@
          Ver_cstp_8  = gama_8*(w1 + w2)*Ver_cst_8
       end if
 
-      call set_oprz ()
+      if(Dynamics_swln_L) then
+          call SW_set_oprz ()
+      else
+          call set_oprz ()
+      endif
 !
 !     ---------------------------------------------------------------
 !
