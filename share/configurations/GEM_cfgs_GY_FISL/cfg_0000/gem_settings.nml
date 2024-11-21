@@ -59,7 +59,7 @@ Lam_gbpil_t=20
   Schm_nblendyy   = 1
   Schm_wload_L      = .true.
   Schm_psadj= 1
-  Schm_POSO = 5
+  Schm_POSO = 3
 /
 
  &hvdif
