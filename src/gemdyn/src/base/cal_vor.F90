@@ -41,7 +41,7 @@
       integer i, j, k, i0, in, j0, jn
       include 'mpif.h'
       integer :: err,comm
-      real(kind=REAL64) sum_8, summa_8, sumet_8, sumen_8
+      real(kind=REAL64) sum_8, summa_8, sumet_8, sumen_8, h_8, ht_8, hs_8
       real(kind=REAL64) :: gathS(Ptopo_numproc*Ptopo_ncolors)
       real deg2rad
 !
@@ -88,7 +88,8 @@
       do k = 1 , Nk
          do j = j0, jn
             do i = i0, in
-            sum_8 = sum_8 + 0.5*F_QQ(i,j,k)**2/(qt0(i,j,k)-fis0(i,j)+1./Cstv_h0inv_8) * geomh_area_mask_8(i,j)
+            h_8=(qt0(i,j,k)-fis0(i,j)+1./Cstv_h0inv_8) 
+            sum_8 = sum_8+0.5*F_QQ(i,j,k)**2/h_8 * geomh_area_mask_8(i,j)
             end do
          end do
       end do
@@ -102,8 +103,11 @@
       do k = 1 , Nk
          do j = j0, jn
             do i = i0, in
-            sum_8 = sum_8 + 0.5*((qt0(i,j,k)-fis0(i,j)+1./Cstv_h0inv_8)*(F_uu(i,j,k)**2 + F_vv(i,j,k)**2) + &
-                            grav_8*((qt0(i,j,k)+1./Cstv_h0inv_8)**2-fis0(i,j)**2)) * geomh_area_mask_8(i,j)
+            h_8 = qt0(i,j,k)-fis0(i,j)+1./Cstv_h0inv_8
+            ht_8 = qt0(i,j,k)+1./Cstv_h0inv_8
+            hs_8 = fis0(i,j)
+            sum_8 = sum_8 + 0.5*(h_8*(F_uu(i,j,k)**2 + F_vv(i,j,k)**2) + &
+                            grav_8*(ht_8**2-hs_8**2)) * geomh_area_mask_8(i,j)
             end do
          end do
       end do
@@ -117,7 +121,8 @@
       do k = 1 , Nk
          do j = j0, jn
             do i = i0, in
-            sum_8 = sum_8 + (qt0(i,j,k)-fis0(i,j)+1./Cstv_h0inv_8)*geomh_area_mask_8(i,j)
+            h_8 = qt0(i,j,k)-fis0(i,j)+1./Cstv_h0inv_8
+            sum_8 = sum_8 + h_8*geomh_area_mask_8(i,j)
             end do
          end do
       end do
