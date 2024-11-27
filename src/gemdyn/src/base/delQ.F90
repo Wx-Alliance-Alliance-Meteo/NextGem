@@ -100,8 +100,8 @@
                F_Qw(i,j,k)= F_Qq(i,j,k) - mu_8*qbz
                F_Qu(i,j,k)= (F_q(i+1,j,k)-F_q(i  ,j,k))*geomh_invDXM_8(j) &
                           - GVM%mc_Jx_8(i,j,k) * u
-               F_Qv(i,j,k)= geomh_cyv_8(j)*(F_q(i,j+1,k)-F_q(i  ,j,k))*geomh_invDYM_8(j) &
-                          - geomh_cyv_8(j)*GVM%mc_Jy_8(i,j,k) * v
+               F_Qv(i,j,k)= (F_q(i,j+1,k)-F_q(i  ,j,k))*geomh_invDYM_8(j) &
+                          - GVM%mc_Jy_8(i,j,k) * v
             end do
          end do
       end do

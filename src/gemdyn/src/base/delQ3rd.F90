@@ -41,7 +41,7 @@
       real(kind=REAL64), parameter :: half=0.5d0
 !
 !     ---------------------------------------------------------------
-!11111111 1 modifs
+!
       k= 0
       do j= 1,l_nj
          do i= 1,l_ni
@@ -98,12 +98,9 @@
                F_Qu(i,j,k)= Hderiv8(F_q(i-1,j,k), F_q(i,j,k), &
                                     F_q(i+1,j,k), F_q(i+2,j,k), geomh_invDX_8(j)) &
                           - GVM%mc_Jx_8(i,j,k) * u(i,j)
-       !        F_Qv(i,j,k)= Hderiv8(F_q(i,j-1,k), F_q(i,j,k)  , &
-       !                             F_q(i,j+1,k), F_q(i,j+2,k), geomh_invDY_8) &
-       !                           - GVM%mc_Jy_8(i,j,k) * v(i,j)
-               F_Qv(i,j,k)= geomh_cyv_8(j)*Hderiv8(F_q(i,j-1,k), F_q(i,j,k)  , &
-                                                   F_q(i,j+1,k), F_q(i,j+2,k), geomh_invDY_8) &
-                                                   - geomh_cyv_8(j)*GVM%mc_Jy_8(i,j,k) * v(i,j)
+               F_Qv(i,j,k)= Hderiv8(F_q(i,j-1,k), F_q(i,j,k)  , &
+                                    F_q(i,j+1,k), F_q(i,j+2,k), geomh_invDY_8) &
+                          - GVM%mc_Jy_8(i,j,k) * v(i,j)
             end do
          end do
          if ( .not. Grd_yinyang_L) then

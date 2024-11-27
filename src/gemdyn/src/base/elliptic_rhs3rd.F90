@@ -119,7 +119,7 @@
             Rvv(i,j,k) = a*rhsv_mid(i,j,k) - b*rhsv_dep(i,j,k) 
          end do
          end do
-!1111111111 Modifs 1
+
          do j= ds_j0, ds_jn
          do i= i00, inn
             dqdx = Hderiv(qt0(i-1,j,k), qt0(i,j,k), &
@@ -127,7 +127,7 @@
 
             Nuu(i,j,k) =  t2u(i,j,k)*dqdx &
                         - ( Cori_fcoru_8(i,j) + geomh_tyoa_8(j) * ut0(i,j,k) ) * v2u(i,j,k) &
-                        - t2u(i,j,k)*dqz2u(i,j,k) !*GVM%mc_Jx_8(i,j,k)*(dqdx - dqz2u(i,j,k)) 
+                        - t2u(i,j,k)*dqz2u(i,j,k)
          end do
          end do         
         
@@ -138,7 +138,7 @@
 
             Nvv(i,j,k)= t2v(i,j,k)*dqdy &
                         + ( Cori_fcorv_8(i,j) + geomh_tyoav_8(j) * u2v(i,j,k)) * u2v(i,j,k) &
-                        - t2v(i,j,k)*dqz2v(i,j,k) !*GVM%mc_Jy_8(i,j,k)*(dqdy - dqz2v(i,j,k))
+                        - t2v(i,j,k)*dqz2v(i,j,k)
          end do
          end do
 

@@ -43,9 +43,9 @@
            do i= 1, l_ni
              do n=0,1
                 t2qv(n)= Ver_wp_8%m(k)*tt0(i+n,j,k)+Ver_wm_8%m(k)*tt0(i+n,j,km1)
-                 v2q(n)= 0.5*(vt0(i,j-1,k)+vt0(i,j,k))
+                 v2q(n)= 0.5*(vt0(i+n,j-1,k)+vt0(i+n,j,k))
                 t2qu(n)= Ver_wp_8%m(k)*tt0(i,j+n,k)+Ver_wm_8%m(k)*tt0(i,j+n,km1)
-                 u2q(n)= 0.5*(ut0(i-1,j,k)+ut0(i,j,k))
+                 u2q(n)= 0.5*(ut0(i-1,j+n,k)+ut0(i,j+n,k))
                 dq2u(n)= (qt0(i+n,j,k+1)-qt0(i+n,j,k))*GVM%mc_iJz_8(i+n,j,k)
                 dq2v(n)= (qt0(i,j+n,k+1)-qt0(i,j+n,k))*GVM%mc_iJz_8(i,j+n,k)
              end do

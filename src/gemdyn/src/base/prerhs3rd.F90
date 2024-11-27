@@ -37,7 +37,7 @@
       real(kind=REAL64), dimension(l_minx:l_maxx,l_miny:l_maxy,1:l_nk) :: dqzv, dqzu
 !
 !     ---------------------------------------------------------------
-!1111111111 3 modifs
+
       do k=1, l_nk
          km1=max(k-1,1)
          km2=max(k-2,1)
@@ -50,23 +50,16 @@
              do n=-1,2
                 t2qv(n) = tt0(i+n,j,km2)*CWt2m(1,k) + tt0(i+n,j,km1)*CWt2m(2,k) &
                         + tt0(i+n,j,k  )*CWt2m(3,k) + tt0(i+n,j,kp1)*CWt2m(4,k)
-
-               v2q(n) = Hstag(vt0(i,j-2,k),vt0(i,j-1,k),&
-                              vt0(i,j,k  ),vt0(i,j+1,k))
-!               v2q(n) = Hstag(vt0(i+n,j-2,k),vt0(i+n,j-1,k),&
-!                              vt0(i+n,j,k  ),vt0(i+n,j+1,k))
+               v2q(n) = Hstag(vt0(i+n,j-2,k),vt0(i+n,j-1,k),&
+                              vt0(i+n,j,k  ),vt0(i+n,j+1,k))
                t2qu(n) = tt0(i,j+n,km2)*CWt2m(1,k) + tt0(i,j+n,km1)*CWt2m(2,k) &
                        + tt0(i,j+n,k  )*CWt2m(3,k) + tt0(i,j+n,kp1)*CWt2m(4,k)
-
-               u2q(n) = Hstag(ut0(i-2,j,k),ut0(i-1,j,k),&
-                              ut0(i,j,k  ),ut0(i+1,j,k))
-!               u2q(n) = Hstag(ut0(i-2,j+n,k),ut0(i-1,j+n,k),&
-!                              ut0(i,j+n,k  ),ut0(i+1,j+n,k))
+               u2q(n) = Hstag(ut0(i-2,j+n,k),ut0(i-1,j+n,k),&
+                              ut0(i,j+n,k  ),ut0(i+1,j+n,k))
                dq2u(n) = qt0(i+n,j,km1) * CDm2t(1,k)&
                         +qt0(i+n,j,k  ) * CDm2t(2,k)&
                         +qt0(i+n,j,k+1) * CDm2t(3,k)&
                         +qt0(i+n,j,kp2) * CDm2t(4,k)
-
                dq2v(n) = qt0(i,j+n,km1) * CDm2t(1,k)&
                         +qt0(i,j+n,k  ) * CDm2t(2,k)&
                         +qt0(i,j+n,k+1) * CDm2t(3,k)&
@@ -103,8 +96,8 @@
                    + dqzv(i,j,k  ) * CWt2m(3,k)&
                    + dqzv(i,j,kp1) * CWt2m(4,k)
 
-               F_dq2u(i,j,k)= M_Jxozu(i,j,k)! * duu 
-               F_dq2v(i,j,k)= M_Jyozv(i,j,k)! * dvv
+               F_dq2u(i,j,k)= M_Jxozu(i,j,k) * duu 
+               F_dq2v(i,j,k)= M_Jyozv(i,j,k) * dvv
             end do
          end do
       end do
