@@ -37,17 +37,11 @@
       real(kind=REAL64), dimension(F_minx:F_maxx,F_miny:F_maxy,F_nk), intent(IN ) :: F_vector
       real(kind=REAL64), dimension(F_i0:F_in,F_j0:F_jn        ,F_nk), intent(OUT) :: F_prod
 
-      integer :: i, j, k, i0, j0, in, jn, k0, km, kp
-      integer :: km1,km2,km3,kp1,kp2,kp3
-!     real(kind=REAL64) :: r1(l_ni), r3(l_ni)
-      real(kind=REAL64) :: r1(l_ni), r2(l_ni), r3(l_ni), r4(l_ni)
-!     real(kind=REAL64) :: s1(l_ni),s2(l_ni),s3(l_ni)
-      real(kind=REAL64) :: s1(l_ni),s2(l_ni),s3(l_ni),s4(l_ni),&
-                           s5(l_ni),s6(l_ni),s7(l_ni),s8(l_ni)
-!     real(kind=REAL64) :: w1(l_ni),w2(l_ni),w3(l_ni),w4(l_ni),&
-!                          w5(l_ni),w6(l_ni),w9(l_ni)
+      integer :: i, j, k, km1,km2,km3,kp1,kp2,kp3
+      integer :: HLT_np, HLT_start, HLT_end
+      real(kind=REAL64) :: r1(l_ni), r3(l_ni), s1(l_ni),s2(l_ni),s3(l_ni)
       real(kind=REAL64) :: w1(l_ni),w2(l_ni),w3(l_ni),w4(l_ni),&
-          w5(l_ni),w6(l_ni),w7(l_ni),w8(l_ni),w9(l_ni),w10(l_ni)
+                           w5(l_ni),w6(l_ni),w9(l_ni),c1,c2
       real(kind=REAL64) :: dxQu, dyQv, barxQu, baryQv, barzQw, dzQw, zero_8
       real(kind=REAL64), parameter :: half=0.5d0
 !
@@ -55,36 +49,44 @@
 !
       call gtmg_start (91, 'MATVEC1', 29 )
 
-      do k= 1, l_nk
-     !  do j= ds_j0, ds_jn
-     !  do i= ds_i0, ds_in
-        do j= 1,l_nj
-        do i= 1,l_ni
-        !do j= ds_j0-3, ds_jn+2
-        !do i= ds_i0-3, ds_in+2
-            ext_q(i,j,k)= F_vector(i,j,k)
-         end do
-         end do
-      end do
-      !do j= ds_j0-3,ds_jn+2
-      !do i= ds_i0-3,ds_in+2
-      !do j= ds_j0,ds_jn
-      !do i= ds_i0,ds_in
-      do j= 1, l_nj
-      do i= 1, l_ni
-         r1(i)=  (GVM%zmom_8(i,j,l_nk+1)-GVM%zmom_8(i,j,l_nk))&
+      ext_q(ds_i0:ds_in,ds_j0:ds_jn,1:l_nk)= F_vector(ds_i0:ds_in,ds_j0:ds_jn,1:l_nk)
+      do j= ds_j0, ds_jn
+         do i= ds_i0, ds_in
+            c1=  (GVM%zmom_8(i,j,l_nk+1)-GVM%zmom_8(i,j,l_nk))&
                 /(GVM%zmom_8(i,j,l_nk)-GVM%zmom_8(i,j,l_nk-1))
-         r3(i)= (GVM%zmom_8(i,j,1)-ver_z_8%m(0))/(GVM%zmom_8(i,j,2)-GVM%zmom_8(i,j,1))
-         ext_q(i,j,l_nk+1)=GVM%mc_alfas_H_8(i,j) * F_vector(i,j,l_nk) &
-                          -GVM%mc_betas_H_8(i,j) * F_vector(i,j,l_nk-1)
-        ! ext_q(i,j,l_nk+1)=  (1+r1)*F_vector(i,j,l_nk  ) &
-        !                   -    r1 *F_vector(i,j,l_nk-1)
-         ext_q(i,j,0)= (1+r3(i))*F_vector(i,j,1) &
-                         -r3(i) *F_vector(i,j,2)
+            c2= (GVM%zmom_8(i,j,1)-ver_z_8%m(0))/(GVM%zmom_8(i,j,2)-GVM%zmom_8(i,j,1))
+        ! ext_q(i,j,l_nk+1)=  (1+c1)*F_vector(i,j,l_nk  ) &
+        !                   -    c1 *F_vector(i,j,l_nk-1)
+            ext_q(i,j,l_nk+1)=GVM%mc_alfas_H_8(i,j) * F_vector(i,j,l_nk) &
+                             -GVM%mc_betas_H_8(i,j) * F_vector(i,j,l_nk-1)
+            ext_q(i,j,     0)= (1+c2)*F_vector(i,j,1) &
+                                 -c2 *F_vector(i,j,2)
       end do
       end do
-
-      call delQ3rd (ext_q, l_minx,l_maxx,l_miny,l_maxy, Qu,Qv,Qw,Qq,0,l_nk+1)
+      if ( .not. Grd_yinyang_L) then
+         if (l_west) then
+            do i=1,pil_w
+               ext_q(i, 1+pil_s:l_nj-pil_s , :) = ext_q(1+pil_w, 1+pil_s:l_nj-pil_s , :)
+            end do
+         endif
+         if (l_east) then
+            do i=l_ni-pil_e+1,l_ni
+               ext_q(i, 1+pil_s:l_nj-pil_s  , :) = ext_q(l_ni-pil_e, 1+pil_s:l_nj-pil_s , :)
+            end do
+         endif
+         if (l_south) then
+            do j=1,pil_s
+               ext_q(1:l_ni , j , :) = ext_q(1:l_ni, 1+pil_s , :) 
+            end do
+         endif
+         if (l_north) then
+            do j=l_nj-pil_n+1,l_nj
+               ext_q(1:l_ni, j , :) = ext_q(1:l_ni, l_nj-pil_n , :) 
+            end do
+         endif
+      endif
+      
+      call delQ (ext_q,l_minx,l_maxx,l_miny,l_maxy, Qu,Qv,Qw,Qq,0,l_nk+1)
 
       call gtmg_stop (91)
       call gtmg_start (92, 'MATVEC2', 29 )
@@ -97,14 +99,14 @@
             r1(i)= GVM%mc_iJz_8(i,j,k  )*(ext_q(i,j,2)-ext_q(i,j,k  )) !dqdz (k)
             r3(i)= half*(ext_q(i,j,k)+ext_q(i,j,2))                    !qbarz(k)
             
-            s1(i)= GVM%mc_iJz_8(i+1,j,k)*(ext_q(i+1,j,k+1)-ext_q(i+1,j,k))*m_east (i) !dqdz(i+1,k  )
-            s2(i)= GVM%mc_iJz_8(i+1,j,k)*(ext_q(i+1,j,k  )-ext_q(i+1,j,k))*m_east (i) !dqdz(i+1,1)
-            s3(i)= GVM%mc_iJz_8(i-1,j,k)*(ext_q(i-1,j,k+1)-ext_q(i-1,j,k))*m_west (i) !dqdz(i-1,k  )
+            s1(i)= GVM%mc_iJz_8(i+1,j,k)*(ext_q(i+1,j,k+1)-ext_q(i+1,j,k)) !dqdz(i+1,k  )
+            s2(i)= GVM%mc_iJz_8(i+1,j,k)*(ext_q(i+1,j,k  )-ext_q(i+1,j,k)) !dqdz(i+1,1)
+            s3(i)= GVM%mc_iJz_8(i-1,j,k)*(ext_q(i-1,j,k+1)-ext_q(i-1,j,k)) !dqdz(i-1,k  )
             
-            w1(i)= (ext_q(i+1,j,k)-ext_q(i  ,j,k))*geomh_invDXM_8(j)*m_east (i) !dqdx(i  )
-            w2(i)= (ext_q(i  ,j,k)-ext_q(i-1,j,k))*geomh_invDXM_8(j)*m_west (i) !dqdx(i-1)
-            w3(i)= (ext_q(i,j+1,k)-ext_q(i  ,j,k))*geomh_invDYM_8(j)*m_north(j) !dqdy(j  )
-            w4(i)= (ext_q(i,j  ,k)-ext_q(i,j-1,k))*geomh_invDYM_8(j-1)*m_south(j) !dqdy(j-1)
+            w1(i)= (ext_q(i+1,j,k)-ext_q(i  ,j,k))*geomh_invDXM_8(j) !dqdx(i  )
+            w2(i)= (ext_q(i  ,j,k)-ext_q(i-1,j,k))*geomh_invDXM_8(j) !dqdx(i-1)
+            w3(i)= (ext_q(i,j+1,k)-ext_q(i  ,j,k))*geomh_invDYM_8(j) !dqdy(j  )
+            w4(i)= (ext_q(i,j  ,k)-ext_q(i,j-1,k))*geomh_invDYM_8(j-1) !dqdy(j-1)
             w5(i)= half*( (r1(i)+s1(i))*Ver_wp_8%m(k) + s2(i)*Ver_wm_8%m(k) )
             w6(i)= half*(s3(i)+r1(i))*Ver_wp_8%m(k)
             w9(i)= r1(i)*Ver_wp_8%m(k)
@@ -172,7 +174,6 @@
          end do
       end do
       call gtmg_stop (92)
-
 !     
 !     ---------------------------------------------------------------
 !     

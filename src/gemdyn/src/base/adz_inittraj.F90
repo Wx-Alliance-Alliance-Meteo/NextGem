@@ -37,6 +37,11 @@
                Adz_disp(i,j,k,:)  = 0.d0
             end do
          end do
+         do j= Adz_j0, Adz_jn
+            do i= Adz_i0, Adz_in
+               Adz_pm(:,i,j,k) = Adz_pxyzm(:,i,j,k)
+            end do
+         end do
       end do
 !!$omp end do
       do j = 1, l_nj

@@ -35,24 +35,12 @@
       integer :: HLT_np, HLT_start, HLT_end
       integer :: i, j, k, nk, ii
       integer :: km1,km2,km3,kp1,kp2,kp3
-      real(kind=REAL64) :: dqx(-2:3), dqy(-2:3), qbz, u, v,wp_8(G_nk), wm_8(G_nk)
+      real(kind=REAL64) :: dqx(0:1), dqy(0:1), qbz, u, v,wp_8(G_nk), wm_8(G_nk)
       real(kind=REAL64), parameter :: one=1.d0,half=0.5d0
       real(kind=REAL64), dimension(l_minx:l_maxx,l_miny:l_maxy,0:l_nk) :: dqdzx,dqdzy
 !
 !     ---------------------------------------------------------------
 !
-      if (Schm_POSO == 5) then
-         call delQ5th ( F_q, F_minx,F_maxx,F_miny,F_maxy, &
-                        F_Qu,F_Qv,F_Qw, F_Qq, F_k0,F_kn )
-      !   call delQ5 ( F_q, F_minx,F_maxx,F_miny,F_maxy, &
-      !                  F_Qu,F_Qv,F_Qw, F_Qq, F_k0,F_kn )
-         return
-      else if (Schm_POSO == 3) then
-         call delQ3rd ( F_q, F_minx,F_maxx,F_miny,F_maxy, &
-                        F_Qu,F_Qv,F_Qw, F_Qq, F_k0,F_kn )
-         return
-      endif
-      
       nk= F_kn-F_k0+1
       if ( Grd_yinyang_L) then
          call yyg_xchng_8 (F_q, YYG_HALO_q2q, l_minx,l_maxx,l_miny,l_maxy, &
@@ -60,13 +48,27 @@
       else
          call HLT_split (F_k0, F_kn, HLT_np, HLT_start, HLT_end)
          call gem_xch_halo_8 ( F_q(l_minx,l_miny,HLT_start),&
-                    l_minx,l_maxx,l_miny,l_maxy, HLT_np, 1)
+                   l_minx,l_maxx,l_miny,l_maxy, HLT_np, -1)
       endif
+
+      if (Schm_POSO == 5) then
+         call delQ5th ( F_q, F_minx,F_maxx,F_miny,F_maxy, &
+                        F_Qu,F_Qv,F_Qw, F_Qq, F_k0,F_kn )
+      !   call delQ5 ( F_q, F_minx,F_maxx,F_miny,F_maxy, &
+      !                  F_Qu,F_Qv,F_Qw, F_Qq, F_k0,F_kn )
+         goto 987
+      else if (Schm_POSO == 3) then
+         call delQ3rd ( F_q, F_minx,F_maxx,F_miny,F_maxy, &
+                        F_Qu,F_Qv,F_Qw, F_Qq, F_k0,F_kn )
+         goto 987
+      endif
+      
       do k=1,G_nk
          wm_8(k) = (Ver_dqdz_8(k)-Ver_z_8%m(k))/&
                    (Ver_dqdz_8(k)-Ver_dqdz_8(k-1))
          wp_8(k) = one-wm_8(k)
       end do
+      
       do k=0,G_nk
          km1=max(k-1,1)
          km2=max(k-2,1)
@@ -83,9 +85,7 @@
             end do
          end do
       end do
-      call HLT_split (0, l_nk, HLT_np, HLT_start, HLT_end)
-      call gem_xch_halo_8 (dqdzx(l_minx,l_minx,HLT_start), l_minx,l_maxx,l_miny,l_maxy,HLT_np,-1 )
-      call gem_xch_halo_8 (dqdzy(l_minx,l_minx,HLT_start), l_minx,l_maxx,l_miny,l_maxy,HLT_np,-1 )
+
       do k=1,G_nk
          km2=max(k-2,1)
          km3=max(k-3,1)
@@ -105,12 +105,12 @@
             end do
          end do
       end do
-      call HLT_split (1, G_nk, HLT_np, HLT_start, HLT_end)
+      
+ 987  call HLT_split (1, G_nk, HLT_np, HLT_start, HLT_end)
       call gem_xch_halo_8 (F_Qu(l_minx,l_minx,HLT_start), l_minx,l_maxx,l_miny,l_maxy,HLT_np,-1 )
       call gem_xch_halo_8 (F_Qv(l_minx,l_minx,HLT_start), l_minx,l_maxx,l_miny,l_maxy,HLT_np,-1 )
 !     
 !     ---------------------------------------------------------------
 !     
       return
-!      include 'H5th_ope.inc'
       end subroutine delQ

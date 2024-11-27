@@ -64,7 +64,7 @@
       end if
 
 !-----Begin Picard Iterations
-    
+      
       do iter = 1, Schm_itpc
          
          call gem_xch_halo ( wt0(l_minx,l_miny,HLT_start),&
@@ -87,12 +87,14 @@
 !!$            call statf_dm (Sol_rhs,'RHS',1,'TSTP',1,ubound(Sol_rhs,1),&
 !!$                   1,ubound(Sol_rhs,2),1,l_nk,1+Glb_pil_w,1+Glb_pil_s,&
 !!$                   1,G_ni-Glb_pil_e,G_nj-Glb_pil_n,l_nk,8)
+!!$            call statf_dm (Sol_lhs,'LHSb',1,'TSTP',l_minx,l_maxx,&
+!!$                           l_miny,l_maxy,0,l_nk+1,1,1,1,&
+!!$                           G_ni,G_nj,l_nk,8)
 
             call sol_fgmres (print_conv)
-            
-!!$            call statf_dm (Sol_lhs,'LHS',1,'TSTP',1,ubound(Sol_rhs,1),&
-!!$                   1,ubound(Sol_rhs,2),1,l_nk,1+Glb_pil_w,1+Glb_pil_s,&
-!!$                   1,G_ni-Glb_pil_e,G_nj-Glb_pil_n,l_nk,8)
+!!$            call statf_dm (Sol_lhs,'LHS',1,'TSTP',l_minx,l_maxx,&
+!!$                           l_miny,l_maxy,0,l_nk+1,1,1,0,&
+!!$                           G_ni,G_nj,l_nk+1,8)
             call gtmg_stop (29)
          endif
 

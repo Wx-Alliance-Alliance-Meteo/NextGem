@@ -34,6 +34,7 @@
       use opr
       use prec
       use yyg_param
+      use stat_mpi
       use omp_lib
       use, intrinsic :: iso_fortran_env
       implicit none
@@ -54,7 +55,8 @@
                              0,0,0,0,0,0,GMM_NULL_FLAGS)
       istat= gmm_create('SOL_LHS',Sol_lhs,meta, GMM_FLAG_RSTR+GMM_FLAG_IZER)
       gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)='SOL_LHS' ; GMM_tbl%ara(gmm_cnt)='QQ' ; GMM_tbl%cn(gmm_cnt)='MM' ; GMM_tbl%fst(gmm_cnt)='SOLS'
-      do k=1, l_nk+1
+      Sol_lhs(:,:,0)= 0. ; Sol_lhs(:,:,l_nk+1)= 0.
+      do k=1, l_nk
          Sol_lhs(:,:,k)= qt1(:,:,k)
       end do
       if ( Grd_yinyang_L) then
@@ -65,7 +67,6 @@
          call gem_xch_halo_8 ( Sol_lhs(l_minx,l_miny,HLT_start),l_minx,l_maxx,&
                                l_miny,l_maxy,local_np,-1 )
       endif
-      
       allocate (Sol_rhs(ni,nj,l_nk)) ; Sol_rhs= 0.
          
       if (Lun_out > 0) write (Lun_out,1002) trim(Sol_krylov3D_S), trim(Sol_precond3D_S)
@@ -154,16 +155,6 @@
        allocate (thread_s   (1:4,0:OMP_get_max_threads()-1),&
                  thread_s128(1:4,0:OMP_get_max_threads()-1),&
                  thread_s2(1:2,1:sol_im+1,0:OMP_get_max_threads()-1))
-
-      !needed for matvec lateral boundary conditions
-       allocate (m_west(l_ni),m_east(l_ni),m_south(l_nj),m_north(l_nj))
-       m_west=1.d0 ; m_east=1.d0 ; m_south=1.d0 ; m_north=1.d0
-       if (.not.Grd_yinyang_L) then
-          if (l_west ) m_west(1+pil_w    ) = 0.
-          if (l_east ) m_east(l_ni-pil_e ) = 0.
-          if (l_south) m_south(1+pil_s   ) = 0.
-          if (l_north) m_north(l_nj-pil_n) = 0.
-       endif
 
        dimH= (l_maxx-l_minx+1)*(l_maxy-l_miny+1)
        dim = dimH*G_nk

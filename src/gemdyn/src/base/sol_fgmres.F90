@@ -70,10 +70,10 @@
 
       ! Residual of the initial iterate
       if(.not.Dynamics_sw_L) then
-         call matvec ( Sol_lhs(l_minx,l_miny,1), l_minx,l_maxx, l_miny,l_maxy,&!ldnh_minx,ldnh_maxx,ldnh_miny,ldnh_maxy, &
+         call matvec ( Sol_lhs(l_minx,l_miny,1), l_minx,l_maxx, l_miny,l_maxy,&
                        work_space, sol_imin,sol_imax,sol_jmin,sol_jmax, l_nk )
       else
-         call SW_matvec ( Sol_lhs(l_minx,l_miny,1), l_minx,l_maxx, l_miny,l_maxy,&!ldnh_minx,ldnh_maxx,ldnh_miny,ldnh_maxy, &
+         call SW_matvec ( Sol_lhs(l_minx,l_miny,1), l_minx,l_maxx, l_miny,l_maxy,&
                        work_space, sol_imin,sol_imax,sol_jmin,sol_jmax, l_nk )
       endif
 

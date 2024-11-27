@@ -62,6 +62,8 @@
             pnuv=ii
          end if
       end do
+      if ( (pnuu /= 0) .and. (pnvv == 0) ) pnvv=pnuu
+      if ( (pnvv /= 0) .and. (pnuu == 0) ) pnuu=pnvv
 
       psum=pnuu+pnuv+pnvv
       if (psum == 0)return

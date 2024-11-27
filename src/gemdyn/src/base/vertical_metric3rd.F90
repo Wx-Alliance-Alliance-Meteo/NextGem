@@ -54,7 +54,7 @@
             GVM%ztht_8(i,j,G_nk)= GVM%zmom_8(i,j,G_nk+1) !temporary for mc_Ix_8 and mc_Iy_8 below
          end do
       end do
-
+      M_Jzu=0. ; M_Jzv=0 ; M_Jzq=0.
       do k=1,G_nk
          km1=max(k-1,0)
          km2=max(k-2,0)
@@ -62,8 +62,8 @@
          kp1=min(k+1,G_nk+1)
          kp2=min(k+2,G_nk+1)
          kp3=min(k+3,G_nk+1)
-         do j=1-G_haloy+1,l_nj+G_haloy-1
-            do i=1-G_halox+1,l_ni+G_halox-1
+         do j=1-G_haloy+1,l_nj+G_haloy-2
+            do i=1-G_halox+1,l_ni+G_halox-2
                Jzu = zthtu_8(i,j,km2) * CDt2m(1,k)&
                     +zthtu_8(i,j,km1) * CDt2m(2,k)&
                     +zthtu_8(i,j,k  ) * CDt2m(3,k)&
@@ -106,8 +106,8 @@
          km3=max(k-3,0)
          kp1=min(k+1,G_nk+1)
          kp2=min(k+2,G_nk+1)
-         do j=1-G_haloy+1,l_nj+G_haloy-1
-            do i=1-G_halox+1,l_ni+G_halox-1
+         do j=1-G_haloy+1,l_nj+G_haloy-2
+            do i=1-G_halox+1,l_ni+G_halox-2
                ! 5th  term in elliptic RHS portion of eqn 58
                ! 5th  term in matvec portion of eqn 58
                M_logJzu(i,j,k)= Hderiv8(M_Jzu(i-1,j,k),M_Jzu(i  ,j,k),&
@@ -126,8 +126,8 @@
       end do
 !!$omp do collapse(2)
       do k=1,G_nk
-         do j=1-G_haloy+1,l_nj+G_haloy-1
-            do i=1-G_halox+1,l_ni+G_halox-1
+         do j=1-G_haloy+1,l_nj+G_haloy-2
+            do i=1-G_halox+1,l_ni+G_halox-2
                GVM%mc_Jx_8 (i,j,k)= Hderiv8(GVM%zmom_8(i-1,j,k),GVM%zmom_8(i  ,j,k),&
                                             GVM%zmom_8(i+1,j,k),GVM%zmom_8(i+2,j,k),geomh_invDX_8(j))
                GVM%mc_Jy_8 (i,j,k)= Hderiv8(GVM%zmom_8(i,j-1,k),GVM%zmom_8(i  ,j,k),&
@@ -143,9 +143,9 @@
       end do
 !!$omp enddo
 !!$omp do
-      do j=1-G_haloy+1,l_nj+G_haloy-1
+      do j=1-G_haloy+1,l_nj+G_haloy-2
 !DIR$ SIMD
-         do i=1-G_halox+1,l_ni+G_halox-1
+         do i=1-G_halox+1,l_ni+G_halox-2
             GVM%mc_iJz_8(i,j,0)=one/(GVM%zmom_8(i,j,1)-ver_z_8%m(0))
             GVM%mc_css_H_8(i,j) = one/(gama_8*(GVM%mc_iJz_8(i,j,G_nk)-half*mu_8))
          end do
@@ -161,8 +161,8 @@
 !!$omp enddo
 
 !!$omp do
-      do j=1-G_haloy+1,l_nj+G_haloy-1
-         do i=1-G_halox+1,l_ni+G_halox-1
+      do j=1-G_haloy+1,l_nj+G_haloy-2
+         do i=1-G_halox+1,l_ni+G_halox-2
             GVM%mc_alfas_H_8(i,j) = ( GVM%mc_iJz_8(i,j,G_nk) + half*mu_8 + Ver_wmstar_8(G_nk)*(GVM%mc_iJz_8(i,j,G_nk-1) -half*mu_8) ) / (GVM%mc_iJz_8(i,j,G_nk)-half*mu_8)
             GVM%mc_betas_H_8(i,j) =                                             Ver_wmstar_8(G_nk)*(GVM%mc_iJz_8(i,j,G_nk-1) +half*mu_8)   / (GVM%mc_iJz_8(i,j,G_nk)-half*mu_8)
          enddo

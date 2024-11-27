@@ -14,7 +14,7 @@
 !---------------------------------- LICENCE END --------------------------------
 
 !**s/r bac - backsubstitution: obtain new values for variables:u,v,w,t,q,zd
-!                                using Sol_lhs
+!                              using Sol_lhs
 
       subroutine bac ( F_dt_8 )
       use dyn_fisl_options
@@ -40,7 +40,7 @@
       real(kind=REAL64), intent(IN) :: F_dt_8
 
       integer :: i, j, k,ni,nj
-      integer :: HLT_start, HLT_end, local_np
+      integer :: HLT_start, HLT_end, HLT_np
       real(kind=REAL64) :: w5, tau_8, invT_8, Buoy
       real(kind=REAL64), parameter :: one=1.d0
 !
@@ -58,8 +58,8 @@
 
 !--extrapolation at the surface and at the lid (k=0 and k=l_nk+1)   
 !!$omp do
-      do j= ds_j0, ds_jn
-         do i= ds_i0, ds_in
+      do j= 1, l_nj
+         do i= 1, l_ni
             ! pour le moment cette extrapolation ne fonctionne pas
             ! w5=(GVM%zmom_8(i,j,l_nk+1)-GVM%zmom_8(i,j,l_nk))/(GVM%zmom_8(i,j,l_nk)-GVM%zmom_8(i,j,l_nk-1))
             ! Sol_lhs(i,j,l_nk+1)= Sol_lhs(i,j,l_nk)*(1+w5) - w5*Sol_lhs(i,j,l_nk-1)
@@ -75,7 +75,7 @@
 !!$omp end do
 
       call delQ (Sol_lhs, l_minx,l_maxx,l_miny,l_maxy, Qu,Qv,Qw,Qq,0,l_nk+1)
-
+         
 !!$omp do collapse(2)
       do k=1, l_nk+1
          do j= ds_j0, ds_jn
