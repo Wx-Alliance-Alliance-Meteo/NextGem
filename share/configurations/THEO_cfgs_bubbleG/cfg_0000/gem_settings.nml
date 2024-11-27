@@ -36,6 +36,9 @@
   Fcst_gstat_s   = '1p'
   Step_dt        = 5
 /
+ &dyn_fisl
+  Schm_POSO = 3
+/
 
  &lam
   Lam_ctebcs_L  = .true.

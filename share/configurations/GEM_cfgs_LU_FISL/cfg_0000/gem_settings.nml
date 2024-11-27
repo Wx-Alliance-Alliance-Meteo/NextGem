@@ -47,6 +47,7 @@ Lam_gbpil_t=5
   Schm_nblendyy   = 1
   Schm_wload_L      = .true.
   Schm_psadj= 0
+  Schm_POSO = 3
 /
   hzd_smago_param = 3.
   hzd_smago_lnr = .6
