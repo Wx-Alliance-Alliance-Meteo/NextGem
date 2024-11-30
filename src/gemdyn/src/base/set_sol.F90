@@ -170,7 +170,8 @@
        nj= Sol_jjn-Sol_jj0+1
        allocate (fdg(ni,nj,l_nk),w2_8(ni,nj,l_nk),w3_8(ni,nj,l_nk))
        allocate (vgh_q(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3))
-       allocate (ext_q(l_minx:l_maxx,l_miny:l_maxy,0:l_nk+1))
+    !   allocate (ext_q(l_minx:l_maxx,l_miny:l_maxy,0:l_nk+1))
+       allocate (ext_q(l_minx:l_maxx,l_miny:l_maxy,-5:l_nk+6))
                  
        allocate (fdg2(l_minx:l_maxx,l_miny:l_maxy,l_nk+1))
 

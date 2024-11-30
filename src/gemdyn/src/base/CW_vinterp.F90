@@ -17,7 +17,6 @@
 
       subroutine CW_vinterp ( )
       use, intrinsic :: iso_fortran_env
-      use dynkernel_options
       use metric
       use glb_ld
       use ver
@@ -31,7 +30,6 @@
       allocate ( CWm2t(4,0:G_nk+1), CWt2m(4,0:G_nk+1) )
       CWm2t= 0.d0 ; CWt2m= 0.d0
       
-      if(Dynamics_sw_L) return
       do k=2, l_nk-1 ! this assumes the data is valid at G_nk+1
          z1 = Ver_a_8%m(k-1)
          z2 = Ver_a_8%m(k  )

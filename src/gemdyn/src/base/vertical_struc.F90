@@ -160,30 +160,46 @@
       Ver_dqdz_8(1:G_nk) = Ver_z_8%t(1:G_nk)
 
       Ver_ext%t(1:G_nk) =  Ver_z_8%t(1:G_nk)
-      Ver_ext%t(0 )     =  Ver_ext%t(1 ) + 2*(Ver_z_8%m(0)-Ver_a_8%t(1))
-      Ver_ext%t(-1)     =  Ver_ext%t(0 ) + (Ver_z_8%t(1)-Ver_a_8%t(2))
-      Ver_ext%t(-2)     =  Ver_ext%t(-1) + (Ver_z_8%t(2)-Ver_a_8%t(3))
+      Ver_ext%t(0 )     =  (Ver_z_8%m(0)+Ver_a_8%m(1)) * 0.5d0
+      Ver_ext%t(-1)     =  2.0d0*Ver_z_8%m(0) -Ver_ext%t(0)
+      Ver_ext%t(-2)     =  2.0d0*Ver_z_8%m(0) -Ver_ext%t(1)
+      Ver_ext%t(-3)     =  2.0d0*Ver_z_8%m(0) -Ver_ext%t(2)
       Ver_ext%t(G_nk+1) = -Ver_z_8%t(G_nk  )
       Ver_ext%t(G_nk+2) = -Ver_z_8%t(G_nk-1)
       Ver_ext%t(G_nk+3) = -Ver_z_8%t(G_nk-2)
 
-! TANYA/JF - new Ver_ext vectors to contain ghosts extension
-!!$      do k = -2, G_nk+3
-!!$         print*, k, Ver_ext%m(k),Ver_ext%t(k)
-!!$      end do
+      do k = -2, 0
+         print*, k, Ver_ext%m(k)
+         print*, '               ',k-1,Ver_ext%t(k-1)
+      end do
+      print*, '############### LID',Ver_z_8%m(0)
+      print*, '               ',0,Ver_ext%t(0)
+      do k = 1, G_nk
+         print*, k, Ver_ext%m(k)
+         print*, '               ',k,Ver_ext%t(k)
+      end do
+      print*, '############### SURFACE'
+      print*, '               ',G_nk+1,Ver_ext%t(G_nk+1)
+      print*, G_nk+1, Ver_ext%m(G_nk+1)
+      do k = G_nk+2, G_nk+3
+         print*, '               ',k,Ver_ext%t(k)
+         print*, k, Ver_ext%m(k)
+      end do
 
       Ver_zmin_8 = Ver_z_8%m(G_nk+1)
       Ver_zmax_8 = Ver_z_8%m(0)
 
-      call CW_vinterp ()
-      call CW_vderiva ()
-      call QW_vinterp ()
-      call QW_vderiva ()
+      if (.not.Dynamics_sw_L) then
+         call CW_vinterp ()
+         call CW_vderiva ()
+!         call QW_vinterp ()
+!         call QW_vderiva ()
 
-      call VS3_vinterp ()
-      call VD3_vderiva ()
-      call VS5_vinterp ()
-      call VD5_vderiva ()
+!         call VS3_vinterp ()
+         call VD3_vderiva ()
+!         call VS5_vinterp ()
+!         call VD5_vderiva ()
+      endif
 
       if ( Ctrl_canonical_dcmip_L ) then
          Cstv_pref_8 = 100000.d0

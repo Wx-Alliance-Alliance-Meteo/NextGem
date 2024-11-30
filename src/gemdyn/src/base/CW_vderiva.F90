@@ -13,11 +13,10 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
 
-!**s/r CW_vinterp - Compute cubic weights for vertical derivatives
+!**s/r CW_vderiva - Compute cubic weights for vertical derivatives
 
       subroutine CW_vderiva ( )
       use, intrinsic :: iso_fortran_env
-      use dynkernel_options
       use metric
       use glb_ld
       use ver
@@ -31,8 +30,6 @@
 !
       allocate ( CDm2t(4,0:G_nk+1), CDt2m(4,0:G_nk+1) )
       CDm2t= 0.d0 ; CDt2m= 0.d0
-
-      if(Dynamics_sw_L) return
 
       do k=2,G_nk-1 ! this assumes the data is valid at G_nk+1
          z1 = Ver_a_8%m(k-1)

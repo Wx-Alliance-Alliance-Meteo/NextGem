@@ -31,11 +31,12 @@ module vgh
 
 contains
 
-      subroutine fill_Vhalo_r4 (F_dst,Minx,Maxx,Miny,Maxy,F_cte)
+      subroutine fill_Vhalo_r4 (F_dst,Minx,Maxx,Miny,Maxy,F_k0,F_kn,F_cte,Nlvls)
       implicit none
-      integer, intent(IN) :: Minx,Maxx,Miny,Maxy
+      integer, intent(IN), optional :: Nlvls
+      integer, intent(IN) :: Minx,Maxx,Miny,Maxy,F_k0,F_kn
       real(kind=REAL64), intent(IN) :: F_cte
-      real, dimension(Minx:Maxx,Miny:Maxy,-2:l_nk+3), intent(INOUT) :: F_dst
+      real, dimension(Minx:Maxx,Miny:Maxy,F_k0:F_kn), intent(INOUT) :: F_dst
 
       include 'fill_Vhalo.inc'
 !
@@ -44,11 +45,12 @@ contains
       return
       end subroutine fill_Vhalo_r4
 
-      subroutine fill_Vhalo_r8 (F_dst,Minx,Maxx,Miny,Maxy,F_cte)
+      subroutine fill_Vhalo_r8 (F_dst,Minx,Maxx,Miny,Maxy,F_k0,F_kn,F_cte,Nlvls)
       implicit none
-      integer, intent(IN) :: Minx,Maxx,Miny,Maxy
+      integer, intent(IN), optional :: Nlvls
+      integer, intent(IN) :: Minx,Maxx,Miny,Maxy,F_k0,F_kn
       real(kind=REAL64), intent(IN) :: F_cte
-      real(kind=REAL64), dimension(Minx:Maxx,Miny:Maxy,-2:l_nk+3), intent(INOUT) :: F_dst
+      real(kind=REAL64), dimension(Minx:Maxx,Miny:Maxy,F_k0:F_kn), intent(INOUT) :: F_dst
 
       include 'fill_Vhalo.inc'
 !

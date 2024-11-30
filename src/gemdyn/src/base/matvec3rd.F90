@@ -29,6 +29,7 @@
       use mem_tstp
       use tdpack
       use ver
+      use vgh
       use yyg_param
       use, intrinsic :: iso_fortran_env
       implicit none
@@ -49,7 +50,11 @@
 !
       call gtmg_start (91, 'MATVEC1', 29 )
 
+      ext_q=0.
       ext_q(ds_i0:ds_in,ds_j0:ds_jn,1:l_nk)= F_vector(ds_i0:ds_in,ds_j0:ds_jn,1:l_nk)
+      call fill_Vhalo (ext_q,l_minx,l_maxx,l_miny,l_maxy,lbound(ext_q,3),ubound(ext_q,3),1.d0)
+    !  call fill_Vhalo (ext_q,l_minx,l_maxx,l_miny,l_maxy,-5.l_nk+5,1.)
+      
       do j= ds_j0, ds_jn
          do i= ds_i0, ds_in
             c1=  (GVM%zmom_8(i,j,l_nk+1)-GVM%zmom_8(i,j,l_nk))&
@@ -86,7 +91,7 @@
          endif
       endif
       
-      call delQ (ext_q,l_minx,l_maxx,l_miny,l_maxy, Qu,Qv,Qw,Qq,0,l_nk+1)
+      call delQ (ext_q,l_minx,l_maxx,l_miny,l_maxy, Qu,Qv,Qw,Qq,lbound(ext_q,3),ubound(ext_q,3))
 
       call gtmg_stop (91)
       call gtmg_start (92, 'MATVEC2', 29 )

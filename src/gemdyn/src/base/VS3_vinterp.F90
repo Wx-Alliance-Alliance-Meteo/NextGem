@@ -17,7 +17,6 @@
 
       subroutine VS3_vinterp ( )
       use, intrinsic :: iso_fortran_env
-      use dynkernel_options
       use metric
       use glb_ld
       use ver
@@ -28,10 +27,10 @@
 !     
 !     ---------------------------------------------------------------
 !
+      return
       allocate ( VS3m2t(4,1:G_nk), VS3t2m(4,1:G_nk) )
       VS3m2t= 0.d0 ; VS3t2m= 0.d0
       
-      if(Dynamics_sw_L) return
       do k=1, l_nk
          z1 = Ver_ext%m(k-1)
          z2 = Ver_ext%m(k  )
