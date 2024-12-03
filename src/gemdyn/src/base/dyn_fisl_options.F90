@@ -19,6 +19,7 @@ module dyn_fisl_options
    save
 
    logical :: Euler_step_one = .true.
+   logical :: Schm_VH_L = .false.
       
    !# Add souce level l_nk+1 in qt SL interpolation & trajectories
    logical :: SL_sfc  = .false.

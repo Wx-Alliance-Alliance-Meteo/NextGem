@@ -19,6 +19,8 @@ module vgh
   use glb_ld
   implicit none
   private
+      integer :: i,j,n
+
   public :: fill_Vhalo
 
   interface fill_Vhalo
@@ -31,9 +33,8 @@ module vgh
 
 contains
 
-      subroutine fill_Vhalo_r4 (F_dst,Minx,Maxx,Miny,Maxy,F_k0,F_kn,F_cte,Nlvls)
+      subroutine fill_Vhalo_r4 (F_dst,Minx,Maxx,Miny,Maxy,F_k0,F_kn,F_cte)
       implicit none
-      integer, intent(IN), optional :: Nlvls
       integer, intent(IN) :: Minx,Maxx,Miny,Maxy,F_k0,F_kn
       real(kind=REAL64), intent(IN) :: F_cte
       real, dimension(Minx:Maxx,Miny:Maxy,F_k0:F_kn), intent(INOUT) :: F_dst
@@ -45,9 +46,8 @@ contains
       return
       end subroutine fill_Vhalo_r4
 
-      subroutine fill_Vhalo_r8 (F_dst,Minx,Maxx,Miny,Maxy,F_k0,F_kn,F_cte,Nlvls)
+      subroutine fill_Vhalo_r8 (F_dst,Minx,Maxx,Miny,Maxy,F_k0,F_kn,F_cte)
       implicit none
-      integer, intent(IN), optional :: Nlvls
       integer, intent(IN) :: Minx,Maxx,Miny,Maxy,F_k0,F_kn
       real(kind=REAL64), intent(IN) :: F_cte
       real(kind=REAL64), dimension(Minx:Maxx,Miny:Maxy,F_k0:F_kn), intent(INOUT) :: F_dst

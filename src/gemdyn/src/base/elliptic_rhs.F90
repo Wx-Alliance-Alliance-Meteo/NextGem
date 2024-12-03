@@ -24,6 +24,7 @@
 !
 !     ---------------------------------------------------------------
 !
+!      Schm_VH_L = .true.
       if (Schm_POSO == 5) then
          call elliptic_rhs5th ( F_dt_8, k0, k0t )
          !for 5th order with vertical ghosts halos
@@ -31,7 +32,6 @@
          return
       else if (Schm_POSO == 3) then
         call elliptic_rhs3rd ( F_dt_8, k0, k0t )
-!         call elliptic_rhs3rd_try1 ( F_dt_8, k0, k0t )
         return
       else
          call elliptic_rhs2nd ( F_dt_8, k0, k0t )

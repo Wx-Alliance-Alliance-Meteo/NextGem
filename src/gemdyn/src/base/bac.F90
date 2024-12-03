@@ -46,6 +46,11 @@
 !
 !     ---------------------------------------------------------------
 !
+      if (Schm_VH_L) then
+         call bacVH ( F_dt_8 )
+         return
+      endif
+
       if (Ctrl_testcases_adv_L) then
 !!$omp single
          call canonical_cases ("BAC")

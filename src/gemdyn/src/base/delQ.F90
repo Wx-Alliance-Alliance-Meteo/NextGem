@@ -34,7 +34,6 @@
 
       integer :: HLT_np, HLT_start, HLT_end
       integer :: i, j, k, nk, ii
-      integer :: km1,km2,km3,kp1,kp2,kp3
       real(kind=REAL64) :: dqx(0:1), dqy(0:1), qbz, u, v,wp_8(G_nk), wm_8(G_nk)
       real(kind=REAL64), parameter :: one=1.d0,half=0.5d0
       real(kind=REAL64), dimension(l_minx:l_maxx,l_miny:l_maxy,0:l_nk) :: dqdzx,dqdzy
@@ -70,10 +69,6 @@
       end do
       
       do k=0,G_nk
-         km1=max(k-1,1)
-         km2=max(k-2,1)
-         kp2=min(k+2,G_nk)
-         kp3=min(k+3,G_nk)
          do j= 1,l_nj
             do i= 1,l_ni
                do ii=0,1
@@ -87,10 +82,6 @@
       end do
 
       do k=1,G_nk
-         km2=max(k-2,1)
-         km3=max(k-3,1)
-         kp1=min(k+1,G_nk)
-         kp2=min(k+2,G_nk)
          do j= 1, l_nj
             do i= 1, l_ni
                u = wp_8(k)*dqdzx(i,j,k)+wm_8(k)*dqdzx(i,j,k-1)

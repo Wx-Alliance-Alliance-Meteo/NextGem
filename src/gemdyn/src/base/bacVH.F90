@@ -13,10 +13,10 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END --------------------------------
 
-!**   s/r bac - back substitution: obtain new values for variables
-!               u,v,w,t,q,zd using Sol_lhs
+!**s/r bac - backsubstitution: obtain new values for variables:u,v,w,t,q,zd
+!                              using Sol_lhs
 
-      subroutine bac_new ( F_dt_8 )
+      subroutine bacVH ( F_dt_8 )
       use dyn_fisl_options
       use geomh
       use sol_mem
@@ -33,6 +33,7 @@
       use theo_options
       use glb_pil
       use ldnh
+      use vgh
       use stat_mpi
       use, intrinsic :: iso_fortran_env
       implicit none
@@ -40,7 +41,7 @@
       real(kind=REAL64), intent(IN) :: F_dt_8
 
       integer :: i, j, k,ni,nj
-      integer :: HLT_start, HLT_end, local_np
+      integer :: HLT_start, HLT_end, HLT_np
       real(kind=REAL64) :: w5, tau_8, invT_8, Buoy
       real(kind=REAL64), parameter :: one=1.d0
 !
@@ -55,25 +56,39 @@
 
       tau_8 = (2.d0*F_dt_8) / 3.d0 
       invT_8= one/tau_8
+      ext_q=0.
+      ext_q(1:l_ni,1:l_nj,1:l_nk)= Sol_lhs(1:l_ni,1:l_nj,1:l_nk)
+      call fill_Vhalo (ext_q,l_minx,l_maxx,l_miny,l_maxy,lbound(ext_q,3),ubound(ext_q,3),1.d0)
+      
+!--extrapolation at the surface and at the lid (k=0 and k=l_nk+1)   
+!!$omp do
+      do j= 1, l_nj
+         do i= 1, l_ni
+            ! pour le moment cette extrapolation ne fonctionne pas
+            ! w5=(GVM%zmom_8(i,j,l_nk+1)-GVM%zmom_8(i,j,l_nk))/(GVM%zmom_8(i,j,l_nk)-GVM%zmom_8(i,j,l_nk-1))
+            ! Sol_lhs(i,j,l_nk+1)= Sol_lhs(i,j,l_nk)*(1+w5) - w5*Sol_lhs(i,j,l_nk-1)
+            ! so we keep the following (from FISL)
+            Sol_lhs(i,j,l_nk+1) = GVM%mc_alfas_H_8(i,j)*Sol_lhs(i,j,l_nk  ) &
+                                - GVM%mc_betas_H_8(i,j)*Sol_lhs(i,j,l_nk-1) &
+                              + GVM%mc_css_H_8  (i,j)* (Rtt(i,j,l_nk)-Ver_wmstar_8(G_nk)*Rtt(i,j,l_nk-1) &
+                              + invT_8*(Rzz(i,j,l_nk)-Ver_wmstar_8(G_nk)*Rzz(i,j,l_nk-1)))
+!            w5= (ver_z_8%m(0)-GVM%zmom_8(i,j,2))/(GVM%zmom_8(i,j,2)-GVM%zmom_8(i,j,1))
+!            Sol_lhs(i,j,0)= Sol_lhs(i,j,2)*(1+w5) -w5*Sol_lhs(i,j,1)
+         enddo
+      enddo
+!!$omp end do
 
-      do k= 1, l_nk
-         do j= ds_j0, ds_jn
-            do i= ds_i0, ds_in
-               vgh_q(i,j,k)= Sol_lhs(i,j,k)
-            end do
-         end do
-      end do
-      call delQ5 (vgh_q, l_minx,l_maxx,l_miny,l_maxy, Qu,Qv,Qw,Qq,-2,l_nk+3)
-
+!      call delQ (Sol_lhs, l_minx,l_maxx,l_miny,l_maxy, Qu,Qv,Qw,Qq,0,l_nk+1)
+      call delQ (ext_q,l_minx,l_maxx,l_miny,l_maxy, Qu,Qv,Qw,Qq,lbound(ext_q,3),ubound(ext_q,3))
+         
 !!$omp do collapse(2)
-      do k=1, l_nk
+      do k=1, l_nk+1
          do j= ds_j0, ds_jn
             do i= ds_i0, ds_in
                qt0(i,j,k) = sngl(Sol_lhs(i,j,k))
             end do
          end do
       end do
-      ! Something needs to be done for qt0 at l_nk+1 ...
 !!$omp enddo
 
 !!$omp do collapse(2)
@@ -109,4 +124,4 @@
 !     ---------------------------------------------------------------
 !
       return
-      end subroutine bac_new
+      end subroutine bacVH
