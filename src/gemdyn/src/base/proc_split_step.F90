@@ -40,10 +40,8 @@
 
       if (.not. done) then
 !!$omp single
-         call set_params (.true.)
          call set_sol ()
 !!$omp end single
-         if(.not.Dynamics_sw_L) call vertical_metric ()
       endif
       done =.true.
       

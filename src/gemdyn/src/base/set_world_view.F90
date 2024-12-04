@@ -216,7 +216,7 @@
 
       call set_opr()
 
-      call set_params (.true.)
+      call set_params (.true.) !why does this need to be called?
 
       istat= sol_decomp ( Ptopo_npex, Ptopo_npey, .false. )
       call gem_error (istat, 'SET_WORKD_VIEW', &

@@ -53,8 +53,9 @@
       call HLT_split (-2, 6*(G_nk+6)-3, HLT_np, HLT_start, HLT_end)
 
       if(Step_kount.le.2) then
-         call set_dync ( .true., dt_8 )
+         call set_dync (dt_8)
          call vertical_metric ()
+         call set_precon()
       endif
 
       call rhs1 (dt_8) ! also first guess into t0

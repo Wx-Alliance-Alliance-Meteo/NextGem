@@ -13,31 +13,29 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
 
-!**   s/r set_params - initialize some constant parameters
+!**   s/r set_precon - initialize preconditionner parameters 
 
-      subroutine set_params (F_check_and_stop_L)
+      subroutine set_precon ()
       use dynkernel_options
-      use dyn_fisl_options
-      use tdpack
-      use cstv
-      use ver
+      use glb_ld
+      use sol_mem
+      use prec
       use, intrinsic :: iso_fortran_env
       implicit none
-      
-      logical, intent(in) :: F_check_and_stop_L
 
-      real(kind=REAL64), parameter :: zero=0.d0, one=1.d0
-!
 !     ---------------------------------------------------------------
-!
-      call set_dync (Cstv_dt_8)
 
-      Ver_igt_8    = Cstv_invT_8/grav_8
-      Ver_ikt_8    = Cstv_invT_m_8/cappa_8
-      Ver_igt2_8   = Ver_igt_8*(Cstv_invT_nh_8/grav_8)
+      if(Dynamics_sw_L) then
+           call SW_set_oprz ()
+      else
+           call set_oprz ()
+      endif
 
+      call eigenabc_local (Prec_xeval_8,Prec_xevec_8,Prec_ai_8,&
+                           Prec_bi_8,Prec_invbi_8,Prec_ci_8   ,&
+                           sol_niloc,sol_njloc,G_nk)
 !
 !     ---------------------------------------------------------------
 !
       return
-      end subroutine set_params
+      end

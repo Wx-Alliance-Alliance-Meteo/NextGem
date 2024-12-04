@@ -15,7 +15,7 @@
 
 !**   s/r set_dync - initialize the dynamics model configuration
 
-      subroutine set_dync (F_slmx_L, F_dt_8)
+      subroutine set_dync (F_dt_8)
       use dynkernel_options
       use cstv
       use dcst
@@ -29,7 +29,6 @@
       use, intrinsic :: iso_fortran_env
       implicit none
 
-      logical, intent(in) :: F_slmx_L
       real(kind=REAL64), intent(IN)  :: F_dt_8
 
       integer :: k0
@@ -40,11 +39,8 @@
 !
       Nstr2_8=grav_8*grav_8/(cpd_8*Cstv_Tstr_8)
       cstr2_8=rgasd_8*Cstv_Tstr_8/(one-cappa_8)
-      gama_8=one/(Cstv_tau_m_8*Cstv_invT_nh_8+Nstr2_8*Cstv_tau_8*Cstv_tau_m_8)
       mu_8=Nstr2_8/grav_8
       epsi_8=grav_8/cstr2_8
-      gg_8=epsi_8/(grav_8*Cstv_tau_8*Cstv_tau_m_8)
-      gg_sw_8=1.d0/(Cstv_tau_8**2)*Cstv_h0inv_8/grav_8
 
       !--bdf variables--
       bdf_tau    = (2.d0 * F_dt_8)/ 3.d0
@@ -53,17 +49,19 @@
       gg_sw_bdf_8=1.d0/(bdf_tau**2)*Cstv_h0inv_8/grav_8
       !-----------------
 
+      gama_8         = gama_bdf_8
+      gg_8           = gg_bdf_8
+      gg_sw_8        = gg_sw_bdf_8
+
+      Cstv_tau_8     = bdf_tau
+      Cstv_invT_8    = one/Cstv_tau_8
+      Cstv_tau_m_8   = Cstv_tau_8
+      Cstv_invT_m_8  = Cstv_invT_8
+      Cstv_tau_nh_8  = Cstv_tau_8
+      Cstv_invT_nh_8 = Cstv_invT_8
+
       Cstv_swln_8 = 0.d0
       if(Dynamics_swln_L) Cstv_swln_8 = 1.d0
-
-      if(F_slmx_L .or. .not.Euler_step_one) then
-          gama_8 = gama_bdf_8
-          gg_8 = gg_bdf_8
-          gg_sw_8 = gg_sw_bdf_8
-          Cstv_tau_8     =  (2.0*F_dt_8) / 3.0
-          Cstv_tau_nh_8  =  (2.0*F_dt_8) / 3.0
-          Cstv_invT_m_8  = one/Cstv_tau_8 !<--not Cstv_tau_m_8
-      endif
 
       Ver_css_8   = one/gama_8 / (Ver_idz_8%t(G_nk)-mu_8*half)
       Ver_alfas_8 = Ver_css_8*gama_8* &
@@ -85,7 +83,6 @@
          Ver_cstp_8  = gama_8*(w1 + w2)*Ver_cst_8
       end if
 
-      call set_oprz ()
 !
 !     ---------------------------------------------------------------
 !

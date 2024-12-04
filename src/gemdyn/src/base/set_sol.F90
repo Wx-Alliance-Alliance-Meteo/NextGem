@@ -140,9 +140,6 @@
                 Prec_bi_8(sol_niloc,sol_njloc,G_nk),&
                 Prec_invbi_8(sol_niloc,sol_njloc,G_nk),&
                 Prec_ci_8(sol_niloc,sol_njloc,G_nk))
-       call eigenabc_local (Prec_xeval_8,Prec_xevec_8,Prec_ai_8,&
-                            Prec_bi_8,Prec_invbi_8,Prec_ci_8   ,&
-                            sol_niloc,sol_njloc,G_nk)
 
        allocate (gg(1:sol_im+1),rot_cos(1:sol_im+1), rot_sin(1:sol_im+1), IPIV_arr(1:sol_im+1))
        allocate (v_lcl_sum(1:sol_im+1,1:2),rr(1:sol_im+1,1:sol_im+1),&
