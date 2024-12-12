@@ -58,38 +58,35 @@
 !
 
       ninjc = 0
+      if (zqutic_L) ninjc = ninj
 
       ninjl = 0
-      if (zcubic_L) ninjl = ninj
+      if (zqutic_L.or.zcubic_L) ninjl = ninj
 
       ninj1 =     0 + ninjc
       ninj2 = ninj1 + ninjl
       ninj3 = ninj2 + ninj
       ninj4 = ninj3 + ninjl
       ninj5 = ninj4 + ninjc
+
       ni2 = ni  + ni
       ni3 = ni2 + ni
-      ni4 = ni3 + ni
-      ni5 = ni4 + ni
 
       !Bi-Cubic H interpolation and Cubic V interpolation except
       !Linear V interpolation near vertical boundaries
       !-------------------------------------------------------------
       do i = 0,3
 
-         vx4(i) = src(i    )*qz(0) + src(i    +ninj1)*qz(1) +  src(i    +ninj2)*qz(2) + src(i    +ninj3)*qz(3)
-         va4(i) = src(i+ni )*qz(0) + src(i+ni +ninj1)*qz(1) +  src(i+ni +ninj2)*qz(2) + src(i+ni +ninj3)*qz(3)
-         vb4(i) = src(i+ni2)*qz(0) + src(i+ni2+ninj1)*qz(1) +  src(i+ni2+ninj2)*qz(2) + src(i+ni2+ninj3)*qz(3) 
-         vc4(i) = src(i+ni3)*qz(0) + src(i+ni3+ninj1)*qz(1) +  src(i+ni3+ninj2)*qz(2) + src(i+ni3+ninj3)*qz(3)
-         !vd4(i) = src(i+ni4)*qz(0) + src(i+ni4+ninj1)*qz(1) +  src(i+ni4+ninj2)*qz(2) + src(i+ni4+ninj3)*qz(3)
-         !ve4(i) = src(i+ni5)*qz(0) + src(i+ni5+ninj1)*qz(1) +  src(i+ni5+ninj2)*qz(2) + src(i+ni5+ninj3)*qz(3) 
+         vx4(i) = src(i    )*qz(0) + src(i    +ninj1)*qz(1) +  src(i    +ninj2)*qz(2) + src(i    +ninj3)*qz(3) + src(i    +ninj4)*qz(4) + src(i    +ninj5)*qz(5)
+         va4(i) = src(i+ni )*qz(0) + src(i+ni +ninj1)*qz(1) +  src(i+ni +ninj2)*qz(2) + src(i+ni +ninj3)*qz(3) + src(i+ni +ninj4)*qz(4) + src(i+ni +ninj5)*qz(5)
+         vb4(i) = src(i+ni2)*qz(0) + src(i+ni2+ninj1)*qz(1) +  src(i+ni2+ninj2)*qz(2) + src(i+ni2+ninj3)*qz(3) + src(i+ni2+ninj4)*qz(4) + src(i+ni2+ninj5)*qz(5)
+         vc4(i) = src(i+ni3)*qz(0) + src(i+ni3+ninj1)*qz(1) +  src(i+ni3+ninj2)*qz(2) + src(i+ni3+ninj3)*qz(3) + src(i+ni3+ninj4)*qz(4) + src(i+ni3+ninj5)*qz(5)
 
-         dst(i) = vx4(i)*cy(0) + va4(i)*cy(1) + vb4(i)*cy(2) + vc4(i)*cy(3) !+ vd4(i)*cy(4) + ve4(i)*cy(5)
+         dst(i) = vx4(i)*cy(0) + va4(i)*cy(1) + vb4(i)*cy(2) + vc4(i)*cy(3) 
 
       end do
 
       xyz = dst(0)*cx(0) + dst(1)*cx(1) + dst(2)*cx(2) + dst(3)*cx(3) 
-      !   print*,'xyz ',cx(0) ,cx(1) ,cx(2) ,cx(3) ,cx(4) ,cx(5)
 
       !Linear interpolation over 2x2x2 inner box
       !-----------------------------------------

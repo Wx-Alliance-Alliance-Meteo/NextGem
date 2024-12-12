@@ -13,11 +13,11 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END ---------------------------------
 
-!**s/r biquiHQV_lin_min_max_zyx - SL Bi-Quintic H interpolation and Quintic V interpolation except
-!                                 Cubic or Linear V interpolation near vertical boundaries
+!**s/r bicubHQV_lin_min_max_zyx - SL Bi-cubic H interpolation and Cubic V interpolation except
+!                                 Linear V interpolation near vertical boundaries
 !                                 (Based on tricublin_beta.c): Interpolation ZYX
 
-      subroutine biquiHQV_lin_min_max_zyx (xyz, li, mi, ma, src, cx, cy, qz, lx, ly, lz, &
+      subroutine bicubHCV_lin_min_max_zyx (xyz, li, mi, ma, src, cx, cy, qz, lx, ly, lz, &
                                            ni, ninj, zqutic_L, zcubic_L)
 
       use, intrinsic :: iso_fortran_env
@@ -40,17 +40,12 @@
 !---------------------------------------------------------------------
 !
 
-      ninjc = 0
-      if (zqutic_L) ninjc = ninj
 
-      ninjl = 0
-      if (zqutic_L.or.zcubic_L) ninjl = ninj
-
-      ninj1 =     0 + ninjc
-      ninj2 = ninj1 + ninjl
+      ninj1 =     0 
+      ninj2 = ninj1 + ninj
       ninj3 = ninj2 + ninj
-      ninj4 = ninj3 + ninjl
-      ninj5 = ninj4 + ninjc
+      ninj4 = ninj3 + ninj
+      ninj5 = ninj4 + ninj
       ni2 = ni  + ni
       ni3 = ni2 + ni
       ni4 = ni3 + ni
@@ -59,7 +54,7 @@
       !Bi-Quintic H interpolation and Quintic V interpolation except
       !Cubic or Linear V interpolation near vertical boundaries
       !-------------------------------------------------------------
-      if (zqutic_L.or.zcubic_L) then
+      if (zcubic_L) then
 
        do i = 0,5
 
@@ -70,7 +65,7 @@
          vd4(i) = src(i+ni4)*qz(0) + src(i+ni4+ninj1)*qz(1) +  src(i+ni4+ninj2)*qz(2) + src(i+ni4+ninj3)*qz(3) + src(i+ni4+ninj4)*qz(4) + src(i+ni4+ninj5)*qz(5)
          ve4(i) = src(i+ni5)*qz(0) + src(i+ni5+ninj1)*qz(1) +  src(i+ni5+ninj2)*qz(2) + src(i+ni5+ninj3)*qz(3) + src(i+ni5+ninj4)*qz(4) + src(i+ni5+ninj5)*qz(5)
 
-         dst(i) = vx4(i)*cy(0) + va4(i)*cy(1) + vb4(i)*cy(2) + vc4(i)*cy(3) + vd4(i)*cy(4) + ve4(i)*cy(5)
+         dst(i) = vx4(i)*cy(0) + va4(i)*cy(1) + vb4(i)*cy(2) +vc4(i)*cy(3) + vd4(i)*cy(4) + ve4(i)*cy(5)
 
        end do
 
@@ -90,6 +85,7 @@
 
       xyz = dst(0)*cx(0) + dst(1)*cx(1) + dst(2)*cx(2) + dst(3)*cx(3) + dst(4)*cx(4) + dst(5)*cx(5)
       !   print*,'xyz ',cx(0) ,cx(1) ,cx(2) ,cx(3) ,cx(4) ,cx(5)
+     !print*,'qz(0),qz(1),qz(2),qz(3),qz(4),qz(5):',qz(0),qz(1),qz(2),qz(3),qz(4),qz(5)
 
       !Linear interpolation over 2x2x2 inner box
       !-----------------------------------------
