@@ -32,6 +32,7 @@
       use mem_tstp
       use psadjust
       use tr3d
+      use ver
       use omp_lib
       implicit none
 
@@ -40,7 +41,7 @@
 
       type(gmm_metadata) :: meta, mymeta
       integer(kind=INT64) :: flag_m_f
-      integer :: istat,dim,dimH
+      integer :: istat,dim,dimH,k0,kn
 !
 !-------------------------------------------------------------------
 !
@@ -169,17 +170,24 @@
       sw_f11 (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>sw_frc(10*dim+1:)
       sw_f12 (l_minx:l_maxx,l_miny:l_maxy,1:l_nk)=>sw_frc(11*dim+1:)
 
-      dim = dimH*(G_nk+2)
-      allocate (M_Jz(3*dim))
-      allocate ( M_Jxozu (l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1),&
-                 M_Jyozv (l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1),&
-                 M_iJzq  (l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1),&
-                 M_logJzu(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1),&
-                 M_logJzv(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1),&
-                 M_logJzq(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1) )
-      M_Jzu(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1) => M_jz(      1:)
-      M_Jzv(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1) => M_jz(  dim+1:)
-      M_Jzq(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1) => M_jz(2*dim+1:)
+      k0 = lbound(Ver_ext%m,1)
+      kn = ubound(Ver_ext%m,1)
+      allocate ( VM3%zmom  (l_minx:l_maxx,l_miny:l_maxy,k0  :kn), &
+                 VM3%ztht  (l_minx:l_maxx,l_miny:l_maxy,k0-1:kn), &
+                 VM3%zmom_u(l_minx:l_maxx,l_miny:l_maxy,k0  :kn), &
+                 VM3%ztht_u(l_minx:l_maxx,l_miny:l_maxy,k0-1:kn), &
+                 VM3%zmom_v(l_minx:l_maxx,l_miny:l_maxy,k0  :kn), &
+                 VM3%ztht_v(l_minx:l_maxx,l_miny:l_maxy,k0-1:kn), &
+                 VM3%pstar (l_minx:l_maxx,l_miny:l_maxy,k0  :kn) )
+      k0 = lbound(VM3%zmom,3)
+      kn = ubound(VM3%zmom,3)-1
+      allocate ( M_Jxozu (l_minx:l_maxx,l_miny:l_maxy,k0:kn),&
+                 M_Jyozv (l_minx:l_maxx,l_miny:l_maxy,k0:kn),&
+                 M_iJzq  (l_ni,l_nj,k0:kn) )
+      allocate ( M_logJzu(l_ni,l_nj,G_nk),&
+                 M_logJzv(l_ni,l_nj,G_nk),&
+                 M_logJzq(l_ni,l_nj,G_nk) )
+      M_Jxozu=0. ; M_Jyozv=0. ; M_iJzq =0.!-huge(1.d0)
 
       allocate ( GVM%zmom_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &
                  GVM%ztht_8(l_minx:l_maxx,l_miny:l_maxy,0:G_nk+1), &

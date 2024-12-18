@@ -20,10 +20,11 @@
       use HORgrid_options
       use metric
       use gmm_geof
+      use ver
       use yyg_param
       implicit none
 
-      integer :: i,j,k
+      integer :: i,j,k,k0,kn
       integer :: HLT_start, HLT_end, local_np
       real, dimension (:,:,:), pointer :: oro
 !
@@ -44,6 +45,14 @@
                          fis0u, orolsu, l_minx,l_maxx,l_miny,l_maxy)
       call lvl_heights ( zmomv_8, zthtv_8, &
                          fis0v, orolsv, l_minx,l_maxx,l_miny,l_maxy)
+      k0=lbound(Ver_ext%m,1)
+      kn=ubound(Ver_ext%m,1)
+      call lvl_heightsVH ( VM3%zmom, VM3%ztht, fis0, orols, &
+                           l_minx,l_maxx,l_miny,l_maxy,k0,kn)
+      call lvl_heightsVH ( VM3%zmom_u, VM3%ztht_u, fis0u, orolsu, &
+                           l_minx,l_maxx,l_miny,l_maxy,k0,kn)
+      call lvl_heightsVH ( VM3%zmom_v, VM3%ztht_v, fis0v, orolsv, &
+                           l_minx,l_maxx,l_miny,l_maxy,k0,kn)
       do k=1,G_nk
          do j=1-G_haloy,l_nj+G_haloy
             do i=1-G_halox,l_ni+G_halox

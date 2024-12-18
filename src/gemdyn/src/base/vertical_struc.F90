@@ -62,7 +62,7 @@
                   Ver_b_8%m(G_nk+1),       Ver_b_8%t(G_nk+1), &
                   Ver_c_8%m(G_nk+1),       Ver_c_8%t(G_nk+1), &
                 Ver_z_8%m(0:G_nk+1),     Ver_z_8%t(0:G_nk+1), &
-                Ver_ext%m(-2:G_nk+3),   Ver_ext%t(-2:G_nk+3), &
+               Ver_ext%m(-3:G_nk+4),    Ver_ext%t(-4:G_nk+4), &
                Ver_dqdz_8(0:G_nk  )                         , &
                  Ver_dz_8%m(G_nk  ),      Ver_dz_8%t(G_nk  ), &
                 Ver_idz_8%m(G_nk  ),     Ver_idz_8%t(G_nk  ), &
@@ -146,9 +146,11 @@
       Ver_ext%m(0 )     =  Ver_ext%m(1 ) + 2*(Ver_z_8%m(0)-Ver_a_8%m(1))
       Ver_ext%m(-1)     =  Ver_ext%m(0 ) + (Ver_z_8%m(1)-Ver_a_8%m(2))
       Ver_ext%m(-2)     =  Ver_ext%m(-1) + (Ver_z_8%m(2)-Ver_a_8%m(3))
+      Ver_ext%m(-3)     =  Ver_ext%m(-2) + (Ver_z_8%m(3)-Ver_a_8%m(4))
       Ver_ext%m(G_nk+1) = -Ver_z_8%m(G_nk  )
       Ver_ext%m(G_nk+2) = -Ver_z_8%m(G_nk-1)
       Ver_ext%m(G_nk+3) = -Ver_z_8%m(G_nk-2)
+      Ver_ext%m(G_nk+4) = -Ver_z_8%m(G_nk-3)
 
       Cstv_h0inv_8 = 1.d0/Ver_z_8%m(1)
 
@@ -164,11 +166,14 @@
       Ver_ext%t(-1)     =  2.0d0*Ver_z_8%m(0) -Ver_ext%t(0)
       Ver_ext%t(-2)     =  2.0d0*Ver_z_8%m(0) -Ver_ext%t(1)
       Ver_ext%t(-3)     =  2.0d0*Ver_z_8%m(0) -Ver_ext%t(2)
+      Ver_ext%t(-4)     =  2.0d0*Ver_z_8%m(0) -Ver_ext%t(3)
       Ver_ext%t(G_nk+1) = -Ver_z_8%t(G_nk  )
       Ver_ext%t(G_nk+2) = -Ver_z_8%t(G_nk-1)
       Ver_ext%t(G_nk+3) = -Ver_z_8%t(G_nk-2)
+      Ver_ext%t(G_nk+4) = -Ver_z_8%t(G_nk-3)
 
-      do k = -2, 0
+      if (Lun_out > 0) then
+      do k = lbound(Ver_ext%m,1), 0
          print*, k, Ver_ext%m(k)
          print*, '               ',k-1,Ver_ext%t(k-1)
       end do
@@ -181,10 +186,11 @@
       print*, '############### SURFACE'
       print*, '               ',G_nk+1,Ver_ext%t(G_nk+1)
       print*, G_nk+1, Ver_ext%m(G_nk+1)
-      do k = G_nk+2, G_nk+3
+      do k = G_nk+2, ubound(Ver_ext%m,1)
          print*, '               ',k,Ver_ext%t(k)
          print*, k, Ver_ext%m(k)
       end do
+      endif
 
       Ver_zmin_8 = Ver_z_8%m(G_nk+1)
       Ver_zmax_8 = Ver_z_8%m(0)
@@ -196,7 +202,7 @@
 !         call QW_vderiva ()
 
 !         call VS3_vinterp ()
-         call VD3_vderiva ()
+         call V3rd_oprs () !VD3_vderiva ()
 !         call VS5_vinterp ()
 !         call VD5_vderiva ()
       endif

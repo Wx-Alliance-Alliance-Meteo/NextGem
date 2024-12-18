@@ -42,7 +42,7 @@
 
       integer :: i, j, k,ni,nj
       integer :: HLT_start, HLT_end, HLT_np
-      real(kind=REAL64) :: w5, tau_8, invT_8, Buoy
+      real(kind=REAL64) :: w5, tau_8, invT_8, Buoy, qqq,qww
       real(kind=REAL64), parameter :: one=1.d0
 !
 !     ---------------------------------------------------------------
@@ -95,7 +95,7 @@
       do k=ds_k0, l_nk
          do j= ds_j0, ds_jn
             do i= ds_i0, l_niu-pil_e
-               ut0(i,j,k) = tau_8*(Ruu(i,j,k) - Qu(i,j,k))
+               ut0(i,j,k) = 0.!tau_8*(Ruu(i,j,k) - Qu(i,j,k))
             end do
          end do
          do j= ds_j0, l_njv-pil_n
@@ -105,10 +105,14 @@
          end do
          do j= ds_j0, ds_jn
             do i= ds_i0, ds_in
-               wt0 (i,j,k) = tau_8*(Rtt(i,j,k) - gama_bdf_8*Qw(i,j,k))
+               qqq=GVM%mc_iJz_8(i,j,k)*(qt0(i,j,k+1)-qt0(i,j,k))
+               qww=qqq - mu_8*0.5d0*(qt0(i,j,k)+qt0(i,j,k+1))
+             !  wt0 (i,j,k) = tau_8*(Rtt(i,j,k) - gama_bdf_8*qww)
+               wt0 (i,j,k) = 0. !tau_8*(Rtt(i,j,k) - gama_bdf_8*Qw(i,j,k))
                zdt0(i,j,k) = (Rzz(i,j,k) + wt0(i,j,k))
-               Buoy = Qq(i,j,k) + wt0(i,j,k)*invT_8 - Rww(i,j,k)
-               tt0(i,j,k) = Cstv_Tstr_8 / (one - Buoy / grav_8 )
+               Buoy = qqq + wt0(i,j,k)*invT_8 - Rww(i,j,k)
+             !  Buoy = Qq(i,j,k) + wt0(i,j,k)*invT_8 - Rww(i,j,k)
+             !  tt0(i,j,k) = Cstv_Tstr_8 / (one - Buoy / grav_8 )
 ! or alternatively
 !!$               a = 4.d0*invT_8/3.d0
 !!$               b =      invT_8/3.d0
@@ -120,6 +124,7 @@
          end do
       end do
 !!$omp enddo nowait
+ !        call blocstat (.false.)
 !     
 !     ---------------------------------------------------------------
 !

@@ -59,6 +59,8 @@
                end do
                dqdzx(i,j,k) = Hstag8(dqx(-1), dqx(0), dqx(1), dqx(2))
                dqdzy(i,j,k) = Hstag8(dqy(-1), dqy(0), dqy(1), dqy(2))
+            !   F_Qq(i,j,max(k,1)) = dqx(0)
+            !   if ((i==l_ni/2).and.(j==l_nj/2+1)) print*, k,F_Qq(i,j,max(k,1)),F_q(i+ii,j,km1:k+2)
             end do
          end do
       end do
@@ -93,13 +95,14 @@
                       + dqdzy(i,j,k  ) * VS3t2m(3,k) &  
                       + dqdzy(i,j,k+1) * VS3t2m(4,k)
                !--- remains second order for now ---
-               F_Qq(i,j,k)= GVM%mc_iJz_8(i,j,k)*(F_q(i,j,k+1)-F_q(i,j,k))
-               qbz        = half*(F_q(i,j,k)+F_q(i,j,k+1))
-!!$               qbz = F_q(i,j,km1) * VS3m2t(1,k) &
+              ! F_Qq(i,j,k)= GVM%mc_iJz_8(i,j,k)*(F_q(i,j,k+1)-F_q(i,j,k))
+              ! qbz        = half*(F_q(i,j,k)+F_q(i,j,k+1))
+!!$               qbz = F_q(i,j,k-1) * VS3m2t(1,k) &
 !!$                   + F_q(i,j,k  ) * VS3m2t(2,k) &
-!!$                   + F_q(i,j,kp1) * VS3m2t(3,k) &
-!!$                   + F_q(i,j,kp2) * VS3m2t(4,k)
-               F_Qw(i,j,k)= F_Qq(i,j,k) - mu_8*qbz
+!!$                   + F_q(i,j,k+1) * VS3m2t(3,k) &
+!!$                   + F_q(i,j,k+2) * VS3m2t(4,k)
+!!$               F_Qw(i,j,k)= F_Qq(i,j,k) - mu_8*qbz
+
                F_Qu(i,j,k)= Hderiv8(F_q(i-1,j,k), F_q(i,j,k), &
                                     F_q(i+1,j,k), F_q(i+2,j,k), geomh_invDX_8(j)) &
                           - GVM%mc_Jx_8(i,j,k) * u(i,j)

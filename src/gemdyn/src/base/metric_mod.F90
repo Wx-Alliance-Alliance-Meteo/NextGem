@@ -33,10 +33,16 @@ module metric
       real(kind=REAL64), dimension(:,:)  , allocatable :: mc_cst_8, mc_alfat_8, mc_cstp_8
    end type Vmetric
 
-   type(Vmetric) :: GVM
+   type MetricV
+      real(kind=REAL64), dimension(:,:,:), allocatable :: zmom  , ztht  , pstar
+      real(kind=REAL64), dimension(:,:,:), allocatable :: zmom_u, ztht_u, zmom_v, ztht_v
+!      real(kind=REAL64), dimension(:,:,:), allocatable :: mc_Ix, mc_Iy, mc_Iz
+!      real(kind=REAL64), dimension(:,:,:), allocatable :: mc_Jx, mc_Jy, mc_iJz
+   end type MetricV
 
-      real(kind=REAL64), pointer, contiguous, dimension (:) :: M_Jz => null()
-      real(kind=REAL64), dimension(:,:,:), pointer :: M_Jzu , M_Jzv , M_Jzq
+   type(Vmetric) :: GVM
+   type(MetricV) :: VM3
+
       real(kind=REAL64), dimension(:,:,:), allocatable :: M_Jxozu , M_Jyozv , M_iJzq
       real(kind=REAL64), dimension(:,:,:), allocatable :: M_logJzu, M_logJzv, M_logJzq
       

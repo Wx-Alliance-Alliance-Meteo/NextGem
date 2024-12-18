@@ -20,8 +20,10 @@
       use dyn_fisl_options
       use HORgrid_options
       use glb_ld
+      use gmm_geof
       use gmm_vt0
       use mem_tstp
+      use tdpack
       use ver
       use vgh
       use metric
@@ -29,11 +31,12 @@
 
       integer, intent(in) :: Minx, Maxx, Miny, Maxy, Nk
       real(kind=REAL64), dimension(Minx:Maxx,Miny:Maxy,Nk), intent(OUT) :: F_t2u, F_v2u, F_t2v, F_u2v
-      real(kind=REAL64), dimension(Minx:Maxx,Miny:Maxy,Nk), intent(OUT) :: F_dq2u, F_dq2v, F_dq2w
+      real(kind=REAL64), dimension(Minx:Maxx,Miny:Maxy,Nk), intent(OUT) :: F_dq2u, F_dq2v
+      real(kind=REAL64), dimension(Minx:Maxx,Miny:Maxy,-1:Nk+1), intent(OUT) :: F_dq2w
 
       integer :: i, j, k, n, HLT_np, HLT_start, HLT_end
       real(kind=REAL64), dimension(-1:2) :: t2qv, t2qu, v2q, u2q, dq2u, dq2v
-      real(kind=REAL64) :: duu, dvv 
+      real(kind=REAL64) :: duu, dvv ,iJzq
       real(kind=REAL64), dimension(:,:,:), allocatable :: dqzv, dqzu, ext_t, ext_q
 !
 !     ---------------------------------------------------------------
@@ -73,9 +76,15 @@
              F_v2u(i,j,k)= Hstag8( v2q(-1), v2q(0), v2q(1), v2q(2))
              F_t2v(i,j,k)= Hstag8(t2qu(-1),t2qu(0),t2qu(1),t2qu(2))/Cstv_Tstr_8-1.d0
              F_u2v(i,j,k)= Hstag8( u2q(-1), u2q(0), u2q(1), u2q(2))
-             F_dq2w(i,j,k) = M_iJzq(i,j,k)*dq2u(0) !for Rw
+             iJzq = (Ver_ext%m(k-1)+fis0(i,j)/grav_8) * VD3m2t(1,k)&
+                   +(Ver_ext%m(k  )+fis0(i,j)/grav_8) * VD3m2t(2,k)&
+                   +(Ver_ext%m(k+1)+fis0(i,j)/grav_8) * VD3m2t(3,k)&
+                   +(Ver_ext%m(k+2)+fis0(i,j)/grav_8) * VD3m2t(4,k)
+             F_dq2w(i,j,k) = dq2u(0) / iJzq
+           !  F_dq2w(i,j,k) = M_iJzq(i,j,k)*dq2u(0)
              dqzu(i,j,k)= Hstag8(dq2u(-1),dq2u(0),dq2u(1),dq2u(2)) !values in thermo, u-grid
              dqzv(i,j,k)= Hstag8(dq2v(-1),dq2v(0),dq2v(1),dq2v(2)) !values in thermo, v-grid
+           !  if ((i==l_ni/2).and.(j==L_nj/2+1)) print*, 'allo266: ',k,F_dq2w(i,j,k),dq2u(0)
          end do
          end do
       end do
@@ -92,6 +101,14 @@
                         +ext_q(i,j+n, 1) * VD3m2t(3,k)&
                         +ext_q(i,j+n, 2) * VD3m2t(4,k)
             end do
+            iJzq = (Ver_ext%m(-1)+fis0(i,j)/grav_8) * VD3m2t(1,k)&
+                  +(Ver_ext%m( 0)+fis0(i,j)/grav_8) * VD3m2t(2,k)&
+                  +(Ver_ext%m( 1)+fis0(i,j)/grav_8) * VD3m2t(3,k)&
+                  +(Ver_ext%m( 2)+fis0(i,j)/grav_8) * VD3m2t(4,k)
+            F_dq2w(i,j,k) = dq2u(0) / iJzq
+          !  if ((i==l_ni/2).and.(j==L_nj/2+1)) print*, 'allo266: ',k,F_dq2w(i,j,k),dq2u(0)
+          !         F_dq2w(i,j,k) = M_iJzq(i,j,k)*dq2u(0)
+           ! if ((i==l_ni/2).and.(j==L_nj/2+1)) print*, 'allo266: ',k,F_dq2w(i,j,k)
             dqzu(i,j,k)= Hstag8(dq2u(-1),dq2u(0),dq2u(1),dq2u(2)) !values in thermo, u-grid
             dqzv(i,j,k)= Hstag8(dq2v(-1),dq2v(0),dq2v(1),dq2v(2)) !values in thermo, v-grid
           end do
@@ -109,6 +126,16 @@
                         +ext_q(i,j+n,k+1) * VD3m2t(3,k)&
                         +ext_q(i,j+n,k+2) * VD3m2t(4,k)
             end do
+            iJzq = (Ver_ext%m(-1)+fis0(i,j)/grav_8) * VD3m2t(1,k)&
+                  +(Ver_ext%m( 0)+fis0(i,j)/grav_8) * VD3m2t(2,k)&
+                  +(Ver_ext%m( 1)+fis0(i,j)/grav_8) * VD3m2t(3,k)&
+                  +(Ver_ext%m( 2)+fis0(i,j)/grav_8) * VD3m2t(4,k)
+            F_dq2w(i,j,k) = dq2u(0) / iJzq
+          !  if ((i==l_ni/2).and.(j==L_nj/2+1)) print*, 'allo266: ',k,F_dq2w(i,j,k),dq2u(0)
+          !         F_dq2w(i,j,k) = M_iJzq(i,j,k)*dq2u(0)
+          !  if ((i==l_ni/2).and.(j==L_nj/2+1)) print*, 'allo266: ',k,F_dq2w(i,j,k)
+            !F_dq2w(i,j,k) = M_iJzq(i,j,k)*dq2u(0)
+            !if ((i==l_ni/2).and.(j==L_nj/2+1)) print*, 'allo12: ',k,F_dq2w(i,j,k),M_iJzq(i,j,k)
             dqzu(i,j,k)= Hstag8(dq2u(-1),dq2u(0),dq2u(1),dq2u(2)) !values in thermo, u-grid
             dqzv(i,j,k)= Hstag8(dq2v(-1),dq2v(0),dq2v(1),dq2v(2)) !values in thermo, v-grid
           end do
@@ -126,11 +153,24 @@
                         +ext_q(i,j+n,l_nk+1) * VD3m2t(3,k)&
                         +ext_q(i,j+n,l_nk+2) * VD3m2t(4,k)
             end do
+            iJzq = (Ver_ext%m(l_nk-1)+fis0(i,j)/grav_8) * VD3m2t(1,k)&
+                  +(Ver_ext%m(l_nk  )+fis0(i,j)/grav_8) * VD3m2t(2,k)&
+                  +(Ver_ext%m(l_nk+1)+fis0(i,j)/grav_8) * VD3m2t(3,k)&
+                  +(Ver_ext%m(l_nk+2)+fis0(i,j)/grav_8) * VD3m2t(4,k)
+            F_dq2w(i,j,k) = dq2u(0) / iJzq
+          !  if ((i==l_ni/2).and.(j==L_nj/2+1)) print*, 'allo266: ',k,F_dq2w(i,j,k),dq2u(0)
+          !         F_dq2w(i,j,k) = M_iJzq(i,j,k)*dq2u(0)
+          !  if ((i==l_ni/2).and.(j==L_nj/2+1)) print*, 'allo266: ',k,F_dq2w(i,j,k)
+          !  F_dq2w(i,j,k) = M_iJzq(i,j,k)*dq2u(0)
             dqzu(i,j,k)= Hstag8(dq2u(-1),dq2u(0),dq2u(1),dq2u(2)) !values in thermo, u-grid
             dqzv(i,j,k)= Hstag8(dq2v(-1),dq2v(0),dq2v(1),dq2v(2)) !values in thermo, v-grid
           end do
       end do
-
+      i=l_ni/2
+      j=l_nj/2+1
+      do k= -1, l_nk+1
+!         print*, k,F_dq2w(i,j,k)
+      enddo
       !---now interpolate back to momentum level---
       !Note: dqdzu and dqdzv are already staggered appropriatly from previous loop
       do k=1,l_nk
