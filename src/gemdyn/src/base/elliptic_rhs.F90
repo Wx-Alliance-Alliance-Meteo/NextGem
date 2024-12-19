@@ -17,21 +17,30 @@
       subroutine elliptic_rhs ( F_dt_8, k0, k0t )
       use, intrinsic :: iso_fortran_env
       use dyn_fisl_options
+      use HORgrid_options
+      use glb_ld
+      use sol_mem
       implicit none
 
       integer, intent(in) :: k0, k0t
       real(kind=REAL64), intent(IN) :: F_dt_8
+      integer i,j,k
 !
 !     ---------------------------------------------------------------
 !
-!      Schm_VH_L = .true.
+  !    Schm_VH_L = .true.
       if (Schm_POSO == 5) then
          call elliptic_rhs5th ( F_dt_8, k0, k0t )
          !for 5th order with vertical ghosts halos
          !call elliptic_rhs5 ( F_dt_8, k0, k0t )
          return
       else if (Schm_POSO == 3) then
-        call elliptic_rhs3rd ( F_dt_8, k0, k0t )
+         call elliptic_rhs3rd ( F_dt_8, k0, k0t )
+!!$         i=l_ni/2
+!!$         j=l_nj/2+1
+!!$         do k=1, l_nk
+!!$            print*, 'SOL_RHS: ',k,Sol_rhs(i,j,k)
+!!$         end do
         return
       else
          call elliptic_rhs2nd ( F_dt_8, k0, k0t )

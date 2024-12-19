@@ -120,6 +120,12 @@
          end do
       end do
 !!$omp enddo nowait
+!!$      i=l_ni/2
+!!$      j=l_nj/2+1
+!!$      do k=1,l_nk+1
+!!$         print*, k,qt0(i,j,k),exp(qt0(i,j,k)/(rgasd_8*Cstv_tstr_8))*1.e5,tt0(i,j,k)
+!!$      end do
+!!$      call gem_stop
 !     
 !     ---------------------------------------------------------------
 !

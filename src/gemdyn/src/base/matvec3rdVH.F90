@@ -16,7 +16,7 @@
 !** matvec - 3D Matrix-vector product
 
       subroutine matvec3rdVH ( F_vector, F_minx,F_maxx,F_miny,F_maxy,&
-                             F_prod  , F_i0,F_in,F_j0,F_jn, F_nk )
+                               F_prod  , F_i0,F_in,F_j0,F_jn, F_nk )
       use geomh
       use dyn_fisl_options
       use HORgrid_options
@@ -79,11 +79,7 @@
       endif
       
       call delQ (ext_q,l_minx,l_maxx,l_miny,l_maxy, Qu,Qv,Qw,Qq,lbound(ext_q,3),ubound(ext_q,3))
-
-      do k= -1, l_nk+2
-     !    print*, 'QT0: ',k,ext_q(l_ni/2,l_nj/2+1,k  )
-      end do
-      
+! out of ext_q, Qw,Qq are empty if Schm_VH_L
       do k= 0, l_nk
          do j= ds_j0, ds_jn
             do i= ds_i0, ds_in
@@ -118,11 +114,6 @@
                              +ext_q(i,j,l_nk+2) * VD3m2t(4,l_nk+1) - mu_8*b1
          end do
       end do
-      i=l_ni/2
-      j=l_nj/2+1
-      do k= -1, l_nk+1
-     !    print*, k,delz(i,j,k)
-      enddo
 
       call gtmg_stop (91)
       call gtmg_start (92, 'MATVEC2', 29 )
@@ -152,9 +143,7 @@
                F_prod(i,j,k)= -gg_8*ext_q(i,j,k) + dxQu + dyQv + gama_8*dzQw &
                               +gama_8*barzQw*(M_logJzq(i,j,k)-epsi_8) &
                               +barxQu*M_logJzu(i,j,k) + baryQv*M_logJzv(i,j,k)
-!if ((i==l_ni/2).and.(j==l_nj/2+1)) write(6,'(a,i3,5(1pe22.12))') 'SOL_LHS: ',k, F_prod(i,j,k)!,-gg_8*ext_q(i,j,k) ,gama_8*dzQw &
-                              !,gama_8*barzQw*(M_logJzq(i,j,k)-epsi_8)
-                           end do
+            end do
          end do
       end do
       deallocate (barz,delz)

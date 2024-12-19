@@ -16,7 +16,7 @@
 !** delQ - Precompute Q hor. and vert. derivatives
 
       subroutine delQ3rdVH ( F_q, F_minx,F_maxx,F_miny,F_maxy, &
-                           F_Qu,F_Qv,F_Qw, F_Qq, F_k0,F_kn )
+                             F_Qu,F_Qv,F_k0,F_kn )
       use geomh
       use HORgrid_options
       use glb_ld
@@ -31,10 +31,10 @@
       real(kind=REAL64), dimension(F_minx:F_maxx,F_miny:F_maxy,F_k0:F_kn),&
                                                     intent(INOUT) :: F_q
       real(kind=REAL64), dimension(F_minx:F_maxx,F_miny:F_maxy,G_nk)     ,&
-                               intent(INOUT) :: F_Qu,F_Qv,F_Qw,F_Qq
+                                              intent(INOUT) :: F_Qu,F_Qv
 
       integer :: HLT_np, HLT_start, HLT_end
-      integer :: i, j, k, ii, km1
+      integer :: i, j, k, ii
       real(kind=REAL64) :: dqx(-1:2), dqy(-1:2), qbz
       real(kind=REAL64) :: u(l_ni,l_nj),v(l_ni,l_nj)
       real(kind=REAL64),dimension(l_minx:l_maxx,l_miny:l_maxy,-1:l_nk+1)::dqdzx,dqdzy
@@ -42,27 +42,42 @@
 !
 !     ---------------------------------------------------------------
 !
-      do k=-1,G_nk
-         km1= max(k-1,-1)
+      do k=0,G_nk
          do j= 1,l_nj
             do i= 1,l_ni
             do ii=-1,2
-                  dqx(ii) = F_q(i+ii,j,km1) * VD3m2t(1,k) & 
+                  dqx(ii) = F_q(i+ii,j,k-1) * VD3m2t(1,k) & 
                           + F_q(i+ii,j,k  ) * VD3m2t(2,k) & 
                           + F_q(i+ii,j,k+1) * VD3m2t(3,k) & 
                           + F_q(i+ii,j,k+2) * VD3m2t(4,k)
 
-                  dqy(ii) = F_q(i,j+ii,km1) * VD3m2t(1,k) & 
+                  dqy(ii) = F_q(i,j+ii,k-1) * VD3m2t(1,k) & 
                           + F_q(i,j+ii,k  ) * VD3m2t(2,k) & 
                           + F_q(i,j+ii,k+1) * VD3m2t(3,k) & 
                           + F_q(i,j+ii,k+2) * VD3m2t(4,k)
                end do
                dqdzx(i,j,k) = Hstag8(dqx(-1), dqx(0), dqx(1), dqx(2))
                dqdzy(i,j,k) = Hstag8(dqy(-1), dqy(0), dqy(1), dqy(2))
-            !   F_Qq(i,j,max(k,1)) = dqx(0)
-            !   if ((i==l_ni/2).and.(j==l_nj/2+1)) print*, k,F_Qq(i,j,max(k,1)),F_q(i+ii,j,km1:k+2)
             end do
          end do
+      end do
+      k= -1
+      do j= 1,l_nj
+      do i= 1,l_ni
+         do ii=-1,2
+            dqx(ii) = F_q(i+ii,j,-1) * VD3m2t(1,k) & 
+                    + F_q(i+ii,j, 0) * VD3m2t(2,k) & 
+                    + F_q(i+ii,j, 1) * VD3m2t(3,k) & 
+                    + F_q(i+ii,j, 2) * VD3m2t(4,k)
+            
+            dqy(ii) = F_q(i,j+ii,-1) * VD3m2t(1,k) & 
+                    + F_q(i,j+ii, 0) * VD3m2t(2,k) & 
+                    + F_q(i,j+ii, 1) * VD3m2t(3,k) & 
+                    + F_q(i,j+ii, 2) * VD3m2t(4,k)
+         end do
+         dqdzx(i,j,k) = Hstag8(dqx(-1), dqx(0), dqx(1), dqx(2))
+         dqdzy(i,j,k) = Hstag8(dqy(-1), dqy(0), dqy(1), dqy(2))
+      end do
       end do
       k= G_nk+1
       do j= 1,l_nj
@@ -94,15 +109,6 @@
                       + dqdzy(i,j,k-1) * VS3t2m(2,k) &  
                       + dqdzy(i,j,k  ) * VS3t2m(3,k) &  
                       + dqdzy(i,j,k+1) * VS3t2m(4,k)
-               !--- remains second order for now ---
-              ! F_Qq(i,j,k)= GVM%mc_iJz_8(i,j,k)*(F_q(i,j,k+1)-F_q(i,j,k))
-              ! qbz        = half*(F_q(i,j,k)+F_q(i,j,k+1))
-!!$               qbz = F_q(i,j,k-1) * VS3m2t(1,k) &
-!!$                   + F_q(i,j,k  ) * VS3m2t(2,k) &
-!!$                   + F_q(i,j,k+1) * VS3m2t(3,k) &
-!!$                   + F_q(i,j,k+2) * VS3m2t(4,k)
-!!$               F_Qw(i,j,k)= F_Qq(i,j,k) - mu_8*qbz
-
                F_Qu(i,j,k)= Hderiv8(F_q(i-1,j,k), F_q(i,j,k), &
                                     F_q(i+1,j,k), F_q(i+2,j,k), geomh_invDX_8(j)) &
                           - GVM%mc_Jx_8(i,j,k) * u(i,j)

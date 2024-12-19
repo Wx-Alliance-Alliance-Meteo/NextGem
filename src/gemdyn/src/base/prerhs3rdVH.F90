@@ -81,10 +81,8 @@
                    +(Ver_ext%m(k+1)+fis0(i,j)/grav_8) * VD3m2t(3,k)&
                    +(Ver_ext%m(k+2)+fis0(i,j)/grav_8) * VD3m2t(4,k)
              F_dq2w(i,j,k) = dq2u(0) / iJzq
-           !  F_dq2w(i,j,k) = M_iJzq(i,j,k)*dq2u(0)
              dqzu(i,j,k)= Hstag8(dq2u(-1),dq2u(0),dq2u(1),dq2u(2)) !values in thermo, u-grid
              dqzv(i,j,k)= Hstag8(dq2v(-1),dq2v(0),dq2v(1),dq2v(2)) !values in thermo, v-grid
-           !  if ((i==l_ni/2).and.(j==L_nj/2+1)) print*, 'allo266: ',k,F_dq2w(i,j,k),dq2u(0)
          end do
          end do
       end do
@@ -106,9 +104,6 @@
                   +(Ver_ext%m( 1)+fis0(i,j)/grav_8) * VD3m2t(3,k)&
                   +(Ver_ext%m( 2)+fis0(i,j)/grav_8) * VD3m2t(4,k)
             F_dq2w(i,j,k) = dq2u(0) / iJzq
-          !  if ((i==l_ni/2).and.(j==L_nj/2+1)) print*, 'allo266: ',k,F_dq2w(i,j,k),dq2u(0)
-          !         F_dq2w(i,j,k) = M_iJzq(i,j,k)*dq2u(0)
-           ! if ((i==l_ni/2).and.(j==L_nj/2+1)) print*, 'allo266: ',k,F_dq2w(i,j,k)
             dqzu(i,j,k)= Hstag8(dq2u(-1),dq2u(0),dq2u(1),dq2u(2)) !values in thermo, u-grid
             dqzv(i,j,k)= Hstag8(dq2v(-1),dq2v(0),dq2v(1),dq2v(2)) !values in thermo, v-grid
           end do
@@ -117,25 +112,20 @@
       do j= 1, l_nj
          do i= 1, l_ni
             do n=-1,2
-               dq2u(n) = ext_q(i+n,j,k-1) * VD3m2t(1,k)&
-                        +ext_q(i+n,j,k  ) * VD3m2t(2,k)&
-                        +ext_q(i+n,j,k+1) * VD3m2t(3,k)&
-                        +ext_q(i+n,j,k+2) * VD3m2t(4,k)
-               dq2v(n) = ext_q(i,j+n,k-1) * VD3m2t(1,k)&
-                        +ext_q(i,j+n,k  ) * VD3m2t(2,k)&
-                        +ext_q(i,j+n,k+1) * VD3m2t(3,k)&
-                        +ext_q(i,j+n,k+2) * VD3m2t(4,k)
+               dq2u(n) = ext_q(i+n,j,-1) * VD3m2t(1,k)&
+                        +ext_q(i+n,j, 0) * VD3m2t(2,k)&
+                        +ext_q(i+n,j, 1) * VD3m2t(3,k)&
+                        +ext_q(i+n,j, 2) * VD3m2t(4,k)
+               dq2v(n) = ext_q(i,j+n,-1) * VD3m2t(1,k)&
+                        +ext_q(i,j+n, 0) * VD3m2t(2,k)&
+                        +ext_q(i,j+n, 1) * VD3m2t(3,k)&
+                        +ext_q(i,j+n, 2) * VD3m2t(4,k)
             end do
             iJzq = (Ver_ext%m(-1)+fis0(i,j)/grav_8) * VD3m2t(1,k)&
                   +(Ver_ext%m( 0)+fis0(i,j)/grav_8) * VD3m2t(2,k)&
                   +(Ver_ext%m( 1)+fis0(i,j)/grav_8) * VD3m2t(3,k)&
                   +(Ver_ext%m( 2)+fis0(i,j)/grav_8) * VD3m2t(4,k)
             F_dq2w(i,j,k) = dq2u(0) / iJzq
-          !  if ((i==l_ni/2).and.(j==L_nj/2+1)) print*, 'allo266: ',k,F_dq2w(i,j,k),dq2u(0)
-          !         F_dq2w(i,j,k) = M_iJzq(i,j,k)*dq2u(0)
-          !  if ((i==l_ni/2).and.(j==L_nj/2+1)) print*, 'allo266: ',k,F_dq2w(i,j,k)
-            !F_dq2w(i,j,k) = M_iJzq(i,j,k)*dq2u(0)
-            !if ((i==l_ni/2).and.(j==L_nj/2+1)) print*, 'allo12: ',k,F_dq2w(i,j,k),M_iJzq(i,j,k)
             dqzu(i,j,k)= Hstag8(dq2u(-1),dq2u(0),dq2u(1),dq2u(2)) !values in thermo, u-grid
             dqzv(i,j,k)= Hstag8(dq2v(-1),dq2v(0),dq2v(1),dq2v(2)) !values in thermo, v-grid
           end do
@@ -158,19 +148,10 @@
                   +(Ver_ext%m(l_nk+1)+fis0(i,j)/grav_8) * VD3m2t(3,k)&
                   +(Ver_ext%m(l_nk+2)+fis0(i,j)/grav_8) * VD3m2t(4,k)
             F_dq2w(i,j,k) = dq2u(0) / iJzq
-          !  if ((i==l_ni/2).and.(j==L_nj/2+1)) print*, 'allo266: ',k,F_dq2w(i,j,k),dq2u(0)
-          !         F_dq2w(i,j,k) = M_iJzq(i,j,k)*dq2u(0)
-          !  if ((i==l_ni/2).and.(j==L_nj/2+1)) print*, 'allo266: ',k,F_dq2w(i,j,k)
-          !  F_dq2w(i,j,k) = M_iJzq(i,j,k)*dq2u(0)
             dqzu(i,j,k)= Hstag8(dq2u(-1),dq2u(0),dq2u(1),dq2u(2)) !values in thermo, u-grid
             dqzv(i,j,k)= Hstag8(dq2v(-1),dq2v(0),dq2v(1),dq2v(2)) !values in thermo, v-grid
           end do
       end do
-      i=l_ni/2
-      j=l_nj/2+1
-      do k= -1, l_nk+1
-!         print*, k,F_dq2w(i,j,k)
-      enddo
       !---now interpolate back to momentum level---
       !Note: dqdzu and dqdzv are already staggered appropriatly from previous loop
       do k=1,l_nk

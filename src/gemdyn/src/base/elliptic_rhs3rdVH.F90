@@ -110,41 +110,7 @@
       call fill_Vhalo (advf,1,l_ni,1,l_nj,lbound(advf,3),ubound(advf,3),1.d0)
       call fill_Vhalo (advw,1,l_ni,1,l_nj,lbound(advw,3),ubound(advw,3),1.d0)
       call fill_Vhalo (advt,1,l_ni,1,l_nj,lbound(advt,3),ubound(advt,3),1.d0)
-      do k= 0, l_nk
-         do j= ds_j0, ds_jn
-            do i= ds_i0, ds_in
-                        b1=  ext_q(i,j,k-1) * VS3m2t(1,k) & 
-                            +ext_q(i,j,k  ) * VS3m2t(2,k) & 
-                            +ext_q(i,j,k+1) * VS3m2t(3,k) & 
-                            +ext_q(i,j,k+2) * VS3m2t(4,k)                      
-               delz(i,j,k)=  ext_q(i,j,k-1) * VD3m2t(1,k) & 
-                            +ext_q(i,j,k  ) * VD3m2t(2,k) & 
-                            +ext_q(i,j,k+1) * VD3m2t(3,k) & 
-                            +ext_q(i,j,k+2) * VD3m2t(4,k) - mu_8*b1
-            end do
-         end do
-      end do
-      do j= ds_j0, ds_jn
-         do i= ds_i0, ds_in
-                      b1= ext_q(i,j,-1) * VS3m2t(1,-1) & 
-                         +ext_q(i,j, 0) * VS3m2t(2,-1) & 
-                         +ext_q(i,j, 1) * VS3m2t(3,-1) & 
-                         +ext_q(i,j, 2) * VS3m2t(4,-1)                      
-            delz(i,j,-1)= ext_q(i,j,-1) * VD3m2t(1,-1) & 
-                         +ext_q(i,j, 0) * VD3m2t(2,-1) & 
-                         +ext_q(i,j, 1) * VD3m2t(3,-1) & 
-                         +ext_q(i,j, 2) * VD3m2t(4,-1) - mu_8*b1
-                      b1= ext_q(i,j,l_nk-1) * VS3m2t(1,l_nk+1) & 
-                         +ext_q(i,j,l_nk  ) * VS3m2t(2,l_nk+1) & 
-                         +ext_q(i,j,l_nk+1) * VS3m2t(3,l_nk+1) & 
-                         +ext_q(i,j,l_nk+2) * VS3m2t(4,l_nk+1)                      
-            delz(i,j,l_nk+1)= ext_q(i,j,l_nk-1) * VD3m2t(1,l_nk+1) & 
-                             +ext_q(i,j,l_nk  ) * VD3m2t(2,l_nk+1) & 
-                             +ext_q(i,j,l_nk+1) * VD3m2t(3,l_nk+1) & 
-                             +ext_q(i,j,l_nk+2) * VD3m2t(4,l_nk+1) - mu_8*b1
-         end do
-      end do
-      
+
       do k=-1, l_nk+1
          do j=1, l_nj
             do i= 1, l_ni
@@ -153,8 +119,44 @@
             end do
          end do
       end do
-      do j= ds_j0, ds_jn
-      do i= ds_i0, ds_in
+      
+!!$      do k= 0, l_nk
+!!$         do j= ds_j0, ds_jn
+!!$            do i= ds_i0, ds_in
+!!$                        b1=  ext_q(i,j,k-1) * VS3m2t(1,k) & 
+!!$                            +ext_q(i,j,k  ) * VS3m2t(2,k) & 
+!!$                            +ext_q(i,j,k+1) * VS3m2t(3,k) & 
+!!$                            +ext_q(i,j,k+2) * VS3m2t(4,k)                      
+!!$               delz(i,j,k)=  ext_q(i,j,k-1) * VD3m2t(1,k) & 
+!!$                            +ext_q(i,j,k  ) * VD3m2t(2,k) & 
+!!$                            +ext_q(i,j,k+1) * VD3m2t(3,k) & 
+!!$                            +ext_q(i,j,k+2) * VD3m2t(4,k) - mu_8*b1
+!!$            end do
+!!$         end do
+!!$      end do
+!!$      do j= ds_j0, ds_jn
+!!$         do i= ds_i0, ds_in
+!!$                      b1= ext_q(i,j,-1) * VS3m2t(1,-1) & 
+!!$                         +ext_q(i,j, 0) * VS3m2t(2,-1) & 
+!!$                         +ext_q(i,j, 1) * VS3m2t(3,-1) & 
+!!$                         +ext_q(i,j, 2) * VS3m2t(4,-1)                      
+!!$            delz(i,j,-1)= ext_q(i,j,-1) * VD3m2t(1,-1) & 
+!!$                         +ext_q(i,j, 0) * VD3m2t(2,-1) & 
+!!$                         +ext_q(i,j, 1) * VD3m2t(3,-1) & 
+!!$                         +ext_q(i,j, 2) * VD3m2t(4,-1) - mu_8*b1
+!!$                      b1= ext_q(i,j,l_nk-1) * VS3m2t(1,l_nk+1) & 
+!!$                         +ext_q(i,j,l_nk  ) * VS3m2t(2,l_nk+1) & 
+!!$                         +ext_q(i,j,l_nk+1) * VS3m2t(3,l_nk+1) & 
+!!$                         +ext_q(i,j,l_nk+2) * VS3m2t(4,l_nk+1)                      
+!!$            delz(i,j,l_nk+1)= ext_q(i,j,l_nk-1) * VD3m2t(1,l_nk+1) & 
+!!$                             +ext_q(i,j,l_nk  ) * VD3m2t(2,l_nk+1) & 
+!!$                             +ext_q(i,j,l_nk+1) * VD3m2t(3,l_nk+1) & 
+!!$                             +ext_q(i,j,l_nk+2) * VD3m2t(4,l_nk+1) - mu_8*b1
+!!$         end do
+!!$      end do
+!!$      
+!!$      do j= ds_j0, ds_jn
+!!$      do i= ds_i0, ds_in
 !!$      k=-1
 !!$      w0= tots(i,j,k)-one
 !!$      w3= invT_8*( logT(i,j,k) - (one-one/tots(i,j,k)) )
@@ -175,11 +177,10 @@
 !!$      w3= invT_8*( logT(i,j,k) - (one-one/tots(i,j,k)) )
 !!$      w4= w0*(delz(i,j,k) - grav_8*(one-one/tots(i,j,k)))
 !!$      advt(i,j,k)= (delz(i,j,k)/gama_bdf_8 + w4)/c + w3
-      end do
-      end do
+!!$      end do
+!!$      end do
       
-!      call prerhs3rdVH (t2u, v2u, t2v, u2v, dqz2u, dqz2v, dqz2w,&
-      call prerhs3rd (t2u, v2u, t2v, u2v, dqz2u, dqz2v, dqz2w,&
+      call prerhs3rdVH (t2u, v2u, t2v, u2v, dqz2u, dqz2v, dqz2w,&
                         l_minx,l_maxx,l_miny,l_maxy,G_nk)
 
       do k=1, l_nk
@@ -244,12 +245,6 @@
 !      Rtt(ds_i0:ds_in,ds_j0:ds_jn,0)= delz(ds_i0:ds_in,ds_j0:ds_jn,0)
 !      Rtt(ds_i0:ds_in,ds_j0:ds_jn,l_nk)= delz(ds_i0:ds_in,ds_j0:ds_jn,l_nk)
 !      Rtt(ds_i0:ds_in,ds_j0:ds_jn,l_nk+1)= delz(ds_i0:ds_in,ds_j0:ds_jn,l_nk+1)
-!!$      do k= -1, l_nk+2
-!!$         print*, 'QT0: ',k,ext_q(l_ni/2,l_nj/2+1,k  )
-!!$      end do
-!!$      do k= -1, l_nk+1
-!!$         print*, k,delz(l_ni/2,l_nj/2+1,k  ),Rtt(l_ni/2,l_nj/2+1,k  )
-!!$      enddo
 
       call HLT_split (1, l_nk, HLT_np, HLT_start, HLT_end)
       call gem_xch_halo_8 ( Ruu(l_minx,l_miny,HLT_start),&
@@ -300,18 +295,14 @@
                   + Rtt(i,j,k-1) * VD3t2m(2,k) & 
                   + Rtt(i,j,k  ) * VD3t2m(3,k) & 
                   + Rtt(i,j,k+1) * VD3t2m(4,k)
-!if ((i==l_ni/2).and.(j==l_nj/2+1)) print*, k,dzrtt,ttbz
 
             ! exact form of eqn 58 in SG notes
             Sol_rhs(i,j,k) = -invT_8*Rqq + dudx + dvdy + invT_8*dzrzz   &
                             + ubx*M_logJzu(i,j,k) + vby*M_logJzv(i,j,k) &
                             + invT_8*M_logJzq(i,j,k)* zzbz + dzrtt      &
                             + ttbz*(M_logJzq(i,j,k) - epsi_8)
-           ! if ((i==l_ni/2).and.(j==L_nj/2+1)) write(6,'(a,i3,4(1pe22.12))') 'SOL_RHS: ',k,Sol_rhs(i,j,k)!,-invT_8*Rqq&
-                           ! , dzrtt      &
-                          !  , ttbz*(M_logJzq(i,j,k) - epsi_8)
 
-                         end do
+         end do
          end do
       end do
       deallocate (ext_t,advf,advw,advt,delz)

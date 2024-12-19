@@ -45,7 +45,7 @@
 !
       if (Schm_VH_L) then
          call delQ3rdVH ( F_q, F_minx,F_maxx,F_miny,F_maxy, &
-                          F_Qu,F_Qv,F_Qw, F_Qq, F_k0,F_kn )
+                          F_Qu,F_Qv, F_k0,F_kn )
          return
       endif
       

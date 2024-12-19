@@ -56,46 +56,43 @@
 
       tau_8 = (2.d0*F_dt_8) / 3.d0 
       invT_8= one/tau_8
-      ext_q=0.
-      ext_q(1:l_ni,1:l_nj,1:l_nk)= Sol_lhs(1:l_ni,1:l_nj,1:l_nk)
-      call fill_Vhalo (ext_q,l_minx,l_maxx,l_miny,l_maxy,lbound(ext_q,3),ubound(ext_q,3),1.d0)
       
-!--extrapolation at the surface and at the lid (k=0 and k=l_nk+1)   
-!!$omp do
-      do j= 1, l_nj
-         do i= 1, l_ni
-            ! pour le moment cette extrapolation ne fonctionne pas
-            ! w5=(GVM%zmom_8(i,j,l_nk+1)-GVM%zmom_8(i,j,l_nk))/(GVM%zmom_8(i,j,l_nk)-GVM%zmom_8(i,j,l_nk-1))
-            ! Sol_lhs(i,j,l_nk+1)= Sol_lhs(i,j,l_nk)*(1+w5) - w5*Sol_lhs(i,j,l_nk-1)
-            ! so we keep the following (from FISL)
-            Sol_lhs(i,j,l_nk+1) = GVM%mc_alfas_H_8(i,j)*Sol_lhs(i,j,l_nk  ) &
-                                - GVM%mc_betas_H_8(i,j)*Sol_lhs(i,j,l_nk-1) &
-                              + GVM%mc_css_H_8  (i,j)* (Rtt(i,j,l_nk)-Ver_wmstar_8(G_nk)*Rtt(i,j,l_nk-1) &
-                              + invT_8*(Rzz(i,j,l_nk)-Ver_wmstar_8(G_nk)*Rzz(i,j,l_nk-1)))
-!            w5= (ver_z_8%m(0)-GVM%zmom_8(i,j,2))/(GVM%zmom_8(i,j,2)-GVM%zmom_8(i,j,1))
-!            Sol_lhs(i,j,0)= Sol_lhs(i,j,2)*(1+w5) -w5*Sol_lhs(i,j,1)
-         enddo
-      enddo
-!!$omp end do
-
-!      call delQ (Sol_lhs, l_minx,l_maxx,l_miny,l_maxy, Qu,Qv,Qw,Qq,0,l_nk+1)
-      call delQ (ext_q,l_minx,l_maxx,l_miny,l_maxy, Qu,Qv,Qw,Qq,lbound(ext_q,3),ubound(ext_q,3))
-         
-!!$omp do collapse(2)
-      do k=1, l_nk+1
+      do k=1, l_nk
          do j= ds_j0, ds_jn
             do i= ds_i0, ds_in
                qt0(i,j,k) = sngl(Sol_lhs(i,j,k))
             end do
          end do
       end do
-!!$omp enddo
+      ext_q=0.
+      ext_q(1:l_ni,1:l_nj,1:l_nk)= Sol_lhs(1:l_ni,1:l_nj,1:l_nk)
+      call fill_Vhalo (ext_q,l_minx,l_maxx,l_miny,l_maxy,lbound(ext_q,3),ubound(ext_q,3),1.d0)
+         
+!!$!--extrapolation at the surface and at the lid (k=0 and k=l_nk+1)   
+!!$!!$omp do
+!!$      do j= 1, l_nj
+!!$         do i= 1, l_ni
+!!$            ! pour le moment cette extrapolation ne fonctionne pas
+!!$            ! w5=(GVM%zmom_8(i,j,l_nk+1)-GVM%zmom_8(i,j,l_nk))/(GVM%zmom_8(i,j,l_nk)-GVM%zmom_8(i,j,l_nk-1))
+!!$            ! Sol_lhs(i,j,l_nk+1)= Sol_lhs(i,j,l_nk)*(1+w5) - w5*Sol_lhs(i,j,l_nk-1)
+!!$            ! so we keep the following (from FISL)
+!!$            Sol_lhs(i,j,l_nk+1) = GVM%mc_alfas_H_8(i,j)*Sol_lhs(i,j,l_nk  ) &
+!!$                                - GVM%mc_betas_H_8(i,j)*Sol_lhs(i,j,l_nk-1) &
+!!$                              + GVM%mc_css_H_8  (i,j)* (Rtt(i,j,l_nk)-Ver_wmstar_8(G_nk)*Rtt(i,j,l_nk-1) &
+!!$                              + invT_8*(Rzz(i,j,l_nk)-Ver_wmstar_8(G_nk)*Rzz(i,j,l_nk-1)))
+!!$!            w5= (ver_z_8%m(0)-GVM%zmom_8(i,j,2))/(GVM%zmom_8(i,j,2)-GVM%zmom_8(i,j,1))
+!!$!            Sol_lhs(i,j,0)= Sol_lhs(i,j,2)*(1+w5) -w5*Sol_lhs(i,j,1)
+!!$         enddo
+!!$      enddo
+!!$!!$omp end do
 
+      call delQ (ext_q,l_minx,l_maxx,l_miny,l_maxy, Qu,Qv,Qw,Qq,lbound(ext_q,3),ubound(ext_q,3))
+         
 !!$omp do collapse(2)
       do k=ds_k0, l_nk
          do j= ds_j0, ds_jn
             do i= ds_i0, l_niu-pil_e
-               ut0(i,j,k) = 0.!tau_8*(Ruu(i,j,k) - Qu(i,j,k))
+          !     ut0(i,j,k) = tau_8*(Ruu(i,j,k) - Qu(i,j,k))
             end do
          end do
          do j= ds_j0, l_njv-pil_n
@@ -105,14 +102,19 @@
          end do
          do j= ds_j0, ds_jn
             do i= ds_i0, ds_in
-               qqq=GVM%mc_iJz_8(i,j,k)*(qt0(i,j,k+1)-qt0(i,j,k))
-               qww=qqq - mu_8*0.5d0*(qt0(i,j,k)+qt0(i,j,k+1))
-             !  wt0 (i,j,k) = tau_8*(Rtt(i,j,k) - gama_bdf_8*qww)
-               wt0 (i,j,k) = 0. !tau_8*(Rtt(i,j,k) - gama_bdf_8*Qw(i,j,k))
+               qqq= qt0(i,j,k-1) * VD3m2t(1,k) & 
+                  + qt0(i,j,k  ) * VD3m2t(2,k) & 
+                  + qt0(i,j,k+1) * VD3m2t(3,k) & 
+                  + qt0(i,j,k+2) * VD3m2t(4,k)
+               qww= qt0(i,j,k-1) * VS3m2t(1,k) &
+                  + qt0(i,j,k  ) * VS3m2t(2,k) &
+                  + qt0(i,j,k+1) * VS3m2t(3,k) &
+                  + qt0(i,j,k+2) * VS3m2t(4,k)
+               qww= qqq - mu_8*qww
+               wt0 (i,j,k) = tau_8*(Rtt(i,j,k) - gama_bdf_8*qww)
                zdt0(i,j,k) = (Rzz(i,j,k) + wt0(i,j,k))
                Buoy = qqq + wt0(i,j,k)*invT_8 - Rww(i,j,k)
-             !  Buoy = Qq(i,j,k) + wt0(i,j,k)*invT_8 - Rww(i,j,k)
-             !  tt0(i,j,k) = Cstv_Tstr_8 / (one - Buoy / grav_8 )
+               tt0(i,j,k) = Cstv_Tstr_8 / (one - Buoy / grav_8 )
 ! or alternatively
 !!$               a = 4.d0*invT_8/3.d0
 !!$               b =      invT_8/3.d0
@@ -123,8 +125,19 @@
             end do
          end do
       end do
-!!$omp enddo nowait
- !        call blocstat (.false.)
+      do j= ds_j0, ds_jn
+         do i= ds_i0, ds_in
+            qt0(i,j,l_nk+1)= (qt0(i,j,l_nk) - grav_8*GVM%zmom_8(i,j,l_nk)) &
+                            - (grav_8*Cstv_tstr_8)*(GVM%zmom_8(i,j,l_nk+1) &
+                            - GVM%zmom_8(i,j,l_nk))/tt0(i,j,l_nk)
+         end do
+      end do
+!!$      i=l_ni/2
+!!$      j=l_nj/2+1
+!!$      do k=1,l_nk+1
+!!$         print*, k,qt0(i,j,k),exp(qt0(i,j,k)/(rgasd_8*Cstv_tstr_8))*1.e5,tt0(i,j,k)
+!!$      end do
+!!$      call gem_stop
 !     
 !     ---------------------------------------------------------------
 !
