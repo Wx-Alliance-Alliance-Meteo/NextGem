@@ -58,10 +58,10 @@
 !
 
       ninjc = 0
-      if (zqutic_L) ninjc = ninj
+!      if (zqutic_L) ninjc = ninj
 
       ninjl = 0
-      if (zqutic_L.or.zcubic_L) ninjl = ninj
+!      if (zqutic_L.or.zcubic_L) ninjl = ninj
 
       ninj1 =     0 + ninjc
       ninj2 = ninj1 + ninjl
