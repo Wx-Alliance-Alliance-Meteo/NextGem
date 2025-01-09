@@ -15,10 +15,8 @@
 
 !** fgmres - Flexible generalized minimum residual method(with restarts).
 
-      subroutine sol_fgmres ( F_print_L )
+      subroutine sol_fgmresVH ( F_print_L )
       use ISO_C_BINDING
-      use dyn_fisl_options
-      use dynkernel_options
       use glb_ld
       use lun
       use sol_mem
@@ -61,28 +59,17 @@
 !
 !     ---------------------------------------------------------------
 !
-      if (Schm_VH_L) then
-         call sol_fgmresVH ( F_print_L )
-         return
-      endif
-
-!!$      do k= 0, l_nk+1
-!!$         call statf_dm (Sol_lhs(l_miny:l_maxx,l_miny:l_maxy,k:k),'LHSb',k,'GMRE',l_minx,l_maxx,&
-!!$         l_miny,l_maxy,1,1,1,1,1,G_ni,G_nj,1,8)
-!!$      end do
-
+!      do k= -3, l_nk+4
+!         call statf_dm (qt0(l_miny:l_maxx,l_miny:l_maxy,k:k),'LHSb',k,&
+!            'GMRE',l_minx,l_maxx,l_miny,l_maxy,1,1,1,1,1,G_ni,G_nj,1,8)
+!      end do
+      
       k0= ds_k0 ; kn= ds_kn
 
       outiter= 0 ; nbiter= 0 ; conv= 0.d0
 
       ! Residual of the initial iterate
-      if(.not.Dynamics_sw_L) then
-         call matvec ( Sol_lhs(l_minx,l_miny,1), l_minx,l_maxx, l_miny,l_maxy,&
-                       work_space, sol_imin,sol_imax,sol_jmin,sol_jmax, l_nk )
-      else
-         call SW_matvec ( Sol_lhs(l_minx,l_miny,1), l_minx,l_maxx, l_miny,l_maxy,&
-                       work_space, sol_imin,sol_imax,sol_jmin,sol_jmax, l_nk )
-      endif
+      call matvec3rdVH ( work_space, sol_imin,sol_imax,sol_jmin,sol_jmax, l_nk, 0 )
 
       !  Compute ||b*b|| to determine the required error for convergence
       local_dot(1)=0.d0
@@ -118,7 +105,9 @@
          Rel_tolerance = sol_fgm_eps * wr0
          conv = residual / wr0
          if (F_print_L) &
-         write(Lun_out, "(3x,'FGMRES convergence at iteration', i4,' relative residual=',1pe14.7)") nbiter, conv
+         write(Lun_out, "(3x,'FGMRES convergence at iteration', i4,&
+                     ' relative residual=',1pe14.7)") nbiter, conv
+
          ! Current guess is a good enough solution
          if (residual < Rel_tolerance) return
 
@@ -154,13 +143,8 @@
                  wint_8(Sol_ii0:Sol_iin,Sol_jj0:Sol_jjn,:,initer) = vv(Sol_ii0:Sol_iin,Sol_jj0:Sol_jjn,:,initer)
             endif
 
-            if(.not.Dynamics_sw_L) then
-                  call matvec (wint_8(sol_ii0,sol_jj0,1,initer),Sol_ii0,Sol_iin,Sol_jj0,Sol_jjn,&
-                       vv(sol_imin,sol_jmin,1,initer+1),Sol_imin,Sol_imax,Sol_jmin,Sol_jmax,l_nk)
-            else
-                  call SW_matvec (wint_8(sol_ii0,sol_jj0,1,initer),Sol_ii0,Sol_iin,Sol_jj0,Sol_jjn,&
-                       vv(sol_imin,sol_jmin,1,initer+1),Sol_imin,Sol_imax,Sol_jmin,Sol_jmax,l_nk)
-            endif
+            kryq(ds_i0:ds_in,ds_j0:ds_jn,1:l_nk)= wint_8(ds_i0:ds_in,ds_j0:ds_jn,1:l_nk,initer)
+            call matvec3rdVH ( vv(sol_imin,sol_jmin,1,initer+1),Sol_imin,Sol_imax,Sol_jmin,Sol_jmax,l_nk, 1)
 
             ! Modified Gram-Schmidt from Świrydowicz et al. (2018)
             v_local_prod  = 0.d0
@@ -303,6 +287,7 @@
             if (F_print_L) &
             write(Lun_out, "(3x,'FGMRES convergence at iteration', i4,' relative residual=',1pe14.7)") nbiter, conv
             if ((initer >= sol_im) .or. (residual <= Rel_tolerance)) exit
+
          end do
 
          ! At this point either the maximum number of inner iterations
@@ -366,4 +351,4 @@
 !     ---------------------------------------------------------------
 !
       return
-      end subroutine sol_fgmres
+      end subroutine sol_fgmresVH

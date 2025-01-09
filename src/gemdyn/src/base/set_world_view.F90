@@ -61,7 +61,9 @@
 !
 !-------------------------------------------------------------------
 !
-      err(:) = 0
+!      Schm_VH_L = .true.
+
+      err(:) = 0!
 
       if (Grd_yinyang_L) then
          Path_ind_S=trim(Path_input_S)//'/MODEL_INPUT/'&

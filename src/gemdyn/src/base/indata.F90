@@ -125,8 +125,10 @@
                               ut1(l_minx,l_miny,1),vt1(l_minx,l_miny,1), &
                            tt1(l_minx,l_miny,1),p0,qt1(l_minx,l_miny,1), &
                          fis0,orols,GVM%zmom_8,GVM%ztht_8,l_minx,l_maxx, &
-          l_miny,l_maxy, G_nk,.not.Inp_zd_L, .not.Inp_w_L, .not.Inp_qt_L )
+                         l_miny,l_maxy, G_nk,.not.Inp_zd_L, .not.Inp_w_L, .not.Inp_qt_L )
+         if (Schm_VH_L) call fillVH ()
       endif
+
       call pressure ( pw_pm_plus,pw_pt_plus,pw_p0_plus,pw_log_pm,&
                       pw_log_pt, pw_pm_plus_8,pw_p0_plus_8      ,&
                       l_minx,l_maxx,l_miny,l_maxy,l_nk,1 )

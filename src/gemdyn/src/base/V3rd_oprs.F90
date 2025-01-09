@@ -17,7 +17,6 @@
 
       subroutine V3rd_oprs ( )
       use, intrinsic :: iso_fortran_env
-      use metric
       use glb_ld
       use ver
       implicit none

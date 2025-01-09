@@ -40,7 +40,7 @@
       real(kind=REAL64), dimension(F_minx:F_maxx,F_miny:F_maxy),        intent(out) :: F_p0_8
 
       integer :: i, j, k, i0,in,j0,jn
-      real(kind=REAL64) :: pres_m, pres_t, log_pt
+      real(kind=REAL64) :: qsfc, log_pt
       real, pointer, dimension(:,:,:) :: qt
 !     
 !---------------------------------------------------------------------
@@ -60,6 +60,17 @@
             end do
          end do
       end do
+      if (Schm_VH_L) then
+         k= l_nk+1
+         do j= j0, jn
+            do i= i0, in
+               qsfc= 0.5d0*(qt(i,j,k-1)+qt(i,j,k))
+               F_pm_8    (i,j,k) = qsfc/(rgasd_8*Cstv_Tstr_8)+GVM%lg_pstar_8(i,j,k)
+               F_log_pm_4(i,j,k) = F_pm_8(i,j,k)
+            end do
+         end do
+      endif
+      
 !!$omp end do
 !!$omp do collapse(2)
       do k=1,l_nk

@@ -48,7 +48,8 @@
       flag_r_n = GMM_FLAG_RSTR+GMM_FLAG_IZER
 
       dimh= (l_maxx-l_minx+1) * (l_maxy-l_miny+1)
-      dim = dimH * 6*(l_nk + 6)
+!      dim = dimH * 6*(l_nk + 6)
+      dim = dimH * (5*(l_nk + 6) + (l_nk + 8))
 
       call gmm_build_meta1D ( mymeta, 1,dim,0,0,dim, &
                               0,GMM_NULL_FLAGS )
@@ -67,14 +68,14 @@
       timlvl2(3)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt2(2*dim+1:)
       timlvl2(4)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt2(3*dim+1:)
       timlvl2(5)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt2(4*dim+1:)
-      timlvl2(6)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt2(5*dim+1:)
+      timlvl2(6)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-3:l_nk+4) => dynt2(5*dim+1:)
 
       istat= gmm_create(gmmk_wt2_s  ,timlvl2(1)%pntr_3d,meta3d_nk3 ,0)
       istat= gmm_create(gmmk_zdt2_s ,timlvl2(2)%pntr_3d,meta3d_nk3 ,0)
       istat= gmm_create(gmmk_ut2_s  ,timlvl2(3)%pntr_3d,meta3d_nk3 ,0)
       istat= gmm_create(gmmk_vt2_s  ,timlvl2(4)%pntr_3d,meta3d_nk3 ,0)
       istat= gmm_create(gmmk_tt2_s  ,timlvl2(5)%pntr_3d,meta3d_nk3 ,0)
-      istat= gmm_create(gmmk_qt2_s  ,timlvl2(6)%pntr_3d,meta3d_nk3, 0)
+      istat= gmm_create(gmmk_qt2_s  ,timlvl2(6)%pntr_3d,meta3d_nk4, 0)
       gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)=gmmk_ut2_s  ; GMM_tbl%ara(gmm_cnt)='UU' ; GMM_tbl%cn(gmm_cnt)='MM' ; GMM_tbl%fst(gmm_cnt)=gmmk_ut2_s
       gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)=gmmk_vt2_s  ; GMM_tbl%ara(gmm_cnt)='VV' ; GMM_tbl%cn(gmm_cnt)='MM' ; GMM_tbl%fst(gmm_cnt)=gmmk_vt2_s
       gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)=gmmk_tt2_s  ; GMM_tbl%ara(gmm_cnt)='QQ' ; GMM_tbl%cn(gmm_cnt)='TH' ; GMM_tbl%fst(gmm_cnt)=gmmk_tt2_s
@@ -87,14 +88,14 @@
       timlvl1(3)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt1(2*dim+1:)
       timlvl1(4)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt1(3*dim+1:)
       timlvl1(5)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt1(4*dim+1:)
-      timlvl1(6)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt1(5*dim+1:)
+      timlvl1(6)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-3:l_nk+4) => dynt1(5*dim+1:)
 
       istat= gmm_create(gmmk_wt1_s  ,timlvl1(1)%pntr_3d,meta3d_nk3 ,0)
       istat= gmm_create(gmmk_zdt1_s ,timlvl1(2)%pntr_3d,meta3d_nk3 ,0)
       istat= gmm_create(gmmk_ut1_s  ,timlvl1(3)%pntr_3d,meta3d_nk3 ,0)
       istat= gmm_create(gmmk_vt1_s  ,timlvl1(4)%pntr_3d,meta3d_nk3 ,0)
       istat= gmm_create(gmmk_tt1_s  ,timlvl1(5)%pntr_3d,meta3d_nk3 ,0)
-      istat= gmm_create(gmmk_qt1_s  ,timlvl1(6)%pntr_3d,meta3d_nk3, 0)
+      istat= gmm_create(gmmk_qt1_s  ,timlvl1(6)%pntr_3d,meta3d_nk4, 0)
       gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)=gmmk_ut1_s  ; GMM_tbl%ara(gmm_cnt)='UU' ; GMM_tbl%cn(gmm_cnt)='MM' ; GMM_tbl%fst(gmm_cnt)=gmmk_ut1_s
       gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)=gmmk_vt1_s  ; GMM_tbl%ara(gmm_cnt)='VV' ; GMM_tbl%cn(gmm_cnt)='MM' ; GMM_tbl%fst(gmm_cnt)=gmmk_vt1_s
       gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)=gmmk_tt1_s  ; GMM_tbl%ara(gmm_cnt)='QQ' ; GMM_tbl%cn(gmm_cnt)='TH' ; GMM_tbl%fst(gmm_cnt)=gmmk_tt1_s
@@ -107,14 +108,14 @@
       timlvl0(3)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt0(2*dim+1:)
       timlvl0(4)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt0(3*dim+1:)
       timlvl0(5)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt0(4*dim+1:)
-      timlvl0(6)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3) => dynt0(5*dim+1:)
+      timlvl0(6)%pntr_3d(l_minx:l_maxx,l_miny:l_maxy,-3:l_nk+4) => dynt0(5*dim+1:)
 
       istat= gmm_create(gmmk_wt0_s  ,timlvl0(1)%pntr_3d,meta3d_nk3 ,0)
       istat= gmm_create(gmmk_zdt0_s ,timlvl0(2)%pntr_3d,meta3d_nk3 ,0)
       istat= gmm_create(gmmk_ut0_s  ,timlvl0(3)%pntr_3d,meta3d_nk3 ,0)
       istat= gmm_create(gmmk_vt0_s  ,timlvl0(4)%pntr_3d,meta3d_nk3 ,0)
       istat= gmm_create(gmmk_tt0_s  ,timlvl0(5)%pntr_3d,meta3d_nk3 ,0)
-      istat= gmm_create(gmmk_qt0_s  ,timlvl0(6)%pntr_3d,meta3d_nk3 ,0)
+      istat= gmm_create(gmmk_qt0_s  ,timlvl0(6)%pntr_3d,meta3d_nk4 ,0)
       gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)=gmmk_ut0_s  ; GMM_tbl%ara(gmm_cnt)='UU' ; GMM_tbl%cn(gmm_cnt)='MM' ; GMM_tbl%fst(gmm_cnt)=gmmk_ut0_s
       gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)=gmmk_vt0_s  ; GMM_tbl%ara(gmm_cnt)='VV' ; GMM_tbl%cn(gmm_cnt)='MM' ; GMM_tbl%fst(gmm_cnt)=gmmk_vt0_s
       gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)=gmmk_tt0_s  ; GMM_tbl%ara(gmm_cnt)='QQ' ; GMM_tbl%cn(gmm_cnt)='TH' ; GMM_tbl%fst(gmm_cnt)=gmmk_tt0_s

@@ -120,9 +120,7 @@
       end do
       end do
 
-
-
-      do k=1,G_nk
+      do k=0,G_nk
          do j=1,l_nj
             do i=1,l_ni
                Jzq = VM3%zmom  (i,j,k-1) * VD3m2t(1,k)&
@@ -134,7 +132,7 @@
             end do
          end do
       end do
-      do k=lbound(VM3%zmom,3),0
+      do k=lbound(VM3%zmom,3),-1
          do j=1,l_nj
             do i=1,l_ni
                Jzq = VM3%zmom  (i,j,k  ) * VD3m2t(1,k)&
@@ -158,7 +156,7 @@
             end do
          end do
       end do
-
+         
       do k=1,G_nk
          do j=1,l_nj
             do i=1,l_ni

@@ -47,6 +47,11 @@
                             l_miny,l_maxy,G_haloy,G_haloy,l_nj, &
                             -2,l_nk+3,0,0,l_nk+6, &
                             0,GMM_NULL_FLAGS)
+      call gmm_build_meta3D(meta3d_nk4, &
+                            l_minx,l_maxx,G_halox,G_halox,l_ni, &
+                            l_miny,l_maxy,G_haloy,G_haloy,l_nj, &
+                            -3,l_nk+4,0,0,l_nk+6, &
+                            0,GMM_NULL_FLAGS)
 
       if (Rstri_rstn_L) istat = gmm_checkpoint_all(GMM_READ_CKPT)
 

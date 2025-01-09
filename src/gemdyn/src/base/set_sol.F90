@@ -48,25 +48,44 @@
 !
       ni=ldnh_maxx-ldnh_minx+1
       nj=ldnh_maxy-ldnh_miny+1
-      call gmm_build_meta4D (meta,&
+      if (Schm_VH_L) then
+         call gmm_build_meta4D (meta,&
+                             l_minx,l_maxx,G_halox,G_halox,l_ni, &
+                             l_miny,l_maxy,G_haloy,G_haloy,l_nj, &
+                             -3,l_nk+4,0,0,l_nk+8,&
+                             0,0,0,0,0,0,GMM_NULL_FLAGS)
+         istat= gmm_create('SOL_LHS',Sol_lhs,meta, GMM_FLAG_RSTR+GMM_FLAG_IZER)
+         Sol_lhs = qt1
+         if ( Grd_yinyang_L) then
+            call yyg_xchng_8 (Sol_lhs, YYG_HALO_q2q,l_minx,l_maxx,l_miny,l_maxy, &
+                           l_ni,l_nj, l_nk+8, .false., 'CUBIC', .true.)
+         else
+            call HLT_split (-3, l_nk+4, local_np, HLT_start, HLT_end)
+            call gem_xch_halo_8 ( Sol_lhs(l_minx,l_miny,HLT_start),l_minx,l_maxx,&
+                               l_miny,l_maxy,local_np,-1 )
+         endif
+      else
+         call gmm_build_meta4D (meta,&
                              l_minx,l_maxx,G_halox,G_halox,l_ni, &
                              l_miny,l_maxy,G_haloy,G_haloy,l_nj, &
                              0,l_nk+1,0,0,l_nk+2,&
                              0,0,0,0,0,0,GMM_NULL_FLAGS)
-      istat= gmm_create('SOL_LHS',Sol_lhs,meta, GMM_FLAG_RSTR+GMM_FLAG_IZER)
-      gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)='SOL_LHS' ; GMM_tbl%ara(gmm_cnt)='QQ' ; GMM_tbl%cn(gmm_cnt)='MM' ; GMM_tbl%fst(gmm_cnt)='SOLS'
-      Sol_lhs(:,:,0)= 0. ; Sol_lhs(:,:,l_nk+1)= 0.
-      do k=1, l_nk
-         Sol_lhs(:,:,k)= qt1(:,:,k)
-      end do
-      if ( Grd_yinyang_L) then
-         call yyg_xchng_8 (Sol_lhs, YYG_HALO_q2q,l_minx,l_maxx,l_miny,l_maxy, &
+         istat= gmm_create('SOL_LHS',Sol_lhs,meta, GMM_FLAG_RSTR+GMM_FLAG_IZER)
+         do k=1, l_nk+1
+            Sol_lhs(:,:,k)= qt1(:,:,k)
+         end do
+         if ( Grd_yinyang_L) then
+            call yyg_xchng_8 (Sol_lhs, YYG_HALO_q2q,l_minx,l_maxx,l_miny,l_maxy, &
                            l_ni,l_nj, l_nk+2, .false., 'CUBIC', .true.)
-      else
-         call HLT_split (0, G_nk+1, local_np, HLT_start, HLT_end)
-         call gem_xch_halo_8 ( Sol_lhs(l_minx,l_miny,HLT_start),l_minx,l_maxx,&
+         else
+            call HLT_split (0, l_nk+1, local_np, HLT_start, HLT_end)
+            call gem_xch_halo_8 ( Sol_lhs(l_minx,l_miny,HLT_start),l_minx,l_maxx,&
                                l_miny,l_maxy,local_np,-1 )
-      endif
+         endif
+      endif                  
+      
+      gmm_cnt=gmm_cnt+1 ; GMM_tbl%vname(gmm_cnt)='SOL_LHS' ; GMM_tbl%ara(gmm_cnt)='QQ' ; GMM_tbl%cn(gmm_cnt)='MM' ; GMM_tbl%fst(gmm_cnt)='SOLS'
+
       allocate (Sol_rhs(ni,nj,l_nk)) ; Sol_rhs= 0.
          
       if (Lun_out > 0) write (Lun_out,1002) trim(Sol_krylov3D_S), trim(Sol_precond3D_S)
@@ -167,15 +186,14 @@
        nj= Sol_jjn-Sol_jj0+1
        allocate (fdg(ni,nj,l_nk),w2_8(ni,nj,l_nk),w3_8(ni,nj,l_nk))
        allocate (vgh_q(l_minx:l_maxx,l_miny:l_maxy,-2:l_nk+3))
-    !   allocate (ext_q(l_minx:l_maxx,l_miny:l_maxy,0:l_nk+1))
-       allocate (ext_q(l_minx:l_maxx,l_miny:l_maxy,-5:l_nk+6))
-                 
+
        allocate (fdg2(l_minx:l_maxx,l_miny:l_maxy,l_nk+1))
 
        work_space= 0.
        wint_8=0.
        vv= 0.
-       ext_q=0. ; fdg2=0.
+       !ext_q=0. ; ext_t=0.
+       fdg2=0.
        thread_s= 0.
        thread_s2= 0.
 
