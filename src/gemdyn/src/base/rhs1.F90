@@ -37,7 +37,7 @@
       integer :: i, j, k, km, kp, n
       real, dimension(:,:,:), pointer :: logT1, logT2
       real(kind=REAL64) :: div, barz, barzp, u_interp, v_interp,&
-               t_interp, w2, w3, w4, invT_8
+               t_interp, w2, w3, w4, invT_8, q1, q2
       real(kind=REAL64), parameter :: one=1.d0, half=0.5d0
 !
 !     ---------------------------------------------------------------
@@ -63,6 +63,7 @@
 ! Compute rhs of terms that will be interpolated               *
 !***************************************************************
 
+      w2= one/(cpd_8*Cstv_Tstr_8)
       w3= half/(cpd_8*Cstv_Tstr_8)
       w4= epsi_8/grav_8
 
@@ -109,6 +110,25 @@
 
         end do
       end do
+      if (Schm_VH_L) then
+         do k= 1, l_nk
+            do j= 1, l_nj
+               do i= 1, l_ni
+                  q1= qt1(i,j,k-1) * VS3m2t(1,k) & 
+                     +qt1(i,j,k  ) * VS3m2t(2,k) & 
+                     +qt1(i,j,k+1) * VS3m2t(3,k) & 
+                     +qt1(i,j,k+2) * VS3m2t(4,k)
+                  q2= qt2(i,j,k-1) * VS3m2t(1,k) & 
+                     +qt2(i,j,k  ) * VS3m2t(2,k) & 
+                     +qt2(i,j,k+1) * VS3m2t(3,k) & 
+                     +qt2(i,j,k+2) * VS3m2t(4,k)
+                  rhst_bdf_t1(i,j,k) =  logT1(i,j,k) - w2*q1
+                  rhst_bdf_t2(i,j,k) =  logT2(i,j,k) - w2*q2
+               end do
+            end do
+         end do
+      endif
+
       do j=1, l_nj
          do i= 1, l_ni
             rhsc_bdf_t1(i,j,l_nk+1) = w4*qt1(i,j,l_nk+1)
@@ -125,4 +145,5 @@
 !     ---------------------------------------------------------------
 !
       return
+      include 'H3rd_ope.inc'
       end subroutine rhs1

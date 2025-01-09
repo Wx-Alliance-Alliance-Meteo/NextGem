@@ -41,7 +41,7 @@
 
       integer :: i, j, k,ni,nj
       integer :: HLT_start, HLT_end, HLT_np
-      real(kind=REAL64) :: w5, tau_8, invT_8, Buoy
+      real(kind=REAL64) :: w5, tau_8, invT_8, Buoy, Qq2,qbz2,Qw2
       real(kind=REAL64), parameter :: one=1.d0
 !
 !     ---------------------------------------------------------------
@@ -80,7 +80,15 @@
 !!$omp end do
 
       call delQ (Sol_lhs, l_minx,l_maxx,l_miny,l_maxy, Qu,Qv,Qw,Qq,0,l_nk+1)
-         
+!!$      print*, 'BAC avant update'
+!!$      i=l_ni/2
+!!$      j=l_nj/2+1
+!!$      do k=1, l_nk
+!!$         Qq2 = GVM%mc_iJz_8(i,j,k)*(qt0(i,j,k+1)-qt0(i,j,k))
+!!$         qbz2= 0.5d0*(qt0(i,j,k)+qt0(i,j,k+1))
+!!$         Qw2= Qq2 - mu_8*qbz2
+!!$         write(6,'(i3,4(1pe14.6))') k,qt0(i,j,k  ),Rtt(i,j,k) , gama_bdf_8*Qw2,abs(Rtt(i,j,k) -gama_bdf_8*Qw2)/abs(Rtt(i,j,k))
+!!$      end do         
 !!$omp do collapse(2)
       do k=1, l_nk+1
          do j= ds_j0, ds_jn
@@ -90,7 +98,15 @@
          end do
       end do
 !!$omp enddo
-
+!!$      print*, 'BAC apres update'
+!!$      i=l_ni/2
+!!$      j=l_nj/2+1
+!!$      do k=1, l_nk
+!!$         Qq2 = GVM%mc_iJz_8(i,j,k)*(qt0(i,j,k+1)-qt0(i,j,k))
+!!$         qbz2= 0.5d0*(qt0(i,j,k)+qt0(i,j,k+1))
+!!$         Qw2= Qq2 - mu_8*qbz2
+!!$         write(6,'(i3,4(1pe14.6))') k,qt0(i,j,k  ),Rtt(i,j,k) , gama_bdf_8*Qw2,abs(Rtt(i,j,k) -gama_bdf_8*Qw2)/abs(Rtt(i,j,k))
+!!$      end do         
 !!$omp do collapse(2)
       do k=ds_k0, l_nk
          do j= ds_j0, ds_jn
@@ -120,12 +136,13 @@
          end do
       end do
 !!$omp enddo nowait
+!!$      print*, 'BAC: u,v,w,t'
 !!$      i=l_ni/2
 !!$      j=l_nj/2+1
-!!$      do k=1,l_nk+1
-!!$         print*, k,qt0(i,j,k),exp(qt0(i,j,k)/(rgasd_8*Cstv_tstr_8))*1.e5,tt0(i,j,k)
+!!$      do k=1,l_nk
+!!$         write(6,'(i3,5(1pe14.6))') k,ut0(i,j,k),vt0(i,j,k),wt0(i,j,k),tt0(i,j,k)
 !!$      end do
-!!$      call gem_stop
+!!$      call blocstat (.false.)
 !     
 !     ---------------------------------------------------------------
 !

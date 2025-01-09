@@ -30,6 +30,7 @@
       use gmm_table
       use gmm_phy
       use mem_tstp
+      use sol_mem
       use psadjust
       use tr3d
       use ver
@@ -215,7 +216,11 @@
                  GVM%mc_cstp_8  (l_minx:l_maxx,l_miny:l_maxy) )
       GVM%mc_cst_8= 0. ; GVM%mc_alfat_8= 0. ; GVM%mc_cstp_8= 0.
 
-      allocate (psadj_thread_sum(1:2,0:OMP_get_max_threads()-1))
+       allocate (ext_q(l_minx:l_maxx,l_miny:l_maxy,-5:G_nk+6))
+       allocate (kryq (l_minx:l_maxx,l_miny:l_maxy,-3:G_nk+4))
+       allocate (ext_t(l_minx:l_maxx,l_miny:l_maxy,-5:G_nk+6))
+
+       allocate (psadj_thread_sum(1:2,0:OMP_get_max_threads()-1))
       psadj_thread_sum= 0.
 
  2000 format( /,'INITIALIZATION OF MAIN GMM VARIABLES S/R MAIN_GMM_STORAGE', &

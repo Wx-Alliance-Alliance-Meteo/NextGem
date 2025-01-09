@@ -161,6 +161,7 @@ contains
       use gmm_geof
       use gmm_pw
       use gmm_vt1
+      use sol_mem
       use tr3d
       use mem_tracers
       use ver
@@ -218,8 +219,21 @@ contains
          pw_uu_plus= 0.0 ; pw_vv_plus= 0.0
          ut1= 0.0 ; vt1= 0.0
 
-         call bubble_data ( pw_tt_plus, l_minx,l_maxx,l_miny,l_maxy,G_nk )
-         do k=1,g_nk+1
+         if (Schm_VH_L) then
+            call bubble_dataVH ()
+            pw_tt_plus(:,:,1:G_nk) = ext_t(:,:,1:G_nk)
+!!$            qt1       (:,:,1:G_nk) = ext_q(:,:,1:G_nk)
+!!$            k=G_nk+1
+!!$            do j= 1-G_haloy, l_nj+G_haloy
+!!$               do i= 1-G_halox, l_ni+G_halox
+!!$                  ex=1.d0-grav_8/(cpd_8*bubble_theta)*Ver_z_8%m(k)
+!!$                  pp=1.d5*ex**(1.d0/cappa_8)
+!!$                  qt1(i,j,k)=rgasd_8*Cstv_Tstr_8*log(pp/1.d5)+grav_8*Ver_z_8%m(k)
+!!$               end do
+!!$            end do
+         else
+            call bubble_data ( pw_tt_plus, l_minx,l_maxx,l_miny,l_maxy,G_nk )
+            do k=1,g_nk+1
             do j= 1-G_haloy, l_nj+G_haloy
                do i= 1-G_halox, l_ni+G_halox
                   ex=1.d0-grav_8/(cpd_8*bubble_theta)*Ver_z_8%m(k)
@@ -227,7 +241,8 @@ contains
                   qt1(i,j,k)=rgasd_8*Cstv_Tstr_8*log(pp/1.d5)+grav_8*Ver_z_8%m(k)
                end do
             end do
-         end do
+            end do
+         endif
 
          err=0
          if ((l_north).and.(l_nj-2*pil_n+1<1)) err=-1
@@ -243,7 +258,7 @@ contains
 
       end if
 
-      call tt2tvirt (tt1(l_minx,l_miny,1), pw_tt_plus, 1,l_ni, 1,l_nj)
+      call tt2tvirt (tt1(l_minx,l_miny,1), pw_tt_plus, 1,l_ni, 1,l_nj)      
 !
 !---------------------------------------------------------------------
 !

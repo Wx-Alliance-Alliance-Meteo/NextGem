@@ -15,8 +15,7 @@
 
 !** matvec - 3D Matrix-vector product
 
-      subroutine matvec3rdVH ( F_vector, F_minx,F_maxx,F_miny,F_maxy,&
-                               F_prod  , F_i0,F_in,F_j0,F_jn, F_nk )
+      subroutine matvec3rdVH ( F_prod,F_i0,F_in,F_j0,F_jn, F_nk, F_flag )
       use geomh
       use dyn_fisl_options
       use HORgrid_options
@@ -26,6 +25,7 @@
       use ldnh
       use metric
       use omp_timing
+      use gmm_vt0
       use sol_mem
       use mem_tstp
       use tdpack
@@ -35,83 +35,94 @@
       use, intrinsic :: iso_fortran_env
       implicit none
 
-      integer, intent(in) :: F_minx,F_maxx,F_miny,F_maxy,F_i0,F_in,F_j0,F_jn,F_nk
-      real(kind=REAL64), dimension(F_minx:F_maxx,F_miny:F_maxy,F_nk), intent(IN ) :: F_vector
-      real(kind=REAL64), dimension(F_i0:F_in,F_j0:F_jn        ,F_nk), intent(OUT) :: F_prod
+      integer, intent(in) :: F_i0,F_in,F_j0,F_jn,F_nk,F_flag
+      real(kind=REAL64), dimension(F_i0:F_in,F_j0:F_jn,F_nk), intent(OUT) :: F_prod
 
-      integer :: i, j, k, kk
+      integer :: i, j, k, kk, ub, dim
       integer :: HLT_np, HLT_start, HLT_end
-      real(kind=REAL64) :: dxQu, dyQv, barxQu, baryQv, barzQw, dzQw, zero_8, d1,d2,d3,d4,b1
-      real(kind=REAL64), parameter :: half=0.5d0
-      real(kind=REAL64), dimension(:,:,:), allocatable :: barz,delz
+      real(kind=REAL64) :: dxQu, dyQv, barxQu, baryQv, barzQw, dzQw,b1,q
+      real(kind=REAL64), parameter :: half=0.5d0, one=1.0d0
+      real(kind=REAL64), dimension(:,:,:), pointer :: dqz2u, dqz2v, dqz2w
 !
 !     ---------------------------------------------------------------
 !
-!      print*, 'F_prod matvec3rdVH'
       call gtmg_start (91, 'MATVEC1', 29 )
-      allocate (barz(l_ni,l_nj,-1:l_nk+1),delz(l_ni,l_nj,-1:l_nk+1))
-
-      ext_q=0.
-      ext_q(ds_i0:ds_in,ds_j0:ds_jn,1:l_nk)= F_vector(ds_i0:ds_in,ds_j0:ds_jn,1:l_nk)
-      call fill_Vhalo (ext_q,l_minx,l_maxx,l_miny,l_maxy,lbound(ext_q,3),ubound(ext_q,3),1.d0)
-
+      matvq => Sol_lhs
+      if ( F_flag > 0 ) then
+      matvq => kryq
+      do k= 0,-3,-1
+      do j= ds_j0, ds_jn
+         do i= ds_i0, ds_in
+            q= (VM3%zmom(i,j,k+1)-VM3%zmom(i,j,k))/(VM3%zmom(i,j,k+2)-VM3%zmom(i,j,k+1))
+            matvq(i,j,k)= (1+q)*matvq(i,j,k+1) - q*matvq(i,j,k+2)
+      end do
+      end do
+      end do
+      do k= l_nk+1, l_nk+4
+      do j= ds_j0, ds_jn
+         do i= ds_i0, ds_in
+            q= (VM3%zmom(i,j,k)-VM3%zmom(i,j,k-1))/(VM3%zmom(i,j,k-1)-VM3%zmom(i,j,k-2))
+            matvq(i,j,k)= (1+q)*matvq(i,j,k-1) - q*matvq(i,j,k-2)
+      end do
+      end do
+      end do
       if ( .not. Grd_yinyang_L) then
          if (l_west) then
             do i=1,pil_w
-               ext_q(i, 1+pil_s:l_nj-pil_s , :) = ext_q(1+pil_w, 1+pil_s:l_nj-pil_s , :)
+               matvq(i, 1+pil_s:l_nj-pil_s , :) = matvq(1+pil_w, 1+pil_s:l_nj-pil_s , :)
             end do
          endif
          if (l_east) then
             do i=l_ni-pil_e+1,l_ni
-               ext_q(i, 1+pil_s:l_nj-pil_s  , :) = ext_q(l_ni-pil_e, 1+pil_s:l_nj-pil_s , :)
+               matvq(i, 1+pil_s:l_nj-pil_s  , :) = matvq(l_ni-pil_e, 1+pil_s:l_nj-pil_s , :)
             end do
          endif
          if (l_south) then
             do j=1,pil_s
-               ext_q(1:l_ni , j , :) = ext_q(1:l_ni, 1+pil_s , :) 
+               matvq(1:l_ni , j , :) = matvq(1:l_ni, 1+pil_s , :) 
             end do
          endif
          if (l_north) then
             do j=l_nj-pil_n+1,l_nj
-               ext_q(1:l_ni, j , :) = ext_q(1:l_ni, l_nj-pil_n , :) 
+               matvq(1:l_ni, j , :) = matvq(1:l_ni, l_nj-pil_n , :) 
             end do
          endif
       endif
+      endif
+
+      !---vertical derivative of q to points u,v,w in rhs---
+      ub=0
+      dim= (l_maxx-l_minx+1)*(l_maxy-l_miny+1)
+      dqz2u (l_minx:l_maxx, l_miny:l_maxy, 1:l_nk) => WS1_8(ub+1:); ub=ub+dim*l_nk
+      dqz2v (l_minx:l_maxx, l_miny:l_maxy, 1:l_nk) => WS1_8(ub+1:); ub=ub+dim*l_nk
+      dqz2w (l_minx:l_maxx, l_miny:l_maxy, -1:l_nk+1) => WS1_8(ub+1:); ub=ub+dim*(l_nk+3)
+
+      call dqdz3rd ( matvq, dqz2u , dqz2v, dqz2w, l_minx,l_maxx,&
+                     l_miny,l_maxy, G_nk, -3, l_nk+4 )
       
-      call delQ (ext_q,l_minx,l_maxx,l_miny,l_maxy, Qu,Qv,Qw,Qq,lbound(ext_q,3),ubound(ext_q,3))
-! out of ext_q, Qw,Qq are empty if Schm_VH_L
       do k= 0, l_nk
          do j= ds_j0, ds_jn
             do i= ds_i0, ds_in
-                        b1=  ext_q(i,j,k-1) * VS3m2t(1,k) & 
-                            +ext_q(i,j,k  ) * VS3m2t(2,k) & 
-                            +ext_q(i,j,k+1) * VS3m2t(3,k) & 
-                            +ext_q(i,j,k+2) * VS3m2t(4,k)                      
-               delz(i,j,k)=  ext_q(i,j,k-1) * VD3m2t(1,k) & 
-                            +ext_q(i,j,k  ) * VD3m2t(2,k) & 
-                            +ext_q(i,j,k+1) * VD3m2t(3,k) & 
-                            +ext_q(i,j,k+2) * VD3m2t(4,k) - mu_8*b1
+               b1=  matvq(i,j,k-1) * VS3m2t(1,k) & 
+                   +matvq(i,j,k  ) * VS3m2t(2,k) & 
+                   +matvq(i,j,k+1) * VS3m2t(3,k) & 
+                   +matvq(i,j,k+2) * VS3m2t(4,k)
+               dqz2w(i,j,k) = dqz2w(i,j,k) - mu_8*b1
             end do
          end do
       end do
       do j= ds_j0, ds_jn
          do i= ds_i0, ds_in
-                      b1= ext_q(i,j,-1) * VS3m2t(1,-1) & 
-                         +ext_q(i,j, 0) * VS3m2t(2,-1) & 
-                         +ext_q(i,j, 1) * VS3m2t(3,-1) & 
-                         +ext_q(i,j, 2) * VS3m2t(4,-1)                      
-            delz(i,j,-1)= ext_q(i,j,-1) * VD3m2t(1,-1) & 
-                         +ext_q(i,j, 0) * VD3m2t(2,-1) & 
-                         +ext_q(i,j, 1) * VD3m2t(3,-1) & 
-                         +ext_q(i,j, 2) * VD3m2t(4,-1) - mu_8*b1
-                      b1= ext_q(i,j,l_nk-1) * VS3m2t(1,l_nk+1) & 
-                         +ext_q(i,j,l_nk  ) * VS3m2t(2,l_nk+1) & 
-                         +ext_q(i,j,l_nk+1) * VS3m2t(3,l_nk+1) & 
-                         +ext_q(i,j,l_nk+2) * VS3m2t(4,l_nk+1)                      
-            delz(i,j,l_nk+1)= ext_q(i,j,l_nk-1) * VD3m2t(1,l_nk+1) & 
-                             +ext_q(i,j,l_nk  ) * VD3m2t(2,l_nk+1) & 
-                             +ext_q(i,j,l_nk+1) * VD3m2t(3,l_nk+1) & 
-                             +ext_q(i,j,l_nk+2) * VD3m2t(4,l_nk+1) - mu_8*b1
+            b1= matvq(i,j,-1) * VS3m2t(1,-1) & 
+               +matvq(i,j, 0) * VS3m2t(2,-1) & 
+               +matvq(i,j, 1) * VS3m2t(3,-1) & 
+               +matvq(i,j, 2) * VS3m2t(4,-1)                      
+            dqz2w(i,j,-1) = dqz2w(i,j,-1) - mu_8*b1
+            b1= matvq(i,j,l_nk-1) * VS3m2t(1,l_nk+1) & 
+               +matvq(i,j,l_nk  ) * VS3m2t(2,l_nk+1) & 
+               +matvq(i,j,l_nk+1) * VS3m2t(3,l_nk+1) & 
+               +matvq(i,j,l_nk+2) * VS3m2t(4,l_nk+1)
+            dqz2w(i,j,l_nk+1) = dqz2w(i,j,l_nk+1) - mu_8*b1
          end do
       end do
 
@@ -122,31 +133,31 @@
          do j= ds_j0, ds_jn
             do i= ds_i0, ds_in
 
-               dxQu = Hderiv8(Qu(i-2,j,k), Qu(i-1,j,k), &
-                              Qu(i  ,j,k), Qu(i+1,j,k), geomh_invDXM_8(j))
+               dxQu = Hderiv8(dqz2u(i-2,j,k), dqz2u(i-1,j,k), &
+                              dqz2u(i  ,j,k), dqz2u(i+1,j,k), geomh_invDXM_8(j))
 
-               dyQv = Hderiv8(Qv(i,j-2,k)*geomh_cyM_8(j-2), &
-                              Qv(i,j-1,k)*geomh_cyM_8(j-1), &
-                              Qv(i,j  ,k)*geomh_cyM_8(j  ), &
-                              Qv(i,j+1,k)*geomh_cyM_8(j+1), &
+               dyQv = Hderiv8(dqz2v(i,j-2,k)*geomh_cyM_8(j-2), &
+                              dqz2v(i,j-1,k)*geomh_cyM_8(j-1), &
+                              dqz2v(i,j  ,k)*geomh_cyM_8(j  ), &
+                              dqz2v(i,j+1,k)*geomh_cyM_8(j+1), &
                               geomh_invDYM_8(j) )
 
-               barxQu = Hstag8(Qu(i-2,j,k), Qu(i-1,j,k),&
-                               Qu(i  ,j,k), Qu(i+1,j,k) )
+               barxQu = Hstag8(dqz2u(i-2,j,k), dqz2u(i-1,j,k),&
+                               dqz2u(i  ,j,k), dqz2u(i+1,j,k) )
 
-               baryQv = Hstag8(Qv(i,j-2,k), Qv(i,j-1,k),&
-                               Qv(i,j  ,k), Qv(i,j+1,k) )
+               baryQv = Hstag8(dqz2v(i,j-2,k), dqz2v(i,j-1,k),&
+                               dqz2v(i,j  ,k), dqz2v(i,j+1,k) )
 
-               dzQw  =  VD3t2m(1,k)*delz(i,j,k-2)+VD3t2m(2,k)*delz(i,j,k-1)+VD3t2m(3,k)*delz(i,j,k)+VD3t2m(4,k)*delz(i,j,k+1)
-               barzQw=  VS3t2m(1,k)*delz(i,j,k-2)+VS3t2m(2,k)*delz(i,j,k-1)+VS3t2m(3,k)*delz(i,j,k)+VS3t2m(4,k)*delz(i,j,k+1)
+               dzQw  =  VD3t2m(1,k)*dqz2w(i,j,k-2)+VD3t2m(2,k)*dqz2w(i,j,k-1)+VD3t2m(3,k)*dqz2w(i,j,k)+VD3t2m(4,k)*dqz2w(i,j,k+1)
+               barzQw=  VS3t2m(1,k)*dqz2w(i,j,k-2)+VS3t2m(2,k)*dqz2w(i,j,k-1)+VS3t2m(3,k)*dqz2w(i,j,k)+VS3t2m(4,k)*dqz2w(i,j,k+1)
                     
-               F_prod(i,j,k)= -gg_8*ext_q(i,j,k) + dxQu + dyQv + gama_8*dzQw &
-                              +gama_8*barzQw*(M_logJzq(i,j,k)-epsi_8) &
-                              +barxQu*M_logJzu(i,j,k) + baryQv*M_logJzv(i,j,k)
+               F_prod(i,j,k)= -gg_8*matvq(i,j,k) + dxQu + dyQv + gama_8*dzQw &
+                              -gama_8*barzQw*epsi_8 &
+                              +barxQu*M_logJzu(i,j,k) + baryQv*M_logJzv(i,j,k)&
+                              +gama_8*barzQw*M_logJzq(i,j,k)
             end do
          end do
       end do
-      deallocate (barz,delz)
 
       call gtmg_stop (92)
 !     
