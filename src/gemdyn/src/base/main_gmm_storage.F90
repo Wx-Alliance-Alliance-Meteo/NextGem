@@ -216,7 +216,11 @@
                  GVM%mc_cstp_8  (l_minx:l_maxx,l_miny:l_maxy) )
       GVM%mc_cst_8= 0. ; GVM%mc_alfat_8= 0. ; GVM%mc_cstp_8= 0.
 
-       allocate (ext_q(l_minx:l_maxx,l_miny:l_maxy,-5:G_nk+6))
+       if(.not.Dynamics_sw_L) then
+         allocate (ext_q(l_minx:l_maxx,l_miny:l_maxy,-5:G_nk+6))
+       else
+         allocate (ext_q(l_minx:l_maxx,l_miny:l_maxy, 0:G_nk+1))
+       endif
        allocate (kryq (l_minx:l_maxx,l_miny:l_maxy,-3:G_nk+4))
        allocate (ext_t(l_minx:l_maxx,l_miny:l_maxy,-5:G_nk+6))
 
