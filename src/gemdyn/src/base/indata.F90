@@ -53,7 +53,8 @@
       if (Lun_out > 0) write (Lun_out,1000)
 
       synthetic_data_L = (Ctrl_theoc_L .or. Ctrl_testcases_L)
-
+      Inp_gtmg= (/82,71/)
+      
       if (synthetic_data_L) then
          call synthetic_data ()
       else
@@ -61,7 +62,7 @@
 
          call get_topo ()
 
-         Inp_src_GZ_L= .false. ; Inp_gtmg= (/82,71/)
+         Inp_src_GZ_L= .false.
          call inp_data (pw_uu_plus,pw_vv_plus,wt1(l_minx,l_miny,1),&
              pw_tt_plus,qt1(l_minx,l_miny,1),zdt1(l_minx,l_miny,1),&
              p0,trt1,fis0,orols,.false.,Step_runstrt_S,&
