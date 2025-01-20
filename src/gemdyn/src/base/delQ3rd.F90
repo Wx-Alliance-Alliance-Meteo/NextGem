@@ -36,7 +36,7 @@
 
       integer :: HLT_np, HLT_start, HLT_end
       integer :: i, j, k, ii, km2,kp1,kp2
-      real(kind=REAL64) :: dqx(-1:2), dqy(-1:2), qbz
+      real(kind=REAL64) :: dqx(-1:2), dqy(-1:2), qbz, Jzqx, Jzqy
       real(kind=REAL64) :: u(l_ni,l_nj),v(l_ni,l_nj)
       real(kind=REAL64),dimension(l_minx:l_maxx,l_miny:l_maxy,0:l_nk)::dqdzx,dqdzy
       real(kind=REAL64), parameter :: half=0.5d0
@@ -64,16 +64,23 @@
          kp2=min(k+2,G_nk+1)
          do j= 1,l_nj
             do i= 1,l_ni
-            do ii=-1,2
+               do ii=-1,2
+                  Jzqx = GVM%zmom_8(i+ii,j,k-1) * CDm2t(1,k)&
+                        +GVM%zmom_8(i+ii,j,k  ) * CDm2t(2,k)&
+                        +GVM%zmom_8(i+ii,j,k+1) * CDm2t(3,k)&
+                        +GVM%zmom_8(i+ii,j,k+2) * CDm2t(4,k)
+                  Jzqy = GVM%zmom_8(i,j+ii,k-1) * CDm2t(1,k)&
+                        +GVM%zmom_8(i,j+ii,k  ) * CDm2t(2,k)&
+                        +GVM%zmom_8(i,j+ii,k+1) * CDm2t(3,k)&
+                        +GVM%zmom_8(i,j+ii,k+2) * CDm2t(4,k)
                   dqx(ii) = F_q(i+ii,j,k-1) * CDm2t(1,k) & 
                           + F_q(i+ii,j,k  ) * CDm2t(2,k) & 
                           + F_q(i+ii,j,k+1) * CDm2t(3,k) & 
-                          + F_q(i+ii,j,kp2) * CDm2t(4,k)
-
+                          + F_q(i+ii,j,kp2) * CDm2t(4,k) / Jzqx
                   dqy(ii) = F_q(i,j+ii,k-1) * CDm2t(1,k) & 
                           + F_q(i,j+ii,k  ) * CDm2t(2,k) & 
                           + F_q(i,j+ii,k+1) * CDm2t(3,k) & 
-                          + F_q(i,j+ii,kp2) * CDm2t(4,k)
+                          + F_q(i,j+ii,kp2) * CDm2t(4,k) / Jzqy
                end do
                dqdzx(i,j,k) = Hstag8(dqx(-1), dqx(0), dqx(1), dqx(2))
                dqdzy(i,j,k) = Hstag8(dqy(-1), dqy(0), dqy(1), dqy(2))

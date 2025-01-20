@@ -21,7 +21,7 @@ subroutine flipit()
    integer i,j,k,m,key1,key2,istat,ip1,ip2,ip3,dltf,ubc,swa,lng
    integer ni,nj,nk,lislon,lislon2,lislon3,cnt2,ipcode,ipkind
    integer err,iun1,iun2,cnt,liste_ip1(50000),liste_ip3(50000),nvar
-   real, dimension (:), allocatable :: wk1
+   real, dimension (:,:), allocatable :: wk1,wk2
    real pcode
    integer fnom,fstouv,fstinl,fstprm,fstluk,exdb,exfin, &
         fstecr,fstfrm,fclos
@@ -78,7 +78,7 @@ subroutine flipit()
    do i=1,nvar
       key1 = FSTINL (IUN1, NI, NJ, NK, -1, ' ', -1,-1,-1, ' ', &
            liste_var(i),liste,lislon,nlis)
-      liste_ip3=0 ; cnt=0
+           liste_ip3=0 ; cnt=0
       do m=1,lislon
          ISTAT= FSTPRM(liste(m), dateo, deet, npas, ni, nj, nk, nbits,&
               datyp, ip1, ip2, ip3, typvar, nomvar, etiket,&
@@ -88,13 +88,13 @@ subroutine flipit()
          cnt= cnt+1
          liste_ip3(cnt)= ip3
       end do
-
       call convip_plus ( ipcode, pcode, ipkind, 0, ' ', .false. )
 
       do j=1,cnt
          key1 = FSTINL (IUN1, NI, NJ, NK, -1, ' ', -1,-1,liste_ip3(j),&
                         ' ',liste_var(i),liste2,lislon2,nlis)
-         allocate(wk1(ni*lislon2))
+         allocate(wk2(ni,lislon2))
+         allocate(wk1(ni,nj))
          call sort_ip1 ( liste2, liste_ip1, lislon2 )
          call convip_plus (liste_ip1(lislon2), pcode, ipkind, -1, ' ', .false. )
          kd=lislon2; kf=1; kp=-1
@@ -102,13 +102,14 @@ subroutine flipit()
          do k=kd,kf,kp
             cnt2=cnt2+1
             key2 = FSTINL (IUN1, NI, NJ, NK, -1, ' ', liste_ip1(k),&
-               -1,liste_ip3(j),' ',liste_var(i),liste3,lislon3,nlis)
-            err = fstluk (wk1((cnt2-1)*ni+1),liste3(1),ni,nj,nk)
+            -1,liste_ip3(j),' ',liste_var(i),liste3,lislon3,nlis)
+            err = fstluk (wk1,liste3(1),ni,nj,nk)
+            wk2(1:ni,cnt2)=wk1(1:ni,nj/2+1)
          end do
-         err = fstecr (wk1,wk1,-nbits,iun2,dateo, deet,&
-              liste_ip3(j),ni,lislon2,1,0,ip2,liste_ip3(j),typvar,nomvar,etiket,&
-              'X', 0,0,0,0, datyp, .false.)
-         deallocate (wk1)
+        err = fstecr (wk2,wk2,-nbits,iun2,dateo, deet,&
+             liste_ip3(j),ni,lislon2,1,0,ip2,liste_ip3(j),typvar,nomvar,etiket,&
+             'X', 0,0,0,0, datyp, .false.)
+         deallocate (wk1,wk2)
       end do
    end do
 
