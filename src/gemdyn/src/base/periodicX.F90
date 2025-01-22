@@ -25,10 +25,10 @@
 
       include 'mpif.h'
       integer i,j,k,n,cnt,tag,err,req
-      real, dimension(max(pil_w,pil_e)*l_nj*l_nk*(6+Tr3d_ntr)) :: buf1,buf2
+      real, dimension(max(pil_w,pil_e)*l_nj*l_nk*(5+Tr3d_ntr)) :: buf1,buf2
 !     
 !----------------------------------------------------------------------
-!     
+!
 !!$omp single
       if (Ptopo_npex==1) then
          
@@ -47,26 +47,21 @@
          do k=1,G_nk
             do j=1,l_nj
                do i=1,pil_w
-                  ut0(i,j,k) = ut0(l_ni-2*pil_e+i-1,j,k)
-                  vt0(i,j,k) = vt0(l_ni-2*pil_e+i,j,k)
-                  tt0(i,j,k) = tt0(l_ni-2*pil_e+i,j,k)
-                  wt0(i,j,k) = wt0(l_ni-2*pil_e+i,j,k)
-                  zdt0(i,j,k)= zdt0(l_ni-2*pil_e+i,j,k)
-                  qt0(i,j,k) = qt0(l_ni-2*pil_e+i,j,k)
-               end do
-               do i=l_ni-pil_e+1,l_ni
-                  ut0(i-1,j,k) = ut0(i-l_ni+2*pil_w,j,k) 
-                  vt0(i,j,k) = vt0(i-l_ni+2*pil_w,j,k) 
-                  tt0(i,j,k) = tt0(i-l_ni+2*pil_w,j,k) 
-                  wt0(i,j,k) = wt0(i-l_ni+2*pil_w,j,k) 
-                  zdt0(i,j,k)= zdt0(i-l_ni+2*pil_w,j,k) 
-                  qt0(i,j,k) = qt0(i-l_ni+2*pil_w,j,k) 
+                  ut0(i,j,k)            = ut0(l_ni-2*pil_e+i,j,k)
+                  ut0(l_ni-pil_e+i,j,k) = ut0(pil_w+i,j,k)
+                  vt0(i,j,k)            = vt0(l_ni-2*pil_e+i,j,k)
+                  vt0(l_ni-pil_e+i,j,k) = vt0(pil_w+i,j,k)
+                  wt0(i,j,k)            = wt0(l_ni-2*pil_e+i,j,k)
+                  wt0(l_ni-pil_e+i,j,k) = wt0(pil_w+i,j,k)
+                  tt0(i,j,k)            = tt0(l_ni-2*pil_e+i,j,k)
+                  tt0(l_ni-pil_e+i,j,k) = tt0(pil_w+i,j,k)
+                  zdt0(i,j,k)            = zdt0(l_ni-2*pil_e+i,j,k)
+                  zdt0(l_ni-pil_e+i,j,k) = zdt0(pil_w+i,j,k)
                end do
             end do
          end do
-
+         
       else
-
          if (Ptopo_mycol==0) then
             cnt=0
             do n=1,Tr3d_ntr
@@ -79,6 +74,7 @@
                   end do
                end do
             end do
+
             do k=1,G_nk
                do j=1,l_nj
                   do i=1+pil_w,2*pil_w
@@ -87,10 +83,10 @@
                      cnt=cnt+1 ; buf1(cnt)= tt0(i,j,k)
                      cnt=cnt+1 ; buf1(cnt)= wt0(i,j,k)
                      cnt=cnt+1 ; buf1(cnt)=zdt0(i,j,k)
-                     cnt=cnt+1 ; buf1(cnt)= qt0(i,j,k)
                   end do
                end do
             end do
+
             tag= 711
             call MPI_isend ( buf1, size(buf1), MPI_REAL, Ptopo_npex-1, tag, COMM_row, req, err )
             tag= 712
@@ -115,7 +111,6 @@
                      cnt=cnt+1 ; tt0(i,j,k)= buf2(cnt)
                      cnt=cnt+1 ; wt0(i,j,k)= buf2(cnt)
                      cnt=cnt+1 ;zdt0(i,j,k)= buf2(cnt)
-                     cnt=cnt+1 ; qt0(i,j,k)= buf2(cnt)
                   end do
                end do
             end do
@@ -142,10 +137,10 @@
                      cnt=cnt+1 ; buf1(cnt)= tt0(i,j,k)
                      cnt=cnt+1 ; buf1(cnt)= wt0(i,j,k)
                      cnt=cnt+1 ; buf1(cnt)=zdt0(i,j,k)
-                     cnt=cnt+1 ; buf1(cnt)= qt0(i,j,k)
                   end do
                end do
             end do
+
             tag= 712
             call MPI_isend ( buf1, size(buf1), MPI_REAL, 0, tag, COMM_row, req, err )
             tag= 711
@@ -170,7 +165,6 @@
                      cnt=cnt+1 ; tt0(i,j,k)= buf2(cnt)
                      cnt=cnt+1 ; wt0(i,j,k)= buf2(cnt)
                      cnt=cnt+1 ;zdt0(i,j,k)= buf2(cnt)
-                     cnt=cnt+1 ; qt0(i,j,k)= buf2(cnt)
                   end do
                end do
             end do
@@ -183,3 +177,88 @@
 !     
       return
       end subroutine periodicX
+      
+      subroutine periodicXQ ()
+      use gmm_vt0
+      use glb_ld
+      use ptopo
+      implicit none
+
+      include 'mpif.h'
+      integer i,j,k,n,cnt,tag,err,req
+   !   real, dimension(max(pil_w,pil_e)*l_nj*(l_nk*(6+Tr3d_ntr)+1)) :: buf1,buf2
+      real, dimension(max(pil_w,pil_e)*l_nj*(l_nk+1)) :: buf1,buf2
+!     
+!----------------------------------------------------------------------
+!
+!!$omp single
+      if (Ptopo_npex==1) then
+         
+         do k=1,G_nk+1
+            do j=1,l_nj
+               do i=1,pil_w
+                  qt0(i,j,k)           = qt0(l_ni-2*pil_e+i,j,k)
+                  qt0(l_ni-pil_e+i,j,k)= qt0(pil_w+i,j,k)
+               end do
+            end do
+         end do
+         
+      else
+         if (Ptopo_mycol==0) then
+            cnt=0
+            do k=1,G_nk+1
+               do j=1,l_nj
+                  do i=1+pil_w,2*pil_w
+                     cnt=cnt+1 ; buf1(cnt)= qt0(i,j,k)
+                  end do
+               end do
+            end do
+
+            tag= 711
+            call MPI_isend ( buf1, size(buf1), MPI_REAL, Ptopo_npex-1, tag, COMM_row, req, err )
+            tag= 712
+            call MPI_recv ( buf2, size(buf2), MPI_REAL, Ptopo_npex-1, tag, COMM_row, MPI_STATUSES_IGNORE, err)
+
+            cnt=0
+            do k=1,G_nk+1
+               do j=1,l_nj
+                  do i=1,pil_w
+                     cnt=cnt+1 ; qt0(i,j,k)= buf2(cnt)
+                  end do
+               end do
+            end do
+            call MPI_waitall (1,req,MPI_STATUSES_IGNORE,err)
+            
+         else if (Ptopo_mycol==Ptopo_npex-1) then
+
+            cnt=0
+            do k=1,G_nk+1
+               do j=1,l_nj
+                  do i=l_ni-2*pil_e+1,l_ni-pil_e
+                     cnt=cnt+1 ; buf1(cnt)= qt0(i,j,k)
+                  end do
+               end do
+            end do
+
+            tag= 712
+            call MPI_isend ( buf1, size(buf1), MPI_REAL, 0, tag, COMM_row, req, err )
+            tag= 711
+            call MPI_recv ( buf2, size(buf2), MPI_REAL, 0, tag, COMM_row, MPI_STATUSES_IGNORE, err)
+
+            cnt=0
+            do k=1,G_nk+1
+               do j=1,l_nj
+                  do i=l_ni-pil_e+1,l_ni
+                     cnt=cnt+1 ; qt0(i,j,k)= buf2(cnt)
+                  end do
+               end do
+            end do
+            call MPI_waitall (1,req,MPI_STATUSES_IGNORE,err)
+         endif
+      endif
+!!$omp end single
+!     
+!----------------------------------------------------------------------
+!     
+      return
+      end subroutine periodicXQ

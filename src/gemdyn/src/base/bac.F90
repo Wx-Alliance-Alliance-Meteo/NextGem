@@ -13,11 +13,10 @@
 ! 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 !---------------------------------- LICENCE END --------------------------------
 
-!**s/r bac - backsubstitution: obtain new values for variables:u,v,w,t,q,zd
-!                              using Sol_lhs
+!**   s/r bac - back substitution: new values for variables:u,v,w,t,q,zd
+!                                  using solver solution Sol_lhs
 
       subroutine bac ( F_dt_8 )
-      use dyn_fisl_options
       use geomh
       use sol_mem
       use HORgrid_options
@@ -28,11 +27,8 @@
       use cstv
       use ver
       use metric
-      use yyg_param
       use ctrl
       use theo_options
-      use glb_pil
-      use ldnh
       use stat_mpi
       use, intrinsic :: iso_fortran_env
       implicit none
@@ -41,7 +37,7 @@
 
       integer :: i, j, k,ni,nj
       integer :: HLT_start, HLT_end, HLT_np
-      real(kind=REAL64) :: w5, tau_8, invT_8, Buoy, Qq2,qbz2,Qw2
+      real(kind=REAL64) :: w5, tau_8, invT_8, Buoy
       real(kind=REAL64), parameter :: one=1.d0
 !
 !     ---------------------------------------------------------------
@@ -60,7 +56,7 @@
 
       tau_8 = (2.d0*F_dt_8) / 3.d0 
       invT_8= one/tau_8
-
+      
 !--extrapolation at the surface and at the lid (k=0 and k=l_nk+1)   
 !!$omp do
       do j= 1, l_nj
@@ -77,18 +73,6 @@
             Sol_lhs(i,j,0)= Sol_lhs(i,j,2)*(1+w5) -w5*Sol_lhs(i,j,1)
          enddo
       enddo
-!!$omp end do
-
-      call delQ (Sol_lhs, l_minx,l_maxx,l_miny,l_maxy, Qu,Qv,Qw,Qq,0,l_nk+1)
-!!$      print*, 'BAC avant update'
-!!$      i=l_ni/2
-!!$      j=l_nj/2+1
-!!$      do k=1, l_nk
-!!$         Qq2 = GVM%mc_iJz_8(i,j,k)*(qt0(i,j,k+1)-qt0(i,j,k))
-!!$         qbz2= 0.5d0*(qt0(i,j,k)+qt0(i,j,k+1))
-!!$         Qw2= Qq2 - mu_8*qbz2
-!!$         write(6,'(i3,4(1pe14.6))') k,qt0(i,j,k  ),Rtt(i,j,k) , gama_bdf_8*Qw2,abs(Rtt(i,j,k) -gama_bdf_8*Qw2)/abs(Rtt(i,j,k))
-!!$      end do         
 !!$omp do collapse(2)
       do k=1, l_nk+1
          do j= ds_j0, ds_jn
@@ -98,6 +82,13 @@
          end do
       end do
 !!$omp enddo
+      if (Theo_periodicX_L) then
+         call periodicXQ ()
+         Sol_lhs(1:l_ni,1:l_nj,1:l_nk+1)= qt0(1:l_ni,1:l_nj,1:l_nk+1)
+      endif
+      
+      call delQ (Sol_lhs, l_minx,l_maxx,l_miny,l_maxy, Qu,Qv,Qw,Qq,0,l_nk+1)
+      
 !!$      print*, 'BAC apres update'
 !!$      i=l_ni/2
 !!$      j=l_nj/2+1
@@ -119,6 +110,8 @@
                vt0(i,j,k) = tau_8*(Rvv(i,j,k) - Qv(i,j,k))
             end do
          end do
+      end do
+      do k=ds_k0, l_nk
          do j= ds_j0, ds_jn
             do i= ds_i0, ds_in
                wt0 (i,j,k) = tau_8*(Rtt(i,j,k) - gama_bdf_8*Qw(i,j,k))
@@ -135,6 +128,9 @@
             end do
          end do
       end do
+      
+      if (Theo_periodicX_L) call periodicX ()
+      
 !!$omp enddo nowait
 !!$      print*, 'BAC: u,v,w,t'
 !!$      i=l_ni/2

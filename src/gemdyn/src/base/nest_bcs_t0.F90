@@ -37,12 +37,9 @@
 !----------------------------------------------------------------------
 !
       if (Theo_periodicX_L) then
-         call periodicX ()
          do k=1,G_nk
-            if (l_north) F_rhsv (1+pil_w:l_ni-pil_e,l_nj-pil_n,k) = F_invT * nest_v(1+pil_w:l_ni-pil_e,l_nj-pil_n,k)
-            if (l_south) F_rhsv (1+pil_w:l_ni-pil_e,pil_s,k) = F_invT * nest_v(1+pil_w:l_ni-pil_e,pil_s,k)
-            if (l_east ) F_rhsu (l_ni-pil_e,1+pil_s:l_nj-pil_n,k) = F_invT * ut0(l_ni-pil_e,1+pil_s:l_nj-pil_n,k)
-            if (l_west ) F_rhsu (pil_w,1+pil_s:l_nj-pil_n,k) = F_invT * ut0(pil_w,1+pil_s:l_nj-pil_n,k)
+            if (l_east ) F_rhsu (l_ni-pil_e:l_ni,1+pil_s:l_nj-pil_n,k) = F_invT * ut0(l_ni-pil_e:l_ni,1+pil_s:l_nj-pil_n,k)
+            if (l_west ) F_rhsu (1:pil_w,1+pil_s:l_nj-pil_n,k) = F_invT * ut0(1:pil_w,1+pil_s:l_nj-pil_n,k)
          end do
       else
 !!$omp do
