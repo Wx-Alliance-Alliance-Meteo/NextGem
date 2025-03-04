@@ -109,23 +109,24 @@
          call SW_adz_main (dt_8,itpc,first_time_L)
          call gtmg_stop (25)
 
-         call gtmg_start (27, 'PRE', 20)
     
          !5. Form rhs using the bdf terms
+         call gtmg_start (27, 'PRE', 20)
          call SW_elliptic_rhs (dt_8, k0, k0t)
+         call gtmg_stop (27)
 
          print_conv = .TRUE.
-         call gtmg_start (29, 'SOL', 20)
 !!$!$omp single
 !!$      call statf_dm (Sol_rhs, 'RHS', 1, 'TSTP', 1,ni,1,nj,1,l_nk,1,1,1,G_ni,G_nj,l_nk,8)
 !!$!$omp end single
 
+         call gtmg_start (29, 'SOL', 20)
          call sol_fgmres (print_conv)
-         
+         call gtmg_stop (29)
+
 !!$!$omp single
 !!$      call statf_dm (Sol_lhs, 'LHS', 1, 'TSTP', 1,ni,1,nj,1,l_nk,1,1,1,G_ni,G_nj,l_nk,8)
 !!$!$omp end single
-         call gtmg_stop (25)
 
          !10.  Back subtitution; same back sub!
          call gtmg_start (30, 'BAC', 20)
