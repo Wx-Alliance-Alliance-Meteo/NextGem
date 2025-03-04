@@ -88,6 +88,7 @@
       if (Grd_yinyang_L) then
          if (.not.synthetic_data_L) call yyg_xchng_hlt (p0, l_minx,l_maxx,l_miny,l_maxy, &
                                                  l_ni,l_nj, 1, .false., 'CUBIC', .true.)
+         call yyg_xchng_hlt (fis0, l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj, 1, .false., 'CUBIC', .true.)
          call yyg_xchng_all()
       else
          call HLT_split (1, 1, local_np, HLT_start, HLT_end)

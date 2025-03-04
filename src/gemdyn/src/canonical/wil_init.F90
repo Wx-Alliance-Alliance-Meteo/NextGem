@@ -211,8 +211,7 @@
 
       if (Williamson_case==1) return
 
-     !if (Williamson_case==5) F_topo(i0:in,j0:jn) = topo_case5(i0:in,j0:jn)*grav_8
-      if (Williamson_case==5) F_topo(i0:in,j0:jn) = topo_case5(i0:in,j0:jn)
+      if (Williamson_case==5) F_topo(i0:in,j0:jn) = topo_case5(i0:in,j0:jn)*grav_8
 
       do k=1,G_nk+1
          do j=j0,jn

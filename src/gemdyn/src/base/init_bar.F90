@@ -31,8 +31,10 @@
       use step_options
       use tdpack
       use tr3d
+      use tdpack
       use ver
       use wil_options
+      use HORgrid_options
       implicit none
 
       !object
@@ -75,7 +77,13 @@
          FI_8= grav_8*Ver_z_8%m(1)
          do k=1,G_nk+1
             qt1(i0:in,j0:jn,k) = (p0(i0:in,j0:jn) - FI_8)/grav_8
+            !qt1(i0:in,j0:jn,k) = 0.d0
          end do
+
+        !Read orography (ME) field from geophysical file
+        call get_topo ()
+        !topo_high is actually ME*grav_8
+        fis0(i0:in,j0:jn) = topo_high(i0:in,j0:jn,1)
 
       end if
 

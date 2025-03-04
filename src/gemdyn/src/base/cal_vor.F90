@@ -88,7 +88,7 @@
       do k = 1 , Nk
          do j = j0, jn
             do i = i0, in
-            h_8=(qt0(i,j,k)-fis0(i,j)+1./Cstv_h0inv_8) 
+            h_8=(qt0(i,j,k)-fis0(i,j)/grav_8+1./Cstv_h0inv_8) 
             sum_8 = sum_8+0.5*F_QQ(i,j,k)**2/h_8 * geomh_area_mask_8(i,j)
             end do
          end do
@@ -103,9 +103,9 @@
       do k = 1 , Nk
          do j = j0, jn
             do i = i0, in
-            h_8 = qt0(i,j,k)-fis0(i,j)+1./Cstv_h0inv_8
+            h_8 = qt0(i,j,k)-fis0(i,j)/grav_8+1./Cstv_h0inv_8
             ht_8 = qt0(i,j,k)+1./Cstv_h0inv_8
-            hs_8 = fis0(i,j)
+            hs_8 = fis0(i,j)/grav_8
             sum_8 = sum_8 + 0.5*(h_8*(F_uu(i,j,k)**2 + F_vv(i,j,k)**2) + &
                             grav_8*(ht_8**2-hs_8**2)) * geomh_area_mask_8(i,j)
             end do
@@ -121,7 +121,7 @@
       do k = 1 , Nk
          do j = j0, jn
             do i = i0, in
-            h_8 = qt0(i,j,k)-fis0(i,j)+1./Cstv_h0inv_8
+            h_8 = qt0(i,j,k)-fis0(i,j)/grav_8+1./Cstv_h0inv_8
             sum_8 = sum_8 + h_8*geomh_area_mask_8(i,j)
             end do
          end do

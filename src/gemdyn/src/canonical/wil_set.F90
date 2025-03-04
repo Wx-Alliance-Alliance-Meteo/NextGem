@@ -40,6 +40,7 @@
       Dcst_omega_8    = omega_8
 
       if (Williamson_case/=5) F_topo_L = .false.
+      if (Williamson_case==7) F_topo_L = .true.
 
       if (Williamson_case/=1.and.Williamson_Terminator_L) then
          F_err = -1
