@@ -27,8 +27,8 @@
 
   Lam_hint_S = 'NEAREST'       ,
 
-  Lam_blend_H = 0              ,
 /
+  Lam_blend_H = 0              ,
 
  &adz_cfgs
   adz_itraj = 3
