@@ -112,13 +112,13 @@
       do k=1, l_nk
          do j= ds_j0, ds_jn
          do i= ds_i0, ds_in
-            Rqq = a*rhsc_mid(i,j,k ) - b*rhsc_dep(i,j,k ) + (1.d0-Cstv_swln_8)*invT_8*fis0(i,j)
+            Rqq = a*rhsc_mid(i,j,k ) - b*rhsc_dep(i,j,k ) + (1.d0-Cstv_swln_8)*invT_8*fis0(i,j)/grav_8
 
             div = (ut0 (i,j,k)- ut0 (i-1,j,k))*geomh_invDXM_8(j)     &
                 + (vt0 (i,j,k)*geomh_cyM_8(j)-vt0 (i,j-1,k)*geomh_cyM_8(j-1))*geomh_invDYM_8(j) 
 
-            Nqq = (1.d0-Cstv_swln_8)*(qt0(i,j,k)-fis0(i,j)) * div &                                                                                         
-                            -Cstv_swln_8*invT_8*(Cstv_h0inv_8*qt0(i,j,k)-log(Cstv_h0inv_8*(qt0(i,j,k)-fis0(i,j))+1.d0))
+            Nqq = (1.d0-Cstv_swln_8)*(qt0(i,j,k)-fis0(i,j)/grav_8) * div &                                                                                         
+                            -Cstv_swln_8*invT_8*(Cstv_h0inv_8*qt0(i,j,k)-log(Cstv_h0inv_8*(qt0(i,j,k)-fis0(i,j)/grav_8)+1.d0))
 
             Rqq = Rqq - Nqq
 
