@@ -21,7 +21,15 @@
       implicit none
 
       integer :: cfl_i(3,3)
-      real(kind=REAL64) :: cfl_8(3)
+      integer :: lip_i(3)
+      real(kind=REAL64) :: cfl_8(3), lip_8
+      integer :: ds_i0,ds_in,ds_j0,ds_jn
+
+      ds_i0= 1   +pil_w
+      ds_in= l_ni-pil_e
+      ds_j0= 1   +pil_s
+      ds_jn= l_nj-pil_n
+
 !
 !     ---------------------------------------------------------------
 !
@@ -38,7 +46,20 @@
                                           cfl_i(3,3),sngl(cfl_8(3))
       if ((cfl_8(1)>Grd_maxcfl).or.(cfl_8(2)>10.).and.(lun_out > 0)) &
                     print*, 'CFL WARNING: Flow is too large for current configuration'
+
+      call adz_lipsch (Adz_wpxyz, ds_i0,ds_in,ds_j0,ds_jn, &
+                        -1,l_ni+2,-1,l_nj+2,Adz_k0,l_nk,cfl_i,cfl_8)
+
+      if (lun_out > 0) write (output_unit,98) 'x,y',cfl_i(1,1),cfl_i(2,1), &
+                                          cfl_i(3,1),sngl(cfl_8(1))
+      if (lun_out > 0) write (output_unit,98) 'z'  ,cfl_i(1,2),cfl_i(2,2), &
+                                          cfl_i(3,2),sngl(cfl_8(2))
+      if (lun_out > 0) write (output_unit,98) '3D' ,cfl_i(1,3),cfl_i(2,3), &
+                                          cfl_i(3,3),sngl(cfl_8(3))
+
  99   format(' MAX COURANT NUMBER:  ', a3,&
+             ': [(',i4,',',i4,',',i4,') ',f12.5,']')
+ 98   format(' MAX LIPSCHITZ NUMBER:  ', a3,&
              ': [(',i4,',',i4,',',i4,') ',f12.5,']')
 !
 !     ---------------------------------------------------------------
@@ -190,3 +211,163 @@
 !
       return
       end subroutine adz_courant
+
+      subroutine adz_lipsch ( F_xyz, i0,in,j0,jn, Minx,Maxx,Miny,Maxy,&
+                               k0, F_nk, F_cfl_i,F_cfl_8 )
+      use glb_ld
+      use ver
+      use cstv
+      use gmm_vt0
+      use geomh
+      use ptopo
+      use, intrinsic :: iso_fortran_env
+      implicit none
+
+      include 'mpif.h'
+
+      integer, intent(in) :: Minx,Maxx,Miny,Maxy,F_nk
+      integer, intent(in) :: i0, in, j0, jn, k0 !Scope
+      real(kind=REAL64)  ::  g1, g2, g3,  half
+      real(kind=REAL64), dimension(Minx:Maxx,Miny:Maxy,F_nk,3), intent(in) :: F_xyz
+      integer, intent(out) :: F_cfl_i(3,3)
+      real(kind=REAL64),  intent(out) :: F_cfl_8(3)
+
+      integer, dimension(3,3,Ptopo_numproc) :: iwk
+      real(kind=REAL64) , dimension(3  ,Ptopo_numproc) :: wk_8
+
+      integer :: i, j, k, cfl_i(3,3), err, iproc, imax,jmax,kmax
+      integer :: imaxH,jmaxH,kmaxH,imaxV,jmaxV,kmaxV
+      real(kind=REAL64)  :: x_cfl, y_cfl, z_cfl, xy_cfl, xyz_cfl, &
+                            Hmax_cfl_8, Vmax_cfl_8, max_cfl_8, cfl_8(3)
+!
+!     ---------------------------------------------------------------
+!
+      imaxH = 0
+      jmaxH = 0
+      kmaxH = 0
+      Hmax_cfl_8 = 0.D0
+      imaxV = 0
+      jmaxV = 0
+      kmaxV = 0
+      Vmax_cfl_8 = 0.D0
+      imax = 0
+      jmax = 0
+      kmax = 0
+      max_cfl_8 = 0.D0
+      half=0.5d0
+      do k=k0,F_nk-1
+         do j=j0,jn
+            do i=i0,in
+                 g1= Cstv_dt_8*geomh_invDX_8(j)
+                 g2= Cstv_dt_8*geomh_invDY_8
+                 g3= Cstv_dt_8/(Ver_z_8%m(k+1)-Ver_z_8%m(k))
+                  x_cfl  = max(half*g1*abs(ut0(i+1,j,k)-ut0(i,j,k)), &
+                               half*g2*abs(ut0(i,j+1,k)-ut0(i,j,k)), &
+                               half*g3*abs(ut0(i,j,k+1)-ut0(i,j,k))   )
+                  y_cfl  = max(half*g1*abs(vt0(i+1,j,k)-vt0(i,j,k)), &
+                               half*g2*abs(vt0(i,j+1,k)-vt0(i,j,k)), &
+                               half*g3*abs(vt0(i,j,k+1)-vt0(i,j,k))   )
+                  z_cfl  = max(half*g1*abs(wt0(i+1,j,k)-wt0(i,j,k)), &
+                               half*g2*abs(wt0(i,j+1,k)-wt0(i,j,k)), &
+                               half*g3*abs(wt0(i,j,k+1)-wt0(i,j,k))   )
+                  xy_cfl =max(x_cfl,y_cfl)
+                  xyz_cfl=max(x_cfl,y_cfl,z_cfl)
+               if (xy_cfl > Hmax_cfl_8) then
+                  imaxH = i
+                  jmaxH = j
+                  kmaxH = k
+                  Hmax_cfl_8 = xy_cfl
+               end if
+               if (z_cfl > Vmax_cfl_8) then
+                  imaxV = i
+                  jmaxV = j
+                  kmaxV = k
+                  Vmax_cfl_8 = z_cfl
+               end if
+               if (xyz_cfl>max_cfl_8) then
+                  imax = i
+                  jmax = j
+                  kmax = k
+                  max_cfl_8=xyz_cfl
+               end if
+            end do
+         end do
+      end do
+      print *, 'x_cfl,y_cfl,z_cfl:',x_cfl,y_cfl,z_cfl
+
+      cfl_8(1)   = Hmax_cfl_8
+      cfl_i(1,1) = imaxH + l_i0 - 1
+      cfl_i(2,1) = jmaxH + l_j0 - 1
+      cfl_i(3,1) = kmaxH
+      cfl_8(2)   = Vmax_cfl_8
+      cfl_i(1,2) = imaxV + l_i0 - 1
+      cfl_i(2,2) = jmaxV + l_j0 - 1
+      cfl_i(3,2) = kmaxV
+      cfl_8(3)   = max_cfl_8
+      cfl_i(1,3) = imax + l_i0 - 1
+      cfl_i(2,3) = jmax + l_j0 - 1
+      cfl_i(3,3) = kmax
+
+      call MPI_gather(cfl_8,3,MPI_DOUBLE_PRECISION,wk_8,3, &
+                           MPI_DOUBLE_PRECISION,0,COMM_GRID, err)
+      call MPI_gather(cfl_i,9,MPI_INTEGER,iwk,9, &
+                           MPI_INTEGER,0,COMM_GRID, err)
+
+      if (Ptopo_myproc == 0) then
+         imax = iwk(1,1,1)
+         jmax = iwk(2,1,1)
+         kmax = iwk(3,1,1)
+         max_cfl_8 = wk_8(1,1)
+         do iproc = 2, Ptopo_numproc
+            if (wk_8(1,iproc)>max_cfl_8) then
+               imax = iwk(1,1,iproc)
+               jmax = iwk(2,1,iproc)
+               kmax = iwk(3,1,iproc)
+               max_cfl_8 = wk_8(1,iproc)
+            end if
+         end do
+         F_cfl_8(1)   = max_cfl_8
+         F_cfl_i(1,1) = imax
+         F_cfl_i(2,1) = jmax
+         F_cfl_i(3,1) = kmax
+
+         imax = iwk(1,2,1)
+         jmax = iwk(2,2,1)
+         kmax = iwk(3,2,1)
+         max_cfl_8 = wk_8(2,1)
+         do iproc = 2, Ptopo_numproc
+            if (wk_8(2,iproc) > max_cfl_8) then
+               imax = iwk(1,2,iproc)
+               jmax = iwk(2,2,iproc)
+               kmax = iwk(3,2,iproc)
+               max_cfl_8 = wk_8(2,iproc)
+            end if
+         end do
+         F_cfl_8(2)   = max_cfl_8
+         F_cfl_i(1,2) = imax
+         F_cfl_i(2,2) = jmax
+         F_cfl_i(3,2) = kmax
+
+         imax = iwk(1,3,1)
+         jmax = iwk(2,3,1)
+         kmax = iwk(3,3,1)
+         max_cfl_8 = wk_8(3,1)
+         do iproc = 2, Ptopo_numproc
+            if (wk_8(3,iproc)>max_cfl_8) then
+               imax = iwk(1,3,iproc)
+               jmax = iwk(2,3,iproc)
+               kmax = iwk(3,3,iproc)
+               max_cfl_8 = wk_8(3,iproc)
+            end if
+         end do
+         F_cfl_8(3)   = max_cfl_8
+         F_cfl_i(1,3) = imax
+         F_cfl_i(2,3) = jmax
+         F_cfl_i(3,3) = kmax
+      end if
+!
+!     ---------------------------------------------------------------
+!
+      return
+      end subroutine adz_lipsch
+
