@@ -238,6 +238,8 @@
                 Outd_var_S(jj,j)(1:4) == 'TD  ') Outd_convadd (jj,j)= -tcdk_8
             if (Outd_var_S(jj,j)(1:4) == 'UU  '.or. &
                 Outd_var_S(jj,j)(1:4) == 'VV  '.or. &
+                Outd_var_S(jj,j)(1:4) == 'S2  '.or. &
+                Outd_var_S(jj,j)(1:4) == 'S3  '.or. &
                 Outd_var_S(jj,j)(1:4) == 'UV  ') Outd_convmult(jj,j)=1.0 / knams_8
          end do
 

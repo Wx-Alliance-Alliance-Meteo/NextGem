@@ -28,11 +28,12 @@
       use VERgrid_options
       use gem_options
       use out_options
-      use step_options
+      use wil_options
       use dyn_fisl_options
       use tdpack
       use glb_ld
       use cstv
+      use step_options
       use out_meta
       use out_mod
       use out3
@@ -85,6 +86,7 @@
       real, dimension(:    ), pointer    :: hybm,hybt,hybt_w
       integer ind0(1) ! One level output
       real hyb0(1),hybt_gnk1(1),hybt_gnk2(1) ! One level output
+      real(kind=REAL64) step_dt_out, factor
 
       real tt (l_minx:l_maxx,l_miny:l_maxy,G_nk+1),&
            hu (l_minx:l_maxx,l_miny:l_maxy,G_nk+1),&
@@ -334,6 +336,23 @@
          end if
          hybt_gnk1(1)=hybt(G_nk+1)
          hybt_gnk2(1)=hybt(G_nk+2)
+
+         if (Williamson_case.eq.3) then
+            step_dt_out = Cstv_dt_8 * Step_kount
+            factor=0.1d0
+            call wil_case3_analy(sw_f1,l_minx,l_maxx,l_miny,l_maxy,l_nk,step_dt_out,factor)
+            call wil_uvcase3_analy(sw_f2,sw_f3,l_minx,l_maxx,l_miny,l_maxy,l_nk,.true.,step_dt_out)
+            do k= 1, G_nk
+             do j= 1,l_nj
+              do i= 1,l_ni
+               sw_f4(i,j,k) = (qt1(i,j,k)+Ver_z_8%m(1))*factor-sw_f1(i,j,k)
+               sw_f5(i,j,k) = ut1(i,j,k)-sw_f2(i,j,k)
+               sw_f6(i,j,k) = vt1(i,j,k)-sw_f3(i,j,k)
+               sw_f7(i,j,k) = geomh_area_mask_8(i,j)
+              end do
+             end do
+            end do
+         endif
 
          if (psl1 /= 0)then
             call out_fstecr(sw_f1,l_minx,l_maxx,l_miny,l_maxy,hybm, &

@@ -82,7 +82,7 @@
 
       integer :: istat,istat1,istat2,istat3,istat4,i,j,k,i0,in,j0,jn
       real, dimension (:,:,:), pointer :: cl,cl2,q1,q2,q3,q4
-      real, dimension (Mminx:Mmaxx,Mminy:Mmaxy) :: topo_case5
+      real, dimension (Mminx:Mmaxx,Mminy:Mmaxy) :: topo_case3,topo_case5
       real, parameter :: CLY_REF = 4.*10.**(-6)
 !
 !---------------------------------------------------------------------
@@ -176,6 +176,13 @@
           call wil_uvcase2 (F_u,F_v,Mminx,Mmaxx,Mminy,Mmaxy,Nk,F_stag_L)
       end if
 
+      !Setup Williamson Case 3: Unsteady solid-body rotation
+      !----------------------------------------------------------------
+      if (Williamson_case==3) then
+          call wil_case3   (F_gz,topo_case3,Mminx,Mmaxx,Mminy,Mmaxy,Nk)
+          call wil_uvcase3 (F_u,F_v,Mminx,Mmaxx,Mminy,Mmaxy,Nk,F_stag_L)
+      end if
+
       !Setup Williamson Case 5: Zonal Flow over an isolated mountain
       !-------------------------------------------------------------
       if (Williamson_case==5) then
@@ -211,6 +218,7 @@
 
       if (Williamson_case==1) return
 
+      if (Williamson_case==3) F_topo(i0:in,j0:jn) = topo_case3(i0:in,j0:jn)*grav_8
       if (Williamson_case==5) F_topo(i0:in,j0:jn) = topo_case5(i0:in,j0:jn)*grav_8
 
       do k=1,G_nk+1
