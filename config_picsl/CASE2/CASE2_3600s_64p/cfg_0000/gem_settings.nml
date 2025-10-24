@@ -1,0 +1,59 @@
+ &grid
+  Grd_typ_S       = 'GY'      , Grd_nj          = 64
+  Grd_overlap     = 2         ,
+  Grd_maxcfl      = 5         ,
+/
+
+ &dyn_kernel
+  Dynamics_sw_L   = .true.
+  Dynamics_swln_L   = .false.
+/
+
+ &step
+  Fcst_end_S     = "120h"
+  Fcst_gstat_s   = '1h'
+  Step_dt        = 3600.
+/
+
+ &adz_cfgs
+  adz_itraj = 3
+  adz_verbose=1,
+/
+
+ &gem_cfgs
+  LCTL_RXSTAT_S   = 'GLB_8',
+/
+
+ &dyn_fisl
+  Cstv_tstr_8     = 105.54     ,
+  Schm_wload_L      = .false.
+/
+
+ &hvdif
+  Hzd_lnr         = .0         ,
+  Vspng_nk        = 0          ,
+/
+
+ &vert_layers
+  hyb_H =    5574.64, 2962.03, 896.39,
+  hyb_rcoef       = 1.,1.      ,
+/
+
+
+ &init_NONE
+  Init_balgm_L    = .false.    , Init_dftr_L     = .false.
+  Init_dfwin_L    = .true.     , Init_dflength_S = '6h'
+  Init_dfpl_S     = '6h'
+/
+
+ &out
+  Out3_etik_s     = "CASE2"    ,
+  Out3_nbitg      = 32         ,
+
+  Out3_close_interval_S= '24h' ,
+  Out3_postproc_fact   = 1     ,
+/
+
+ &williamson
+  Williamson_case = 2, Williamson_alpha = 90.,
+/
