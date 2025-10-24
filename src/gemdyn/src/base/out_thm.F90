@@ -337,7 +337,20 @@
          hybt_gnk1(1)=hybt(G_nk+1)
          hybt_gnk2(1)=hybt(G_nk+2)
 
-         if (Williamson_case.eq.3) then
+         if (Williamson_case.eq.2) then
+            call wil_case2(sw_f1,l_minx,l_maxx,l_miny,l_maxy,l_nk)
+            call wil_uvcase2(sw_f2,sw_f3,l_minx,l_maxx,l_miny,l_maxy,l_nk,.true.)
+            do k= 1, G_nk
+             do j= 1,l_nj
+              do i= 1,l_ni
+               sw_f4(i,j,k) = (qt1(i,j,k)+Ver_z_8%m(1)-sw_f1(i,j,k))*0.1d0
+               sw_f5(i,j,k) = ut1(i,j,k)-sw_f2(i,j,k)
+               sw_f6(i,j,k) = vt1(i,j,k)-sw_f3(i,j,k)
+               sw_f7(i,j,k) = geomh_area_mask_8(i,j)
+              end do
+             end do
+            end do
+         else if (Williamson_case.eq.3) then
             step_dt_out = Cstv_dt_8 * Step_kount
             factor=0.1d0
             call wil_case3_analy(sw_f1,l_minx,l_maxx,l_miny,l_maxy,l_nk,step_dt_out,factor)
