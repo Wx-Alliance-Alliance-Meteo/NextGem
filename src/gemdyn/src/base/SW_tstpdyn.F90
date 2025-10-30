@@ -80,6 +80,7 @@
 
       call gtmg_start (20, 'TSTPDYN', 10)
 
+      call gtmg_start (23, 'DYNINI', 20)
       if (Grd_yinyang_L) then
          call yyg_xchng_vec_uv2uv (ut0(l_minx,l_miny,1), vt0(l_minx,l_miny,1),&
                                    l_minx,l_maxx,l_miny,l_maxy,G_nk)
@@ -91,9 +92,9 @@
       call set_dync (dt_8)
       call set_precon()
 
-
 !2.	Compute bdf terms that will be on rhs for current and previous time levels
       call SW_rhs1(dt_8)
+      call gtmg_stop (23)
 
       if ( .not. Grd_yinyang_L ) then
          call nest_bcs (dt_8,Ruu,Rvv,l_minx,l_maxx,l_miny,l_maxy,l_nk)
@@ -101,8 +102,10 @@
 
       do itpc=1, Schm_itpc
 
+         call gtmg_start (24, 'HALO', 20)
          call gem_xch_halo ( wt0(l_minx,l_miny,HLT_start),&
                     l_minx,l_maxx,l_miny,l_maxy, HLT_np,-1)
+         call gtmg_stop (24)
 
          !4. Perform Semi-Lagrangian advection using standard 3-level displacement
          call gtmg_start (25, 'ADVECTION', 20)
@@ -133,6 +136,7 @@
          call SW_bac (dt_8, i0, j0, k0, in, jn, k0t)
          call gtmg_stop (30)
 
+         call gtmg_start (31, 'YYG', 20)
          if (Grd_yinyang_L) then
             call yyg_xchng_vec_uv2uv (ut0(l_minx,l_miny,1), vt0(l_minx,l_miny,1),&
                                       l_minx,l_maxx,l_miny,l_maxy,G_nk)
@@ -145,9 +149,12 @@
             call yyg_xchng_hlt (wt0(l_minx,l_miny,1), l_minx,l_maxx,l_miny,l_maxy,l_ni,l_nj,&
                             G_nk, .false., 'CUBIC', .false.)
          end if
+         call gtmg_stop (31)
 
+         call gtmg_start (32, 'EXIT', 20)
          !---  check convergence---
          if (picard_stop(dt_8,itpc,print_conv)) exit
+         call gtmg_stop (32)
 
 
       enddo !Picard iter
