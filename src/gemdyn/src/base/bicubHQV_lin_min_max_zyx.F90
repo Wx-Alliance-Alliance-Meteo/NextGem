@@ -46,7 +46,7 @@
       real(kind=REAL64), dimension(0:3), intent(in) :: cx,cy
       real(kind=REAL64), dimension(0:3), intent(in) :: qz
       real(kind=REAL64), dimension(1:2), intent(in) :: lx,ly,lz
-      logical :: zcubic_L
+      logical :: zcubic_L,zqutic_L
       real, intent(out) :: xyz,li,mi,ma
 
       integer :: i, ni2, ni3, ni4, ni5, ninj1, ninj2, ninj3, ninj4, ninj5, ninjc, ninjl
